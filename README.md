@@ -68,4 +68,4 @@
     ระบบย่อย ระบบจัดการนักเรียน (Notification Alert System - Optional)
   </li>
 </ul>
-<img width="14928" height="12392" alt="image" src="https://github.com/user-attachments/assets/f25c957b-bd1d-4fab-8bc0-d6ca219171c8" />
+
