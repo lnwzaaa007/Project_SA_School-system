@@ -33,3 +33,37 @@
 
 โดยทั้งหมดนี้ ระบบต้องสามารถจัดการข้อมูลได้ และต้องระบุได้ว่าผู้ใช้งานคนไหนทำอะไรเพื่อความปลอดภัยและติดตามได้
 </h5>
+
+<h2>ระบบย่อย</h2>
+<ul>
+  <li>
+    ระบบย่อย ระบบแจ้งเตือน/ประกาศ (Notification / Announcement System)
+  </li>
+  <li>
+    ระบบย่อย ระบบจัดการวิชาเรียน (Subject Management System)
+  </li>
+  <li>
+    ระบบย่อย ระบบส่งงาน (Assignment Submission System)
+  </li>
+  <li>
+    ระบบย่อย ระบบชำระเงินออนไลน์ (Online Payment System)
+  </li>
+  <li>
+    ระบบย่อย ระบบจัดการการสมัครเข้าเรียน (Admission Application Management System)
+  </li>
+  <li>
+    ระบบย่อย ระบบจัดการครู (Teacher Management System)
+  </li>
+  <li>
+    ระบบย่อย ระบบตารางสอน/เรียน (Schedule Management System)
+  </li>
+  <li>
+    ระบบย่อย ระบบบันทึกการเข้าเรียน (Attendance System)
+  </li>
+  <li>
+    ระบบย่อย ระบบบันทึกผลการเรียน (Student and Academic Records System)
+  </li>
+  <li>
+    ระบบย่อย ระบบจัดการนักเรียน (Notification Alert System - Optional)
+  </li>
+</ul>
