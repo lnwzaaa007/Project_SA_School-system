@@ -1,3 +1,4 @@
+<img width="128" height="128" alt="image" src="https://github.com/user-attachments/assets/57302e66-0e4c-4933-8442-09456725ed87" />
 <h1>G03  ระบบบริหารจัดการโรงเรียน (School Administration System)</h1>
 <h2>สมาชิก</h2>
 <ol>
