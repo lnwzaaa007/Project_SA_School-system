@@ -8,5 +8,11 @@ type Address struct {
 	gorm.Model
 	Address_Number  string
 	Road string
+
+	ProvinceID uint
+	DistrictID uint
+	SubdistrictID uint
+	ZipcodeID uint
 	
+	Teacher Teacher
 }

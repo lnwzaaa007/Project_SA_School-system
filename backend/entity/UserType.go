@@ -5,5 +5,8 @@ import "gorm.io/gorm"
 
 type UserType struct {
 	gorm.Model
-	Users []Users `gorm:"foreignKey:UserTypeID"`	
+	UserType_Name string
+	UserType_Prefix string
+	
+	Users []Users `gorm:"foreignKey:UsersID"`	
 }

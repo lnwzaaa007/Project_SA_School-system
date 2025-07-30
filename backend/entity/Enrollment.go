@@ -5,18 +5,20 @@ import (
 	"gorm.io/gorm"
 	"time"
 )
+
+
 type Enrollment struct {
 	gorm.Model
-	TitleTH  string
+	TitleTH  TitleNameTH
 	TFirst_Name string
 	TLast_Name    string
-	TitleENG string
+	TitleENG TitleNameENG
 	EFirst_Name string
 	ELast_Name    string
 	Citizen_ID string
 	Tel string
 	DateOfBirth time.Time
-	Gener string
+	Gener Genertype
 	Nationality string
 	Email string
 	Religious string
@@ -27,4 +29,9 @@ type Enrollment struct {
 	Household_Registration_Certificate []byte
 	Copy_Citizen_ID []byte
 	Student_image []byte
+
+	Admin_UserID *uint
+	Admin_User   Admin_User `gorm:"foriegnKey:Admin_UserID"`
+
+	Announcement []Announcement `gorm:"foreignKey:AnnouncementID"`
 }
