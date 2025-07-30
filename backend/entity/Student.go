@@ -24,14 +24,19 @@ type Student struct {
 	Religious string
 	Student_image []byte
 	
-
-	Users Users
-
-
-	
 	Attendances []Attendances `gorm:"foreignKey:StudentID"`
 
 	GuardianStudent []GuardianStudent `gorm:"foreignKey:StudentID"`
+
+	StudentRecords []StudentRecords `gorm:"foreignKey:StudentID"`
+
+	EducationRecords []EducationRecords `gorm:"foreignKey:StudentID"`
+
+	Users []Users `gorm:"foreignKey:StudentID"`
+	
+	AssignmentSubmit []AssignmentSubmit `gorm:"foreignKey:StudentID"`
+
+	Bill []Bill `gorm:"foreignKey:StudentID"`
 
 	AddressID uint
 
