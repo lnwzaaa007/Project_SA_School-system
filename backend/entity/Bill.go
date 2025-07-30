@@ -9,7 +9,7 @@ type Bill struct {
 
 
 	TermID	*uint
-	Term Term `gorm:"foriengKey:TermID"`
+	Term Term `gorm:"foreignKey:TermID"`
 
 	StudentID *uint `json:"Student_id"`
 	Student Student `gorm:"foreignKey:StudentID" json:"Student"`

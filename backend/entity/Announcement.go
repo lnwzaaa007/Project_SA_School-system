@@ -13,13 +13,16 @@ type Announcement struct {
 	Content 		string
 	Status 			string
 	
-	GroupID *uint
-	Target_Group Target_Group `gorm:"foreignKey:GroupID"`
+	TargetGroupID *uint
+    TargetGroup   TargetGroup `gorm:"foreignKey:TargetGroupID"`
 
 	AdminID *uint
-	Admin_User Admin_User `gorm:"foreignKey:AdminID"`
+	AdminUser   AdminUser `gorm:"foreignKey:AdminID"`
 
 	TermID *uint
-	Term Term `gorm:"foreignKey:TermID"`
-	
+	Term   Term `gorm:"foreignKey:TermID"`
+
+	EnrollmentID *uint
+	Enrollment   Enrollment `gorm:"foreignKey:EnrollmentID"`
+
 }

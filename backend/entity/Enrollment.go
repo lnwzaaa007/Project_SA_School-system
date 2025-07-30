@@ -31,7 +31,7 @@ type Enrollment struct {
 	Student_image []byte
 
 	AdminID *uint
-	Admin_User   Admin_User `gorm:"foriegnKey:AdminID"`
-
+	AdminUser   AdminUser `gorm:"foreignKey:AdminID"`
+	
 	Announcement []Announcement `gorm:"foreignKey:EnrollmentID"`
 }

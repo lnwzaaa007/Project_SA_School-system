@@ -11,19 +11,19 @@ type Attendances struct {
 	Note string
 	
 	AttendanceStatusID *uint
-	AttendanceStatus   AttendanceStatus `gorm:"foriegnKey:AttendanceStatusID"`
+	AttendanceStatus   AttendanceStatus `gorm:"foreignKey:AttendanceStatusID"`
 
 	SchedulesID *uint
-	Schedules   Schedules `gorm:"foriegnKey:SchedulesID"`
+	Schedules   Schedules `gorm:"foreignKey:SchedulesID"`
 
 	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	Student   Student `gorm:"foreignKey:StudentID"`
 
 	TeacherID *uint
-	Teacher   Teacher `gorm:"foriegnKey:TeacherID"`
+	Teacher   Teacher `gorm:"foreignKey:TeacherID"`
 
 	GradeID *uint
-	Grade     Grade `gorm:"foriegnKey:GradeID"`
+	Grade     Grade `gorm:"foreignKey:GradeID"`
 
 	
 }

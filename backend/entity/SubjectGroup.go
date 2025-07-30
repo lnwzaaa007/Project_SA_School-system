@@ -3,7 +3,7 @@ package entity
 
 import "gorm.io/gorm"
 
-type Subject_Group struct{
+type SubjectGroup struct{
 	gorm.Model
 	SubjectGroup_Name	string
 

@@ -3,7 +3,7 @@ package entity
 
 import "gorm.io/gorm"
 
-type Target_Group struct{
+type TargetGroup struct{
 	gorm.Model
 	Group_name	string
 

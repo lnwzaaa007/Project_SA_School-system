@@ -9,10 +9,10 @@ type StudentRecords struct {
 	gorm.Model
 	
 	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	Student   Student `gorm:"foreignKey:StudentID"`
 
 	
 	EducationRecordsID *uint
-	EducationRecords EducationRecords `gorm:"foriegnKey:EducationRecordsID"`
+    EducationRecords   EducationRecords `gorm:"foreignKey:EducationRecordsID"`
 
 }

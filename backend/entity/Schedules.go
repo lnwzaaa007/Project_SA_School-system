@@ -15,16 +15,16 @@ type Schedules struct {
 	Attendances []Attendances `gorm:"foreignKey:SchedulesID"`
 
 	TeacherID *uint
-	Teacher   Teacher `gorm:"foriegnKey:TeacherID"`
+	Teacher   Teacher `gorm:"foreignKey:TeacherID"`
 
 	CourseID *uint
-	Course     Course `gorm:"foriegnKey:CourseID"`
+	Course     Course `gorm:"foreignKey:CourseID"`
 
 	GradeID *uint
-	Grade     Grade `gorm:"foriegnKey:GradeID"`
+	Grade     Grade `gorm:"foreignKey:GradeID"`
 
 	TermID *uint
-	Term     Term `gorm:"foriegnKey:TermID"`
+	Term     Term `gorm:"foreignKey:TermID"`
 
 	
 

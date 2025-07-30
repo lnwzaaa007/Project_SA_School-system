@@ -9,8 +9,10 @@ type Users struct {
 
 	TeacherID uint
 	StudentID uint
-	Admin_UserID uint 
+
+	AdminID *uint
+	AdminUser   AdminUser `gorm:"foreignKey:AdminID"`
 
 	UserTypeID *uint
-	UserType   UserType `gorm:"foriegnKey:UserTypeID"`
+	UserType   UserType `gorm:"foreignKey:UserTypeID"`
 }

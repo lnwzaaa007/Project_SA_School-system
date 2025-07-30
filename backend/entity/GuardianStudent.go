@@ -11,8 +11,8 @@ type GuardianStudent struct {
 	
 
 	GuardianID *uint
-	Guardian   Guardian `gorm:"foriegnKey:GuardianID"` 
+	Guardian   Guardian `gorm:"foreignKey:GuardianID"` 
 
 	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	Student   Student `gorm:"foreignKey:StudentID"`
 }

@@ -10,7 +10,7 @@ type Zipcode struct {
 	Zipcode_name string
 
 	SubdistrictID *uint
-	Subdistrict   Subdistrict `gorm:"foriegnKey:SubdistrictID"`
+	Subdistrict   Subdistrict `gorm:"foreignKey:SubdistrictID"`
 
 	Address Address
 }
