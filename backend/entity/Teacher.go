@@ -56,6 +56,9 @@ type Teacher struct {
 
 	Users Users
 
-	Schedules []Schedules `gorm:"foreignKey:SchedulesID"`
+	Schedules []Schedules `gorm:"foreignKey:TeacherID"`
 
+	Grade Grade
+
+	Course []Course `gorm:"foreignKey:TeacherID"`
 }

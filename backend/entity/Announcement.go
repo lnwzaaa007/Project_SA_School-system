@@ -7,10 +7,19 @@ import (
 )
 type Announcement struct {
 	gorm.Model
-	Announcement_Title  	string
-	Announcement_Date 		time.Time
-	Announcement_Time   	time.Time
-	Announcement_Text 		string
-	Announcement_Status 	string
+	Title  			string
+	Create_Date 	time.Time
+	Create_Time  	time.Time
+	Content 		string
+	Status 			string
+	
+	Group_ID *uint
+	Target_Group Target_Group `gorm:"foreignKey:Group_ID"`
+
+	Admin_ID *uint
+	Admin_User Admin_User `gorm:"foreignKey:Admin_ID"`
+
+	Term_ID *uint
+	Term Term `gorm:"foreignKey:Term_ID"`
 	
 }

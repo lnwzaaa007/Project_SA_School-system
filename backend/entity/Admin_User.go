@@ -17,4 +17,6 @@ type Admin_User struct {
 	Enrollment []Enrollment `gorm:"foreignKey:EnrollmentID"`
 
 	Users Users
+
+	Announcement []Announcement `gorm:"foreignKey:Admin_ID"`
 }
