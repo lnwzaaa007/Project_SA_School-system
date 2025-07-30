@@ -2,7 +2,7 @@ package config
 
 import (
    "fmt"
-   "github.com/lnwzaaa007/Project_SA_School-system/entity"
+   "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
    "gorm.io/driver/sqlite"
    "gorm.io/gorm"
 )
