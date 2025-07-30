@@ -1,1 +1,16 @@
-//รหัสไปรษณีณ์
+//รหัสไปรษณีย์
+
+package entity
+
+import (
+	"gorm.io/gorm"
+)
+type Zipcode struct {
+	gorm.Model
+	Zipcode_name string
+
+	SubdistrictID *uint
+	Subdistrict   Subdistrict `gorm:"foriegnKey:SubdistrictID"`
+
+	Address Address
+}
