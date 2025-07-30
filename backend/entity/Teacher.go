@@ -52,7 +52,7 @@ type Teacher struct {
 	Qualification_image []byte
 
 	AddressID uint
-	Users Users
+	Users Users 
 
 	Schedules []Schedules `gorm:"foreignKey:TeacherID"`
 
@@ -60,7 +60,7 @@ type Teacher struct {
 	Attendances []Attendances `gorm:"foreignKey:TeacherID"`
 
 
-	Grade Grade
+	Grade Grade 
 
 	Course []Course `gorm:"foreignKey:TeacherID"`
 }

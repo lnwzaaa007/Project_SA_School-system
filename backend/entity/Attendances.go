@@ -10,20 +10,20 @@ type Attendances struct {
 	Attendances_Date time.Time
 	Note string
 	
-	AttendanceStatusID *uint
-	AttendanceStatus   AttendanceStatus `gorm:"foriegnKey:AttendanceStatusID"`
+	AttendanceStatusID uint
+	AttendanceStatus   *AttendanceStatus `gorm:"foreignKey:AttendanceStatusID"`
 
-	SchedulesID *uint
-	Schedules   Schedules `gorm:"foriegnKey:SchedulesID"`
+	SchedulesID uint
+	Schedules   *Schedules `gorm:"foreignKey:SchedulesID"`
 
-	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	StudentID uint
+	Student   *Student `gorm:"foreignKey:StudentID"`
 
-	TeacherID *uint
-	Teacher   Teacher `gorm:"foriegnKey:TeacherID"`
+	TeacherID uint
+	Teacher   *Teacher `gorm:"foreignKey:TeacherID"`
 
-	GradeID *uint
-	Grade     Grade `gorm:"foriegnKey:GradeID"`
+	GradeID uint
+	Grade   *Grade `gorm:"foreignKey:GradeID"`
 
 	
 }

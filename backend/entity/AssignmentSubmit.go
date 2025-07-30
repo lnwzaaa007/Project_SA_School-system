@@ -24,20 +24,20 @@ type AssignmentSubmit struct {
 	Submit_status 			Submit_status
 
 	
-	GradeID *uint
-	Grade   Grade `gorm:"foriegnKey:GradeID"`
+	GradeID uint
+	Grade   *Grade `gorm:"foreignKey:GradeID"`
 
-	CourseID *uint
-	Course   Course `gorm:"foriegnKey:CourseID"`
-
-	
-	TeacherID *uint
-	Teacher Teacher `gorm:"foriegnKey:TeacherID"`
+	CourseID uint
+	Course   *Course `gorm:"foreignKey:CourseID"`
 
 	
-	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	TeacherID uint
+	Teacher *Teacher `gorm:"foreignKey:TeacherID"`
 
-	EducationRecordsRecords []EducationRecords `gorm:"foreignKey:EducationRecordID"`
+	
+	StudentID uint
+	Student   *Student `gorm:"foreignKey:StudentID"`
+
+	EducationRecords []EducationRecords `gorm:"foreignKey:AssignmentSubmitID"`
 
 }

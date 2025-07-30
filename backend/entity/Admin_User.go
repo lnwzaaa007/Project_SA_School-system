@@ -13,6 +13,7 @@ type Admin_User struct {
 	ELast_Name    string
 	Tel string
 	Email string
+	
 	Users Users
 
 	Enrollment []Enrollment `gorm:"foreignKey:AdminID"`

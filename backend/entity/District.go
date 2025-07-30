@@ -9,10 +9,10 @@ type District struct {
 	gorm.Model
 	District_name string
 	
-	Subdistrict []Subdistrict `gorm:"foreignKey:SubdistrictID"`
+	Subdistrict []Subdistrict `gorm:"foreignKey:DistrictID"`
 
-	ProvinceID *uint
-	Province   Province `gorm:"foriegnKey:ProvinceID"`
+	ProvinceID uint
+	Province   *Province `gorm:"foreignKey:ProvinceID"`
 
-	Address Address
+	Address Address 
 }

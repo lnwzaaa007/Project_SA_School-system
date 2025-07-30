@@ -30,8 +30,8 @@ type Enrollment struct {
 	Copy_Citizen_ID []byte
 	Student_image []byte
 
-	AdminID *uint
-	Admin_User   Admin_User `gorm:"foriegnKey:AdminID"`
+	AdminID uint
+	Admin_User   *Admin_User `gorm:"foreignKey:AdminID"`
 
 	Announcement []Announcement `gorm:"foreignKey:EnrollmentID"`
 }
