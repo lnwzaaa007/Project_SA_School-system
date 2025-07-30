@@ -12,4 +12,5 @@ type Course struct{
 	Class_in_week 	int
 	Hours_of_term 	int
 
+	Schedules []Schedules `gorm:"foreignKey:CourseID"`
 }

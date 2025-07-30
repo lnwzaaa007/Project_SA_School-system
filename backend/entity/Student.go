@@ -26,4 +26,6 @@ type Student struct {
 	
 
 	Users Users
+
+	Attendances []Attendances `gorm:"foreignKey:StudentID"`
 }
