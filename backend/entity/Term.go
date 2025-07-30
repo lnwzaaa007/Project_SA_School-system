@@ -18,9 +18,10 @@ type Term struct{
 	Course []Course `gorm:"foreignKey:Term_ID"`
 
 	Announcement []Announcement `gorm:"foreignKey:Term_ID"`
+
+	Bill []Bill `gorm:"foreignKey:Term_ID"`
 }
 
-//เทอม
 
 
 
