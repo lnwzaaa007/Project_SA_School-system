@@ -25,11 +25,11 @@ const (
 	MrsENG  TitleNameENG = "Mrs."
 )
 
-type Genertype string
+type Gendertype string
 
 const (
-	Male   Genertype = "Male"
-	Female  Genertype = "Female"
+	Male   Gendertype = "Male"
+	Female  Gendertype = "Female"
 )
 
 type Teacher struct {
@@ -43,7 +43,7 @@ type Teacher struct {
 	Citizen_ID string
 	Tel string
 	DateOfBirth time.Time
-	Gener Genertype
+	Gender Gendertype
 	Nationality string
 	Email string
 	Teacher_image []byte
