@@ -8,16 +8,16 @@ type Bill struct {
 	DateTime time.Time
 
 
-	TermID	*uint
-	Term Term `gorm:"foriengKey:TermID"`
+	TermID	uint
+	Term *Term `gorm:"foreignKey:TermID"`
 
-	StudentID *uint `json:"Student_id"`
-	Student Student `gorm:"foreignKey:StudentID" json:"Student"`
+	StudentID uint 
+	Student *Student `gorm:"foreignKey:StudentID"`
 
-	PaymentID        *uint	`json:"PaymentID"`
-	Payment          Payment `gorm:"reference:PaymentID" json:"Payment"`
+	PaymentID        uint	
+	Payment          *Payment `gorm:"reference:PaymentID"`
 
-	TuitionID 		*uint `json:"TuitionID"`
-	Tuition   		Tuition `gorm:"foreignKey:TuitionID" json:"Tuition"`
+	TuitionID 		uint 
+	Tuition   		*Tuition `gorm:"foreignKey:TuitionID"`
 
 }

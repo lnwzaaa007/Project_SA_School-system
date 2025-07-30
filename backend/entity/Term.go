@@ -18,7 +18,7 @@ type Term struct{
 	Course []Course `gorm:"foreignKey:TermID"`
 
 
-	Bill []Bill `gorm:"foreignKey:Term_ID"`
+	Bill []Bill `gorm:"foreignKey:TermID"`
 
 	Announcement []Announcement `gorm:"foreignKey:TermID"`
 

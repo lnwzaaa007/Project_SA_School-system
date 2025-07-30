@@ -15,8 +15,8 @@ type Address struct {
 	ZipcodeID uint
 	
 
-	Teacher Teacher //ไปเป็น FK ให้ตาราง taecher
+	Teacher Teacher 
 
-	Student Student
+	Student Student 
 
 }

@@ -11,6 +11,6 @@ type Users struct {
 	StudentID uint
 	Admin_UserID uint 
 
-	UserTypeID *uint
-	UserType   UserType `gorm:"foriegnKey:UserTypeID"`
+	UserTypeID uint
+	UserType   *UserType `gorm:"foreignKey:UserTypeID"`
 }

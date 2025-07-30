@@ -40,5 +40,5 @@ type Student struct {
 
 	AddressID uint
 
-	Bill []Bill `gorm:"foreignKey:Student_ID"`
+	//Bill []Bill `gorm:"foreignKey:Student_ID"`
 }

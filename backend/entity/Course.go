@@ -13,17 +13,17 @@ type Course struct{
 	Hours_of_term 	int
 
 
-	ID_Subject_Group *uint
-	Subject_Group Subject_Group `gorm:"foreingnKey:ID_Subject_Group"`
+	SubjectGroupID uint
+	Subject_Group *Subject_Group `gorm:"foreingnKey:SubjectGroupID"`
 
-	GradeID	*uint
-	Grade	Grade	`gorm:"foreignKey:GradeID"`
+	GradeID	uint
+	Grade	*Grade	`gorm:"foreignKey:GradeID"`
 
-	TermID	*uint
-	Term Term `gorm:"foriengKey:TermID"`
+	TermID	uint
+	Term *Term `gorm:"foreignKey:TermID"`
 
-	TeacherID *uint
-	Teacher Teacher `gorm:"foreignKey:TeacherID"`
+	TeacherID uint
+	Teacher *Teacher `gorm:"foreignKey:TeacherID"`
 
 	Schedules []Schedules `gorm:"foreignKey:CourseID"`
 

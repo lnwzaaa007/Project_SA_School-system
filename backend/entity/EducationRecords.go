@@ -13,26 +13,26 @@ type EducationRecords struct {
 	Grade_Point 		float32
 	Behavior_Point 	float32
 
-	TermID *uint
-	Term   Term `gorm:"foriegnKey:TermID"`
+	TermID uint
+	Term   *Term `gorm:"foreignKey:TermID"`
 
 	
-	CourseID *uint
-	Course   Course `gorm:"foriegnKey:CourseID"`
+	CourseID uint
+	Course   *Course `gorm:"foreignKey:CourseID"`
 
 	
-	TeacherID *uint
-	Teacher Teacher `gorm:"foriegnKey:TeacherID"`
+	TeacherID uint
+	Teacher *Teacher `gorm:"foreignKey:TeacherID"`
 
 	
-	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	StudentID uint
+	Student   *Student `gorm:"foreignKey:StudentID"`
 
 	
-	AssignmentSubmitID *uint
-	AssignmentSubmit	AssignmentSubmit `gorm:"foriegnKey:AssignmentSubmitID"`
+	AssignmentSubmitID uint
+	AssignmentSubmit	*AssignmentSubmit `gorm:"foreignKey:AssignmentSubmitID"`
 	
-	StudentRecords []StudentRecords `gorm:"foreignKey:EducationRecordID"`
+	StudentRecords []StudentRecords `gorm:"foreignKey:EducationRecordsID"`
 
 }
 	

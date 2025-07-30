@@ -12,8 +12,8 @@ type Subdistrict struct {
 
 	Zipcode []Zipcode `gorm:"foreignKey:SubdistrictID"`
 
-	DistrictID *uint
-	District   District `gorm:"foriegnKey:DistrictID"`
+	DistrictID uint
+	District   *District `gorm:"foreignKey:DistrictID"`
 
-	Address Address
+	Address Address 
 }

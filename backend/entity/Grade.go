@@ -1,14 +1,14 @@
-// ชั้นปี
-package entity
+	// ชั้นปี
+	package entity
 
-import "gorm.io/gorm"
+	import "gorm.io/gorm"
 
-type Grade struct{
-	gorm.Model
-	Grade_Year	string
-	Grade_Class	int
+	type Grade struct{
+		gorm.Model
+		Grade_Year	string
+		Grade_Class	int
 
-	TeacherID uint //FK
+		TeacherID uint //FK
 
-	Course []Course `gorm:"foreignKey:GradeID"`
-}
+		Course []Course `gorm:"foreignKey:GradeID"`
+	}

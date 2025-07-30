@@ -8,11 +8,11 @@ import (
 type StudentRecords struct {
 	gorm.Model
 	
-	StudentID *uint
-	Student   Student `gorm:"foriegnKey:StudentID"`
+	StudentID uint
+	Student   *Student `gorm:"foreignKey:StudentID"`
 
 	
-	EducationRecordsID *uint
-	EducationRecords EducationRecords `gorm:"foriegnKey:EducationRecordsID"`
+	EducationRecordsID uint
+	EducationRecords *EducationRecords `gorm:"foreignKey:EducationRecordsID"`
 
 }
