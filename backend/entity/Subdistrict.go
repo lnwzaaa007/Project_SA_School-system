@@ -10,7 +10,7 @@ type Subdistrict struct {
 	gorm.Model
 	Subdistrict_name string
 
-	Zipcode []Zipcode `gorm:"foreignKey:ZipcodeID"`
+	Zipcode []Zipcode `gorm:"foreignKey:SubdistrictID"`
 
 	DistrictID *uint
 	District   District `gorm:"foriegnKey:DistrictID"`

@@ -17,5 +17,5 @@ type Guardian struct {
 	G_status string
 	
 
-	GuardianStudent []GuardianStudent `gorm:"foreignKey:GuardianStudentID"` 
+	GuardianStudent []GuardianStudent `gorm:"foreignKey:GuardianID"` 
 }

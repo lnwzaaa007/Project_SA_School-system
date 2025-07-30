@@ -16,16 +16,14 @@ type Course struct{
 	ID_Subject_Group *uint
 	Subject_Group Subject_Group `gorm:"foreingnKey:ID_Subject_Group"`
 
-	Grade_ID	*uint
-	Grade	Grade	`gorm:"foreignKey:Grade_ID"`
+	GradeID	*uint
+	Grade	Grade	`gorm:"foreignKey:GradeID"`
 
-	Term_ID	*uint
-	Term Term `gorm:"foriengKey:Term_ID"`
+	TermID	*uint
+	Term Term `gorm:"foriengKey:TermID"`
 
 	TeacherID *uint
 	Teacher Teacher `gorm:"foreignKey:TeacherID"`
-
-
 
 	Schedules []Schedules `gorm:"foreignKey:CourseID"`
 
