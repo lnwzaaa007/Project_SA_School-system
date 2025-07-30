@@ -10,5 +10,5 @@ type Grade struct{
 
 	TeacherID uint //FK
 
-	Course []Course `gorm:"foreignKey:Grade_ID"`
+	Course []Course `gorm:"foreignKey:GradeID"`
 }

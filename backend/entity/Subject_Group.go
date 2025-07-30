@@ -7,5 +7,5 @@ type Subject_Group struct{
 	gorm.Model
 	SubjectGroup_Name	string
 
-	Course []Course `gorm:"foreignKey:ID_Subject_Group"`
+	Course []Course `gorm:"foreignKey:SubjectGroupID"`
 }

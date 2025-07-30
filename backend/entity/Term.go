@@ -15,9 +15,9 @@ type Term struct{
 	Start_date 		time.Time
 	End_date 		time.Time
 
-	Course []Course `gorm:"foreignKey:Term_ID"`
+	Course []Course `gorm:"foreignKey:TermID"`
 
-	Announcement []Announcement `gorm:"foreignKey:Term_ID"`
+	Announcement []Announcement `gorm:"foreignKey:TermID"`
 }
 
 //เทอม

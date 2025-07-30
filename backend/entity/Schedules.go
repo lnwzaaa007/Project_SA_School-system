@@ -20,6 +20,12 @@ type Schedules struct {
 	CourseID *uint
 	Course     Course `gorm:"foriegnKey:CourseID"`
 
+	GradeID *uint
+	Grade     Grade `gorm:"foriegnKey:GradeID"`
+
+	TermID *uint
+	Term     Term `gorm:"foriegnKey:TermID"`
+
 	
 
 }

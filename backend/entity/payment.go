@@ -3,11 +3,11 @@ package entity
 import ("time"
 	"gorm.io/gorm"
 )
-type payment struct {
+type Payment struct {
 	gorm.Model
-	silp []byte
+	Silp []byte
 	DateTime time.Time
-	status string
+	Status string
 
-	Bill []Bill `gorm:"foreignKey:paymentID"`
+	Bill []Bill `gorm:"foreignKey:PaymentID"`
 }
