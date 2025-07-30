@@ -18,7 +18,7 @@ type Student struct {
 	Citizen_ID string
 	Tel string
 	DateOfBirth time.Time
-	Gener Genertype
+	Gender Gendertype
 	Nationality string
 	Email string
 	Religious string
