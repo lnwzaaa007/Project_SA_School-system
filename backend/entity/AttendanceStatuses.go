@@ -10,5 +10,5 @@ type AttendanceStatus struct {
 	gorm.Model
 	AttendancesStatus_Status string
 	
-	Attendances []Attendances `gorm:"foreignKey:AttendancesID"`
+	Attendances []Attendances `gorm:"foreignKey:AttendanceStatusID"`
 }

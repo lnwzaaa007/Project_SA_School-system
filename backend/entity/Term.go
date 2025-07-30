@@ -1,3 +1,4 @@
+
 // เทอม
 package entity
 
@@ -18,3 +19,8 @@ type Term struct{
 
 	Announcement []Announcement `gorm:"foreignKey:Term_ID"`
 }
+
+//เทอม
+
+
+

@@ -12,6 +12,7 @@ type Course struct{
 	Class_in_week 	int
 	Hours_of_term 	int
 
+
 	ID_Subject_Group *uint
 	Subject_Group Subject_Group `gorm:"foreingnKey:ID_Subject_Group"`
 
@@ -24,5 +25,8 @@ type Course struct{
 	TeacherID *uint
 	Teacher Teacher `gorm:"foreignKey:TeacherID"`
 
+
+
+	Schedules []Schedules `gorm:"foreignKey:CourseID"`
 
 }

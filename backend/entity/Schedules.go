@@ -12,8 +12,14 @@ type Schedules struct {
 	EndTime time.Time
 	ScheduleDate time.Time
 	
-	Attendances []Attendances `gorm:"foreignKey:AttendancesID"`
+	Attendances []Attendances `gorm:"foreignKey:SchedulesID"`
 
 	TeacherID *uint
 	Teacher   Teacher `gorm:"foriegnKey:TeacherID"`
+
+	CourseID *uint
+	Course     Course `gorm:"foriegnKey:CourseID"`
+
+	
+
 }
