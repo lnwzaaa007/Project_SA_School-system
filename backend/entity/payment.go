@@ -9,5 +9,5 @@ type payment struct {
 	DateTime time.Time
 	status string
 
-	Bill []Bill 
+	Bill []Bill `gorm:"foreignKey:paymentID"`
 }
