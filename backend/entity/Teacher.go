@@ -56,6 +56,11 @@ type Teacher struct {
 
 	Schedules []Schedules `gorm:"foreignKey:TeacherID"`
 
+
 	Attendances []Attendances `gorm:"foreignKey:TeacherID"`
 
+
+	Grade Grade
+
+	Course []Course `gorm:"foreignKey:TeacherID"`
 }

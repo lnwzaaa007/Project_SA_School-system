@@ -9,11 +9,15 @@ type Address struct {
 	Address_Number  string
 	Road string
 
-	ProvinceID uint
+	ProvinceID uint // FK
 	DistrictID uint
 	SubdistrictID uint
 	ZipcodeID uint
 	
+
+	Teacher Teacher //ไปเป็น FK ให้ตาราง taecher
+
 	Teacher Teacher
 	Student Student
+
 }
