@@ -27,6 +27,11 @@ type Student struct {
 
 	Users Users
 
+
 	
 	Attendances []Attendances `gorm:"foreignKey:StudentID"`
+
+	GuardianStudent []GuardianStudent `gorm:"foreignKey:GuardianStudentID"`
+
+	AddressID uint
 }

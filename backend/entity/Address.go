@@ -15,4 +15,5 @@ type Address struct {
 	ZipcodeID uint
 	
 	Teacher Teacher
+	Student Student
 }
