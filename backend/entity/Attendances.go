@@ -15,4 +15,12 @@ type Attendances struct {
 
 	SchedulesID *uint
 	Schedules   Schedules `gorm:"foriegnKey:SchedulesID"`
+
+	StudentID *uint
+	Student   Student `gorm:"foriegnKey:StudentID"`
+
+	TeacherID *uint
+	Teacher   Teacher `gorm:"foriegnKey:TeacherID"`
+
+	
 }
