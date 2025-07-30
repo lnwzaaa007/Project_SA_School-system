@@ -22,5 +22,8 @@ type Attendances struct {
 	TeacherID *uint
 	Teacher   Teacher `gorm:"foriegnKey:TeacherID"`
 
+	GradeID *uint
+	Grade     Grade `gorm:"foriegnKey:GradeID"`
+
 	
 }

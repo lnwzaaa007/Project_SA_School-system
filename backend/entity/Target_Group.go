@@ -7,5 +7,5 @@ type Target_Group struct{
 	gorm.Model
 	Group_name	string
 
-	Announcement []Announcement `gorm:"foreignKey:Group_ID"`
+	Announcement []Announcement `gorm:"foreignKey:TargetGroupID"`
 }

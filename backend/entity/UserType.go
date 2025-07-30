@@ -8,5 +8,5 @@ type UserType struct {
 	UserType_Name string
 	UserType_Prefix string
 	
-	Users []Users `gorm:"foreignKey:UsersID"`	
+	Users []Users `gorm:"foreignKey:UserTypeID"`	
 }
