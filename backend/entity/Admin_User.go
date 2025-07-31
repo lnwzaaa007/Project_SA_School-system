@@ -5,10 +5,10 @@ import (
 )
 type Admin_User struct {
 	gorm.Model
-	TitleTH  string
+	TitleTH  TitleNameTH
 	TFirst_Name string
 	TLast_Name    string
-	TitleENG string
+	TitleENG TitleNameENG
 	EFirst_Name string
 	ELast_Name    string
 	Tel string
