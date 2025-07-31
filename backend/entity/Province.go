@@ -12,4 +12,4 @@ type Province struct {
 	District []District `gorm:"foreignKey:ProvinceID"`
 
 	Address Address 
-}
+} 
