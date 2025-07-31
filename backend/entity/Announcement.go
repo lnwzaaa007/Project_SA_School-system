@@ -5,13 +5,18 @@ import (
 	"gorm.io/gorm"
 	"time"
 )
+type StatusAnnouncement string
+const (
+		Publish StatusAnnouncement = "เผยแพร่แล้ว"
+		Draft	StatusAnnouncement = "ฉบับร่าง"
+)
 type Announcement struct {
 	gorm.Model
 	Title  			string
 	Create_Date 	time.Time
 	Create_Time  	time.Time
 	Content 		string
-	Status 			string
+	Status 			StatusAnnouncement
 	
 	TargetGroupID uint
 	Target_Group *Target_Group `gorm:"foreignKey:TargetGroupID"`
