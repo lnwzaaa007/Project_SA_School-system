@@ -4,11 +4,12 @@ package entity
 
 import (
 	"gorm.io/gorm"
-	
 )
+
 type AttendanceStatus struct {
 	gorm.Model
-	AttendancesStatus_Status string
-	
+	StatusName  string
+	Description string
+
 	Attendances []Attendances `gorm:"foreignKey:AttendanceStatusID"`
 }
