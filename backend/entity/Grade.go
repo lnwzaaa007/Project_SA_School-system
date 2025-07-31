@@ -11,4 +11,5 @@
 		TeacherID uint //FK
 
 		Course []Course `gorm:"foreignKey:GradeID"`
+		Student []Student `gorm:"foreignKey:GradeID"`
 	}

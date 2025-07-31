@@ -40,5 +40,6 @@ type Student struct {
 
 	AddressID uint
 
-
+	GradeID uint
+	Grade *Grade `gorm:"foreignKey:GradeID"`
 }
