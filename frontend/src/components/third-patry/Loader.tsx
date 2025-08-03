@@ -1,0 +1,31 @@
+import { LoadingOutlined } from "@ant-design/icons";
+
+const Loader: React.FC = () => (
+  <div
+    style={{
+      position: "fixed",
+      minHeight: "500px",
+
+      top: "50%",
+
+      left: "50%",
+
+      zIndex: 2000,
+
+      width: "100%",
+
+      height: "100%",
+    }}
+  >
+    <LoadingOutlined
+      style={{
+        fontSize: 100,
+
+        color: "#1d5d7cff",
+      }}
+      spin
+    />
+  </div>
+);
+
+export default Loader;
