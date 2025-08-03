@@ -1,11 +1,8 @@
-const ScheduleStudent = () => {
+const AttendanceRecored = () => {
   return (
     <div>
-        <h1>AttendanceRecored</h1>
-
-                  
-      {/* Add your schedule content here */}
+      <h1>AttendanceRecored</h1>
     </div>
   );
-}
-export default ScheduleStudent;
+};
+export default AttendanceRecored;

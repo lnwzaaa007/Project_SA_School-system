@@ -1,4 +1,4 @@
-const ScheduleStudent = () => {
+const Home = () => {
   return (
     <div>
       <h1>Home</h1>
@@ -7,4 +7,4 @@ const ScheduleStudent = () => {
     </div>
   );
 };
-export default ScheduleStudent;
+export default Home;

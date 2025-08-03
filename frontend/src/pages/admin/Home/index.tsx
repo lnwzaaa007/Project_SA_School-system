@@ -1,10 +1,10 @@
-const EnterScore = () => {
+const Home = () => {
   return (
     <div>
-      <h1>Enter Score</h1>
+      <h1>หน้าหลัก</h1>
 
       {/* Add your schedule content here */}
     </div>
   );
 };
-export default EnterScore;
+export default Home;

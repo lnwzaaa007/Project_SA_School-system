@@ -3,29 +3,33 @@ import { Routes, Route, Link, Navigate } from "react-router-dom";
 import "../../App.css";
 import {
   HomeOutlined,
-  SolutionOutlined,
   CalendarOutlined,
-  BookOutlined,
-  EditOutlined,
-  UploadOutlined,
-  CreditCardOutlined,
   MenuOutlined,
+  NotificationOutlined,
+  ContainerOutlined,
+  FileSearchOutlined,
+  TeamOutlined,
+  UserDeleteOutlined,
+  CreditCardOutlined
 } from "@ant-design/icons";
-import Studentimg from "../../assets/student.png";
+
+// import PaymentIcon from "@mui/icons-material/Payment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import ScheduleStudent from "../../pages/student/ScheduleStudent";
-import Home from "../../pages/student/Home";
-import Playment from "../../pages/student/Payment";
-import Upload from "../../pages/student/Upload";
-import Profile from "../../pages/student/StudentProfile";
-import Attendance from "../../pages/student/Attendance";
-import AcademicResult from "../../pages/student/AcademicResult";
+
+import Home from "../../pages/admin/Home";
+import Announce from "../../pages/admin/Announce";
+import ManageStudent from "../../pages/admin/ManageStudent";
+import ManageTeacher from "../../pages/admin/ManageTeacher";
+import Payment from "../../pages/admin/Payment";
+import Schedule from "../../pages/admin/Schedule";
+import ApplyForStudy from "../../pages/admin/ApplyForStudy";
+import Course from "../../pages/admin/Course";
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const StudentFullLayout: React.FC = () => {
+const AdminFullLayout: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -42,33 +46,35 @@ const StudentFullLayout: React.FC = () => {
 
   const Logout = () => {
     localStorage.clear();
+
     messageApi.success("Logout successful");
 
     setTimeout(() => {
       location.href = "/";
-    }, 1000);
+    }, 2000);
   };
 
   return (
     <>
-      <Layout style={{ minHeight: "100vh" }}>
+      <Layout style={{ minHeight: "100vh" ,}}>
         {/* Sidebar */}
         <Sider
-          collapsible
-          collapsed={collapsed}
-          trigger={null}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            bottom: 0,
-            backgroundColor: "#B3E0FF",
-            borderBottomRightRadius: 30,
-            borderTopRightRadius: 30,
-            zIndex: 1000,
-            // transition: "left 0.2s, width 0.2s",
-            // overflow: "auto", // เผื่อเมนูยาว
-          }}
+            width={240}
+            collapsible
+            collapsed={collapsed}
+            trigger={null}
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                bottom: 0,
+                backgroundColor: "#B3E0FF",
+                borderBottomRightRadius: 30,
+                borderTopRightRadius: 30,
+                zIndex: 1000,
+                // transition: "left 0.2s, width 0.2s",
+                // overflow: "auto", // เผื่อเมนูยาว
+            }}
         >
           <div
             style={{
@@ -94,7 +100,8 @@ const StudentFullLayout: React.FC = () => {
               color: "#000",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
-            }}      
+              
+            }}
           >
             <Menu.Item
               key="home"
@@ -102,7 +109,7 @@ const StudentFullLayout: React.FC = () => {
               style={{ marginBottom: 8 }}
             >
               <Link
-                to="/student"
+                to="/admin"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
                   marginTop: `3px`,
@@ -113,29 +120,79 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="profile"
-              onClick={() => setCurrentPage("ประวัติส")}
+              key="announce"
+              onClick={() => setCurrentPage("ประวัติ")}
               style={{ marginBottom: 8 }}
             >
               <Link
-                to="/student/profile"
+                to="/admin/announce"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
                   marginTop: `3px`,
                 }}
               >
-                <SolutionOutlined style={{ fontSize: "20px" }} />
+                <NotificationOutlined style={{ fontSize: "20px" }} />
+                <span>ประกาศ</span>
+              </Link>
+            </Menu.Item>
+            <Menu.Item
+              key="manageStudent"
+              onClick={() => setCurrentPage("จัดการนักเรียน")}
+              style={{ marginBottom: 8 }}
+            >
+              <Link
+                to="/admin/manageStudent"
+                style={{
+                  marginLeft: collapsed ? "-5px" : "0px",
+                  marginTop: `3px`,
+                }}
+              >
+                <TeamOutlined style={{ fontSize: "20px" }} />
 
-                <span>ประวัติ</span>
+                <span>จัดการนักเรียน</span>
+              </Link>
+            </Menu.Item>
+            <Menu.Item
+              key="manageTeacher"
+              onClick={() => setCurrentPage("จัดการครู")}
+              style={{ marginBottom: 8 }}
+            >
+              <Link
+                to="/admin/manageTeacher"
+                style={{
+                  marginLeft: collapsed ? "-5px" : "0px",
+                  marginTop: `3px`,
+                }}
+              >
+                <UserDeleteOutlined style={{ fontSize: "20px" }} />
+
+                <span>จัดการครู</span>
+              </Link>
+            </Menu.Item>
+            <Menu.Item
+              key="course"
+              onClick={() => setCurrentPage("จัดการรายวิชา")}
+              style={{ marginBottom: 8 }}
+            >
+              <Link
+                to="/admin/course"
+                style={{
+                  marginLeft: collapsed ? "-5px" : "0px",
+                  marginTop: `3px`,
+                }}
+              >
+                <FileSearchOutlined style={{ fontSize: "20px" }} />
+
+                <span>จัดการรายวิชา</span>
               </Link>
             </Menu.Item>
             <Menu.Item
               key="schedule"
-              onClick={() => setCurrentPage("ตารางเรียน")}
+              onClick={() => setCurrentPage("สร้างตารางเรียน/สอน")}
               style={{ marginBottom: 8 }}
             >
               <Link
-                to="/student/schedule"
+                to="/admin/schedule"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
                   marginTop: `3px`,
@@ -143,67 +200,16 @@ const StudentFullLayout: React.FC = () => {
               >
                 <CalendarOutlined style={{ fontSize: "20px" }} />
 
-                <span>ตารางเรียน</span>
-              </Link>
-            </Menu.Item>
-            <Menu.Item
-              key="result"
-              onClick={() => setCurrentPage("ผลการเรียน")}
-              style={{ marginBottom: 8 }}
-            >
-              <Link
-                to="/student/result"
-                style={{
-                  marginLeft: collapsed ? "-5px" : "0px",
-                  marginTop: `3px`,
-                }}
-              >
-                <BookOutlined style={{ fontSize: "20px" }} />
-
-                <span>ผลการเรียน</span>
-              </Link>
-            </Menu.Item>
-            <Menu.Item
-              key="checkin"
-              onClick={() => setCurrentPage("การเข้าเรียน")}
-              style={{ marginBottom: 8 }}
-            >
-              <Link
-                to="/student/checkin"
-                style={{
-                  marginLeft: collapsed ? "-5px" : "0px",
-                  marginTop: `3px`,
-                }}
-              >
-                <EditOutlined style={{ fontSize: "20px" }} />
-
-                <span>การเข้าเรียน</span>
-              </Link>
-            </Menu.Item>
-            <Menu.Item
-              key="upload"
-              onClick={() => setCurrentPage("ส่งงาน")}
-              style={{ marginBottom: 8 }}
-            >
-              <Link
-                to="/student/upload"
-                style={{
-                  marginLeft: collapsed ? "-5px" : "0px",
-                  marginTop: `3px`,
-                }}
-              >
-                <UploadOutlined style={{ fontSize: "20px" }} />
-
-                <span>ส่งงาน</span>
+                <span>สร้างตารางเรียน/สอน</span>
               </Link>
             </Menu.Item>
             <Menu.Item
               key="payment"
-              onClick={() => setCurrentPage("ชำระเงิน")}
+              onClick={() => setCurrentPage("ตรวจสอบการชำระเงิน")}
               style={{ marginBottom: 8 }}
             >
               <Link
-                to="/student/payment"
+                to="/admin/payment"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
                   marginTop: `3px`,
@@ -211,7 +217,23 @@ const StudentFullLayout: React.FC = () => {
               >
                 <CreditCardOutlined style={{ fontSize: "20px" }} />
 
-                <span>ชำระเงิน</span>
+                <span>ตรวจสอบการชำระเงิน</span>
+              </Link>
+            </Menu.Item>
+            <Menu.Item
+              key="applyForStudy"
+              onClick={() => setCurrentPage("สมัครเรียน")}
+              style={{ marginBottom: 8 }}
+            >
+              <Link
+                to="/admin/applyForStudy"
+                style={{
+                  marginLeft: collapsed ? "-5px" : "0px",
+                  marginTop: `3px`,
+                }}
+              >
+                <ContainerOutlined style={{ fontSize: "20px" }} />
+                <span>สมัครเรียน</span>
               </Link>
             </Menu.Item>
           </Menu>
@@ -220,7 +242,7 @@ const StudentFullLayout: React.FC = () => {
         {/* Layout ด้านขวา */}
         <Layout
           style={{
-            marginLeft: collapsed ? 87 : 207, // ขยับเฉพาะ Content
+            marginLeft: collapsed ? 87 : 247, // ขยับเฉพาะ Content
             transition: "margin-left 0.2s",
             minHeight: "100vh",
           }}
@@ -230,10 +252,10 @@ const StudentFullLayout: React.FC = () => {
             style={{
               position: "fixed",
               top: 0,
-              left: collapsed ? 87 : 207, // ขยับตาม Sider
+              left: collapsed ? 87 : 247, // ขยับตาม Sider
               right: 0,
               // zIndex: 1100,
-              width: `calc(100% - ${collapsed ? 87 : 207}px)`,
+              width: `calc(100% - ${collapsed ? 87 : 247}px)`,
               background: "linear-gradient(to right, #88CBF5, #C1E5FF)",
               padding: "0 24px",
               height: "80px",
@@ -266,24 +288,8 @@ const StudentFullLayout: React.FC = () => {
                   />
                 </Tooltip>
               </div>
-              <span style={{ fontSize: "18px", color: "#000" }}>
-                สมศรี ผ่องใส
-              </span>
-              <Link to="/student/profile">
-                <Tooltip title="ข้อมูลส่วนตัว">
-                  {/* <UserOutlined style={{ fontSize: "18px",color: "#000" }}/> */}
-                  <img
-                    src={Studentimg}
-                    alt="React Logo"
-                    style={{
-                      width: "40px",
-                      marginLeft: "8px",
-                      marginTop: `30px`,
-                      borderRadius: "50%",
-                    }}
-                  />
-                </Tooltip>
-              </Link>
+
+              <span style={{ fontSize: "18px", color: "#000" }}>ผู้ดูแลระบบ</span>
             </div>
           </Header>
 
@@ -309,17 +315,18 @@ const StudentFullLayout: React.FC = () => {
             >
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/schedule" element={<ScheduleStudent />} />
-                <Route path="/payment" element={<Playment />} />
-                <Route path="/Upload" element={<Upload />} />
-                <Route path="/result" element={<AcademicResult />} />
-                <Route path="/checkin" element={<Attendance />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/announce"element={<Announce />}/>
+                <Route path="/manageStudent" element={<ManageStudent />} />
+                <Route path="/manageTeacher" element={<ManageTeacher />} />
+                <Route path="/course" element={<Course />} />
+                <Route path="/schedule" element={<Schedule />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/applyForStudy" element={<ApplyForStudy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" }}>
+          <Footer style={{ textAlign: "center" ,}}>
             System Analysis and Design
           </Footer>
         </Layout>
@@ -328,4 +335,4 @@ const StudentFullLayout: React.FC = () => {
   );
 };
 
-export default StudentFullLayout;
+export default AdminFullLayout;

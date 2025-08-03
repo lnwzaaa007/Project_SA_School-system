@@ -1,10 +1,10 @@
-const EnterScore = () => {
+const Course = () => {
   return (
     <div>
-      <h1>Enter Score</h1>
+      <h1>รายวิชา</h1>
 
       {/* Add your schedule content here */}
     </div>
   );
 };
-export default EnterScore;
+export default Course;

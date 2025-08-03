@@ -12,12 +12,10 @@ import {
   FileAddOutlined,
 } from "@ant-design/icons";
 
-import PaymentIcon from "@mui/icons-material/Payment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Teacher from "../../assets/teacher.jpeg";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import ScheduleStudent from "../../pages/student/ScheduleStudent";
 import Home from "../../pages/teacher/Home";
 import AttendanceRecord from "../../pages/teacher/AttendanceRecord";
 import CreateWork from "../../pages/teacher/CreateWork";
@@ -249,13 +247,26 @@ const TeacherFullLayout: React.FC = () => {
           >
             <h2 style={{ margin: 0 }}> {currentPage} </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-              <Tooltip title="ออกจากระบบ">
-                <LogoutIcon
-                  style={{ fontSize: "24px", color: "#000" }}
-                  onClick={Logout}
-                />
-              </Tooltip>
-
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "#C1E5FF", 
+                  cursor: "pointer",
+                }}
+              >
+                <Tooltip title="ออกจากระบบ">
+                  <LogoutIcon
+                    style={{ fontSize: "24px", color: "#000" }}
+                    onClick={Logout}
+                    // className="hover:bg-gray-200 rounded-full p-2 cursor-pointer"
+                  />
+                </Tooltip>
+              </div>
               <span style={{ fontSize: "18px", color: "#000" }}>ครู สมศรี</span>
               <Link to="/teacher/profile">
                 <Tooltip title="ข้อมูลส่วนตัว">

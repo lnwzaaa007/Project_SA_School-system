@@ -1,10 +1,8 @@
-const ScheduleStudent = () => {
+const AcademicResult = () => {
   return (
     <div>
       <h1>เกรด</h1>
-
-      {/* Add your schedule content here */}
     </div>
   );
 };
-export default ScheduleStudent;
+export default AcademicResult;
