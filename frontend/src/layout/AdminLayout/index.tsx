@@ -28,6 +28,13 @@ import Schedule from "../../pages/admin/Schedule";
 import ApplyForStudy from "../../pages/admin/ApplyForStudy";
 import Course from "../../pages/admin/Course";
 import AddSchedule from "../../pages/admin/Schedule/AddSchedule";
+import CreateTeacher from "../../pages/admin/ManageTeacher/CreateTeacher";
+import DeleteTeacher from "../../pages/admin/ManageTeacher/DeleteTeacher";
+import EditTeacher from "../../pages/admin/ManageTeacher/EditTeacher";
+import DataTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/DataTeacher";
+import AddressTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/AddressTeacher";
+import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDataTeacher";
+import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -327,6 +334,13 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/announce"element={<Announce />}/>
                 <Route path="/manageStudent" element={<ManageStudent />} />
                 <Route path="/manageTeacher" element={<ManageTeacher />} />
+                <Route path="/manageTeacher/CreateTeacher" element={<CreateTeacher />} />
+                <Route path="/manageTeacher/DeleteTeacher" element={<DeleteTeacher />} />
+                <Route path="/manageTeacher/EditTeacher" element={<EditTeacher />} />
+                <Route path="/manageTeacher/CreateTeacher/DataTeacher" element={<DataTeacher />} />
+                <Route path="/manageTeacher/CreateTeacher/AddressTeacher" element={<AddressTeacher />} />
+                <Route path="/manageTeacher/EditTeacher/EditDataTeacher" element={<EditDataTeacher />} />
+                <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/schedule/add" element={<AddSchedule />} />
