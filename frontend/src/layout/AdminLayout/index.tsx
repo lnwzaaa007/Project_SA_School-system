@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
+import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
   HomeOutlined,
@@ -26,10 +27,12 @@ import Payment from "../../pages/admin/Payment";
 import Schedule from "../../pages/admin/Schedule";
 import ApplyForStudy from "../../pages/admin/ApplyForStudy";
 import Course from "../../pages/admin/Course";
+import AddSchedule from "../../pages/admin/Schedule/AddSchedule";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const AdminFullLayout: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -45,18 +48,19 @@ const AdminFullLayout: React.FC = () => {
   } = theme.useToken();
 
   const Logout = () => {
+    setIsLoading(true)
     localStorage.clear();
-
     messageApi.success("Logout successful");
-
     setTimeout(() => {
       location.href = "/";
+    
     }, 2000);
   };
 
   return (
     <>
-      <Layout style={{ minHeight: "100vh" ,}}>
+      {isLoading && <Loader />}
+      <Layout className="background" style={{ minHeight: "100vh",background:"#F1EEE0"}}>
         {/* Sidebar */}
         <Sider
             width={240}
@@ -68,13 +72,15 @@ const AdminFullLayout: React.FC = () => {
                 top: 0,
                 left: 0,
                 bottom: 0,
-                backgroundColor: "#B3E0FF",
+                backgroundColor: "#2F78E1",
                 borderBottomRightRadius: 30,
                 borderTopRightRadius: 30,
-                zIndex: 1000,
+                zIndex: 5000,
                 // transition: "left 0.2s, width 0.2s",
                 // overflow: "auto", // เผื่อเมนูยาว
             }}
+           
+            
         >
           <div
             style={{
@@ -87,24 +93,27 @@ const AdminFullLayout: React.FC = () => {
               type="text"
               icon={<MenuOutlined style={{ fontSize: "20px" }} />}
               onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 20, color: "#000" }}
+              style={{ fontSize: 20, color: "#fff" }}
             />
           </div>
 
           <Menu
-            theme="light"
+          
+            theme="dark"
             mode="inline"
-            defaultSelectedKeys={["home"]}
+            defaultSelectedKeys={[currentPage]}
             style={{
-              backgroundColor: "#B3E0FF",
-              color: "#000",
+              backgroundColor: "#2F78E1",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
+              marginTop: 16,
+              
+              
               
             }}
           >
             <Menu.Item
-              key="home"
+              key="หน้าหลัก"
               onClick={() => setCurrentPage("หน้าหลัก")}
               style={{ marginBottom: 8 }}
             >
@@ -120,7 +129,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="announce"
+              key="ประวัติ"
               onClick={() => setCurrentPage("ประวัติ")}
               style={{ marginBottom: 8 }}
             >
@@ -136,7 +145,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="manageStudent"
+              key="จัดการนักเรียน"
               onClick={() => setCurrentPage("จัดการนักเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -153,7 +162,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="manageTeacher"
+              key="จัดการครู"
               onClick={() => setCurrentPage("จัดการครู")}
               style={{ marginBottom: 8 }}
             >
@@ -170,7 +179,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="course"
+              key="จัดการรายวิชา"
               onClick={() => setCurrentPage("จัดการรายวิชา")}
               style={{ marginBottom: 8 }}
             >
@@ -187,7 +196,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="schedule"
+              key="สร้างตารางเรียน/สอน"
               onClick={() => setCurrentPage("สร้างตารางเรียน/สอน")}
               style={{ marginBottom: 8 }}
             >
@@ -204,7 +213,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="payment"
+              key="ตรวจสอบการชำระเงิน"
               onClick={() => setCurrentPage("ตรวจสอบการชำระเงิน")}
               style={{ marginBottom: 8 }}
             >
@@ -221,7 +230,7 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="applyForStudy"
+              key="สมัครเรียน"
               onClick={() => setCurrentPage("สมัครเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -245,6 +254,7 @@ const AdminFullLayout: React.FC = () => {
             marginLeft: collapsed ? 87 : 247, // ขยับเฉพาะ Content
             transition: "margin-left 0.2s",
             minHeight: "100vh",
+            background:"#F1EEE0"
           }}
         >
           {/* Header */}
@@ -256,7 +266,7 @@ const AdminFullLayout: React.FC = () => {
               right: 0,
               // zIndex: 1100,
               width: `calc(100% - ${collapsed ? 87 : 247}px)`,
-              background: "linear-gradient(to right, #88CBF5, #C1E5FF)",
+              background: "linear-gradient(to right, #2F78E1, #3D62EA)",
               padding: "0 24px",
               height: "80px",
               display: "flex",
@@ -264,9 +274,10 @@ const AdminFullLayout: React.FC = () => {
               alignItems: "center",
               borderBottomLeftRadius: 30,
               transition: "left 0.2s, width 0.2s",
+              zIndex: 4000,
             }}
           >
-            <h2 style={{ margin: 0 }}> {currentPage} </h2>
+            <h2 style={{ margin: 0 ,color:"#F1EEE0"}}> {currentPage} </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
               <div
                 style={{
@@ -276,20 +287,21 @@ const AdminFullLayout: React.FC = () => {
                   width: 40,
                   height: 40,
                   borderRadius: "50%",
-                  backgroundColor: "#C1E5FF", 
+                  // backgroundColor: "#F1EEE0", 
                   cursor: "pointer",
+
                 }}
               >
-                <Tooltip title="ออกจากระบบ">
+                <Tooltip title="ออกจากระบบ" overlayStyle={{ zIndex: 6000}}>
                   <LogoutIcon
-                    style={{ fontSize: "24px", color: "#000" }}
+                    style={{ fontSize: "24px", color: "#F1EEE0" }}
                     onClick={Logout}
-                    // className="hover:bg-gray-200 rounded-full p-2 cursor-pointer"
-                  />
+                    />
+                  
                 </Tooltip>
               </div>
 
-              <span style={{ fontSize: "18px", color: "#000" }}>ผู้ดูแลระบบ</span>
+              <span style={{ fontSize: "18px", color: "#F1EEE0" }}>ผู้ดูแลระบบ</span>
             </div>
           </Header>
 
@@ -298,19 +310,16 @@ const AdminFullLayout: React.FC = () => {
             style={{
               margin: "0 5px",
               marginTop: "60px",
-              // height: "calc(100vh - 60px)", // 64px คือความสูงของ Header
-              // overflowY: "auto",            // ✅ ให้ scroll เฉพาะเนื้อหา
             }}
           >
             <Breadcrumb style={{ margin: "16px 0" }} />
 
             <div
               style={{
-                padding: 24,
+                // padding: 24,
 
-                minHeight: "calc(100vh - 60px)",
-
-                background: colorBgContainer,
+                // minHeight: "calc(100vh - 60px)",
+                // background: colorBgContainer,
               }}
             >
               <Routes>
@@ -320,13 +329,14 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/manageTeacher" element={<ManageTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/schedule" element={<Schedule />} />
+                <Route path="/schedule/add" element={<AddSchedule />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/applyForStudy" element={<ApplyForStudy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" ,}}>
+          <Footer style={{ textAlign: "center" ,background:"#F1EEE0"}}>
             System Analysis and Design
           </Footer>
         </Layout>

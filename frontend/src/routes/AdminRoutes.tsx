@@ -11,6 +11,7 @@ const Course = Loadable(lazy(() => import("../pages/admin/Course")));
 const Schedule = Loadable(lazy(() => import("../pages/admin/Schedule")));
 const Payment = Loadable(lazy(() => import("../pages/admin/Payment")));
 const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
+const AddSchedule = Loadable(lazy(() => import("../pages/admin/Schedule/AddSchedule")));
 
 const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -22,7 +23,11 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "manageStudent", element: <ManageStudent /> },
       { path: "manageTeacher", element: <ManageTeacher /> },
       { path: "course", element: <Course /> },
-      { path: "schedule", element: <Schedule /> },
+      { path: "schedule", element: <Schedule />,
+        children:[
+          {path:"add",element: <AddSchedule />,}
+        ]
+       },
       { path: "payment", element: <Payment /> },
       { path: "applyForStudy", element: <AcademicResult /> },
     ],
