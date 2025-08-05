@@ -319,7 +319,7 @@ const Schedule = () => {
           </div>
         </div>
 
-        {/* Table Section */}
+
         <div style={{ overflowX: "auto" }}>
           <Table
             dataSource={dataSource}
