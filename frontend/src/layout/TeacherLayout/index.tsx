@@ -243,6 +243,7 @@ const TeacherFullLayout: React.FC = () => {
               alignItems: "center",
               borderBottomLeftRadius: 30,
               transition: "left 0.2s, width 0.2s",
+              zIndex: 5000,
             }}
           >
             <h2 style={{ margin: 0 }}> {currentPage} </h2>
