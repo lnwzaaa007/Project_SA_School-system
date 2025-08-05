@@ -11,6 +11,8 @@ const Course = Loadable(lazy(() => import("../pages/admin/Course")));
 const Schedule = Loadable(lazy(() => import("../pages/admin/Schedule")));
 const Payment = Loadable(lazy(() => import("../pages/admin/Payment")));
 const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
+const AddSchedule = Loadable(lazy(() => import("../pages/admin/Schedule/AddSchedule")));
+
 const CreateTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher")));
 const DeleteTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/DeleteTeacher")));
 const EditTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher")));
@@ -39,7 +41,11 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       //   ]
       //  },
       { path: "course", element: <Course /> },
-      { path: "schedule", element: <Schedule /> },
+      { path: "schedule", element: <Schedule />,
+        children:[
+          {path:"add",element: <AddSchedule />,}
+        ]
+       },
       { path: "payment", element: <Payment /> },
       { path: "applyForStudy", element: <AcademicResult /> },
     ],

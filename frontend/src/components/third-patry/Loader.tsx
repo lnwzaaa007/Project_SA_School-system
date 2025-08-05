@@ -4,24 +4,21 @@ const Loader: React.FC = () => (
   <div
     style={{
       position: "fixed",
-      minHeight: "500px",
-
-      top: "50%",
-
-      left: "50%",
-
-      zIndex: 2000,
-
+      top: 0,
+      left: 0,
       width: "100%",
-
       height: "100%",
+      zIndex: 9999, // ✅ สูงสุดเพื่ออยู่บน Sider
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      background: "#ddddddcc", // โปร่งใสนิดนึง
     }}
   >
     <LoadingOutlined
       style={{
         fontSize: 100,
-
-        color: "#1d5d7cff",
+        color: "#ffffffff",
       }}
       spin
     />

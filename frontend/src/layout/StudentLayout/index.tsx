@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
+import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
   HomeOutlined,
@@ -26,6 +27,7 @@ import AcademicResult from "../../pages/student/AcademicResult";
 const { Header, Content, Footer, Sider } = Layout;
 
 const StudentFullLayout: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -41,9 +43,9 @@ const StudentFullLayout: React.FC = () => {
   } = theme.useToken();
 
   const Logout = () => {
+    setIsLoading(true);
     localStorage.clear();
     messageApi.success("Logout successful");
-
     setTimeout(() => {
       location.href = "/";
     }, 1000);
@@ -51,6 +53,7 @@ const StudentFullLayout: React.FC = () => {
 
   return (
     <>
+       {isLoading && <Loader />}
       <Layout style={{ minHeight: "100vh" }}>
         {/* Sidebar */}
         <Sider
@@ -88,16 +91,17 @@ const StudentFullLayout: React.FC = () => {
           <Menu
             theme="light"
             mode="inline"
-            defaultSelectedKeys={["home"]}
+            defaultSelectedKeys={[currentPage]}
             style={{
               backgroundColor: "#B3E0FF",
               color: "#000",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
+              marginTop: 16,
             }}      
           >
             <Menu.Item
-              key="home"
+              key="หน้าหลัก"
               onClick={() => setCurrentPage("หน้าหลัก")}
               style={{ marginBottom: 8 }}
             >
@@ -113,8 +117,8 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="profile"
-              onClick={() => setCurrentPage("ประวัติส")}
+              key="ประวัติ"
+              onClick={() => setCurrentPage("ประวัติ")}
               style={{ marginBottom: 8 }}
             >
               <Link
@@ -130,7 +134,7 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="schedule"
+              key="ตารางเรียน"
               onClick={() => setCurrentPage("ตารางเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -147,7 +151,7 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="result"
+              key="ผลการเรียน"
               onClick={() => setCurrentPage("ผลการเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -164,7 +168,7 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="checkin"
+              key="การเข้าเรียน"
               onClick={() => setCurrentPage("การเข้าเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -181,7 +185,7 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="upload"
+              key="ส่งงาน"
               onClick={() => setCurrentPage("ส่งงาน")}
               style={{ marginBottom: 8 }}
             >
@@ -198,7 +202,7 @@ const StudentFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="payment"
+              key="ชำระเงิน"
               onClick={() => setCurrentPage("ชำระเงิน")}
               style={{ marginBottom: 8 }}
             >
@@ -263,7 +267,6 @@ const StudentFullLayout: React.FC = () => {
                   <LogoutIcon
                     style={{ fontSize: "24px", color: "#000" }}
                     onClick={Logout}
-                    // className="hover:bg-gray-200 rounded-full p-2 cursor-pointer"
                   />
                 </Tooltip>
               </div>
@@ -272,7 +275,7 @@ const StudentFullLayout: React.FC = () => {
               </span>
               <Link to="/student/profile">
                 <Tooltip title="ข้อมูลส่วนตัว">
-                  {/* <UserOutlined style={{ fontSize: "18px",color: "#000" }}/> */}
+
                   <img
                     src={Studentimg}
                     alt="React Logo"
@@ -293,8 +296,7 @@ const StudentFullLayout: React.FC = () => {
             style={{
               margin: "0 5px",
               marginTop: "60px",
-              // height: "calc(100vh - 60px)", // 64px คือความสูงของ Header
-              // overflowY: "auto",            // ✅ ให้ scroll เฉพาะเนื้อหา
+
             }}
           >
             <Breadcrumb style={{ margin: "16px 0" }} />

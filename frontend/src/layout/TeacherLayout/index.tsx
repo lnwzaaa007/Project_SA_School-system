@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
+import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
   HomeOutlined,
@@ -27,6 +28,7 @@ import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
 const { Header, Content, Footer, Sider } = Layout;
 
 const TeacherFullLayout: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -42,10 +44,9 @@ const TeacherFullLayout: React.FC = () => {
   } = theme.useToken();
 
   const Logout = () => {
+    setIsLoading(true);
     localStorage.clear();
-
     messageApi.success("Logout successful");
-
     setTimeout(() => {
       location.href = "/";
     }, 2000);
@@ -53,6 +54,7 @@ const TeacherFullLayout: React.FC = () => {
 
   return (
     <>
+       {isLoading && <Loader />}
       <Layout style={{ minHeight: "100vh" }}>
         {/* Sidebar */}
         <Sider
@@ -90,16 +92,17 @@ const TeacherFullLayout: React.FC = () => {
           <Menu
             theme="light"
             mode="inline"
-            defaultSelectedKeys={["home"]}
+            defaultSelectedKeys={[currentPage]}
             style={{
               backgroundColor: "#B3E0FF",
               color: "#000",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
+              marginTop: 16,
             }}
           >
             <Menu.Item
-              key="home"
+              key="หน้าหลัก"
               onClick={() => setCurrentPage("หน้าหลัก")}
               style={{ marginBottom: 8 }}
             >
@@ -115,7 +118,7 @@ const TeacherFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="profile"
+              key="ประวัติ"
               onClick={() => setCurrentPage("ประวัติ")}
               style={{ marginBottom: 8 }}
             >
@@ -131,7 +134,7 @@ const TeacherFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="schedule"
+              key="ตารางสอน"
               onClick={() => setCurrentPage("ตารางสอน")}
               style={{ marginBottom: 8 }}
             >
@@ -148,7 +151,7 @@ const TeacherFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="ListOfStudent"
+              key="รายชื่อนักเรียน"
               onClick={() => setCurrentPage("รายชื่อนักเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -165,7 +168,7 @@ const TeacherFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="enterScore"
+              key="กรอกคะแนน"
               onClick={() => setCurrentPage("กรอกคะแนน")}
               style={{ marginBottom: 8 }}
             >
@@ -182,7 +185,7 @@ const TeacherFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="createWork"
+              key="สร้างงาน"
               onClick={() => setCurrentPage("สร้างงาน")}
               style={{ marginBottom: 8 }}
             >
@@ -199,7 +202,7 @@ const TeacherFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="attendanceRecord"
+              key="บันทึกเข้าเรียน"
               onClick={() => setCurrentPage("บันทึกเข้าเรียน")}
               style={{ marginBottom: 8 }}
             >
@@ -231,7 +234,7 @@ const TeacherFullLayout: React.FC = () => {
             style={{
               position: "fixed",
               top: 0,
-              left: collapsed ? 87 : 207, // ขยับตาม Sider
+              left: collapsed ? 87 : 207, 
               right: 0,
               // zIndex: 1100,
               width: `calc(100% - ${collapsed ? 87 : 207}px)`,
@@ -264,14 +267,12 @@ const TeacherFullLayout: React.FC = () => {
                   <LogoutIcon
                     style={{ fontSize: "24px", color: "#000" }}
                     onClick={Logout}
-                    // className="hover:bg-gray-200 rounded-full p-2 cursor-pointer"
                   />
                 </Tooltip>
               </div>
               <span style={{ fontSize: "18px", color: "#000" }}>ครู สมศรี</span>
               <Link to="/teacher/profile">
                 <Tooltip title="ข้อมูลส่วนตัว">
-                  {/* <UserOutlined style={{ fontSize: "18px",color: "#000" }}/> */}
                   <img
                     src={Teacher}
                     alt="React Logo"
