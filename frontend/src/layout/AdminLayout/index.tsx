@@ -26,6 +26,13 @@ import Payment from "../../pages/admin/Payment";
 import Schedule from "../../pages/admin/Schedule";
 import ApplyForStudy from "../../pages/admin/ApplyForStudy";
 import Course from "../../pages/admin/Course";
+import CreateTeacher from "../../pages/admin/ManageTeacher/CreateTeacher";
+import DeleteTeacher from "../../pages/admin/ManageTeacher/DeleteTeacher";
+import EditTeacher from "../../pages/admin/ManageTeacher/EditTeacher";
+import DataTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/DataTeacher";
+import AddressTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/AddressTeacher";
+import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDataTeacher";
+import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -264,10 +271,11 @@ const AdminFullLayout: React.FC = () => {
               alignItems: "center",
               borderBottomLeftRadius: 30,
               transition: "left 0.2s, width 0.2s",
+              zIndex: 5000,
             }}
           >
             <h2 style={{ margin: 0 }}> {currentPage} </h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 24 ,}}>
               <div
                 style={{
                   display: "inline-flex",
@@ -278,11 +286,12 @@ const AdminFullLayout: React.FC = () => {
                   borderRadius: "50%",
                   backgroundColor: "#C1E5FF", 
                   cursor: "pointer",
+                  
                 }}
               >
-                <Tooltip title="ออกจากระบบ">
+                <Tooltip title="ออกจากระบบ" style={{ zIndex: 10000 }}>
                   <LogoutIcon
-                    style={{ fontSize: "24px", color: "#000" }}
+                    style={{ fontSize: "24px", color: "#000", }}
                     onClick={Logout}
                     // className="hover:bg-gray-200 rounded-full p-2 cursor-pointer"
                   />
@@ -306,11 +315,11 @@ const AdminFullLayout: React.FC = () => {
 
             <div
               style={{
-                padding: 24,
+                // padding: 24,
 
-                minHeight: "calc(100vh - 60px)",
-
-                background: colorBgContainer,
+                // minHeight: "calc(100vh - 60px)",
+                // zIndex: 5000,
+                // background: colorBgContainer,
               }}
             >
               <Routes>
@@ -318,6 +327,13 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/announce"element={<Announce />}/>
                 <Route path="/manageStudent" element={<ManageStudent />} />
                 <Route path="/manageTeacher" element={<ManageTeacher />} />
+                <Route path="/manageTeacher/CreateTeacher" element={<CreateTeacher />} />
+                <Route path="/manageTeacher/DeleteTeacher" element={<DeleteTeacher />} />
+                <Route path="/manageTeacher/EditTeacher" element={<EditTeacher />} />
+                <Route path="/manageTeacher/CreateTeacher/DataTeacher" element={<DataTeacher />} />
+                <Route path="/manageTeacher/CreateTeacher/AddressTeacher" element={<AddressTeacher />} />
+                <Route path="/manageTeacher/EditTeacher/EditDataTeacher" element={<EditDataTeacher />} />
+                <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/payment" element={<Payment />} />

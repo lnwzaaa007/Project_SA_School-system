@@ -11,7 +11,13 @@ const Course = Loadable(lazy(() => import("../pages/admin/Course")));
 const Schedule = Loadable(lazy(() => import("../pages/admin/Schedule")));
 const Payment = Loadable(lazy(() => import("../pages/admin/Payment")));
 const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
-
+const CreateTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher")));
+const DeleteTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/DeleteTeacher")));
+const EditTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher")));
+const DataTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher/DataTeacher")));
+const AddressTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher/AddressTeacher")));
+const EditDataTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher/EditDataTeacher")));
+const EditAddressTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher")));
 const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
     path: "/admin",
@@ -20,7 +26,18 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "", element: <Home /> }, // /teacher
       { path: "announce", element: <Announce /> },
       { path: "manageStudent", element: <ManageStudent /> },
-      { path: "manageTeacher", element: <ManageTeacher /> },
+      { path: "manageTeacher", element: <ManageTeacher />,
+        children: [
+          {path : "CreateTeacher", element: <CreateTeacher />, children: [{path : "DataTeacher", element: <DataTeacher />}, {path : "AddressTeacher", element: <AddressTeacher />}]},
+          {path : "DeleteTeacher", element: <DeleteTeacher />},
+          {path : "EditTeacher", element: <EditTeacher />, children: [{path : "EditDataTeacher", element: <EditDataTeacher />}, {path : "EditAddressTeacher", element: <EditAddressTeacher />}]}
+        ]
+       },
+      //  { path: "manageTeacher", element: <ManageTeacher />,
+      //   children: [
+      //     {path : "DeleteTeacher", element: <DeleteTeacher />}
+      //   ]
+      //  },
       { path: "course", element: <Course /> },
       { path: "schedule", element: <Schedule /> },
       { path: "payment", element: <Payment /> },
