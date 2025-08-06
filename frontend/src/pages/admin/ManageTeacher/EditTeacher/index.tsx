@@ -5,7 +5,10 @@ import { PlusOutlined, DeleteOutlined, FormOutlined, IdcardOutlined ,PushpinFill
 import { Gradient } from "@mui/icons-material";
 const { Option } = Select;
 import BackButton from "../../../../components/BackButton";
+import Upload from "../../../../components/Upload";
 import React, { useState } from "react";
+import ModalSave from "../../../../components/ModalSeve";
+import MadalCancel from "../../../../components/ModalCancel";
  const provinces = [
   {
     name: "กรุงเทพมหานคร",
@@ -136,14 +139,14 @@ const ManageTeacher = () => {
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>จบการศึกษา (สาขา)</label>
+            <p></p>
             <Input placeholder="Ex. วิทยาการคอมพิวเตอร์" />
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>แนบไฟล์วุฒิ</label>
-            <Select placeholder="เลือก" style={{ width: "100%" }}>
-              <Option value="PDF">PDF</Option>
-              <Option value="JPG">JPG</Option>
-            </Select>
+            <p></p>
+            <Upload />
+            
           </Col>
         </Row>
         <Row gutter={[16, 12]}>
@@ -243,8 +246,10 @@ const ManageTeacher = () => {
   
 <div style={{marginLeft : "calc(44% + 24px)"}}>
       
-      <Button type="primary" style={{ marginLeft: '8px', marginTop: '16px'}} onClick={() => navigate(-1)} >บันทึก</Button>
-      <Button type="default" style={{ marginLeft: '8px', marginTop: '16px' }} onClick={() => navigate(-1)}>ยกเลิก</Button>
+      <Space>
+        <ModalSave />
+        <MadalCancel />
+      </Space>
       
     </div>
 
