@@ -272,7 +272,7 @@ const ManageTeacher = () => {
 
   
 <div style={{marginLeft : "calc(44% + 24px)"}}>
-      <Button type="primary" style={{ marginTop: '16px' }} onClick={() => navigate(-2)}>บันทึก</Button>
+      <Button type="primary" style={{ marginTop: '16px' }} onClick={() => navigate(-1)}>บันทึก</Button>
       <Button type="default" style={{ marginLeft: '8px', marginTop: '16px' }} onClick={() => navigate(-1)}>ยกเลิก</Button>
     </div>
 
