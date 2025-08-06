@@ -73,11 +73,11 @@ const ManageTeacher = () => {
             <Button type="primary" icon={<FormOutlined />}>
               แก้ไข
             </Button> */}
-            <Link to ="DeleteTeacher">
+            
             <Button type="primary" icon={<DeleteOutlined />} style={{backgroundColor:"#ff1818ff"}}>
                 ลบ
               </Button>
-            </Link>
+            
             
             <Link to ="EditTeacher">
               <Button type="primary" icon={<FormOutlined />} style={{backgroundColor:"#0088ff"}}>
