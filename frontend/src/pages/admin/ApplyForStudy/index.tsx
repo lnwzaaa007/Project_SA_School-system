@@ -1,12 +1,13 @@
 import React from 'react';
 import { useState, useEffect } from "react";
-import { Space, Table, Button, Col, Row, Divider, message, Input,Select } from "antd";
+import { Space, Table, Button, Col, Row, Divider, message, Input,Select,Modal } from "antd";
 import { PlusOutlined, DeleteOutlined, FormOutlined,AudioOutlined,SearchOutlined    } from "@ant-design/icons";
 import type {GetProps} from "antd";
 const { Option } = Select;
 import { Link, Route, useNavigate,Outlet } from "react-router-dom";
 import dayjs from "dayjs";
 import { Content } from 'antd/es/layout/layout';
+import ModalDelete from "../../../components/ModalDelete";
 type SearchProps = GetProps<typeof Input.Search>;
 
 const { Search } = Input;
@@ -21,13 +22,14 @@ const suffix = (
 );
 const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value);
 const ApplyForStudy = () => {
+   
   return (
-    <div>
-      <h1>สมัครเรียน</h1>
+    <div style={{ padding: "20px", backgroundColor: "#F9F9F9", minHeight: "100vh" }}>
+      
       <Row gutter={[16, 12]}>
         <Col xs={24} md={8} >
           
-          <div style={{ minHeight: "20px",minWidth: "100%", backgroundColor: "#E4FFE4", padding: "20px", borderRadius: "8px" }}>
+          <div style={{ minHeight: "20px",minWidth: "100%", backgroundColor: "#c0ffc0ff", padding: "20px", borderRadius: "8px" }}>
             <h3>Completed 0</h3>
           </div>
         </Col>
@@ -78,13 +80,13 @@ const ApplyForStudy = () => {
             </Col>
             <Col xs ={24} md={6} style={{padding: "18px 6px"}}>
               
-                <Button type='primary' icon={<SearchOutlined />}></Button>
+                <Button type='primary' icon={<SearchOutlined />}> ค้นหา</Button>
             </Col>
             </Row>
         </div>
       </div>
-      <div style={{  marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(10vh - 60px)", width: "70%",  }}>
-
+      <div style={{  marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(100vh - 60px)", width: "100%",  }}>
+        
       </div>
     </div>
   );
