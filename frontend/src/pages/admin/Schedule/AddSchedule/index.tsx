@@ -1,146 +1,127 @@
-// import SelectCouse from "../../../../components/SelectCourse";
-// import { Routes, Route, Link, Navigate } from "react-router-dom";
-// import { Button, Table, Card } from "antd";
-// import {
-//   PlusOutlined,
-//   DeleteOutlined,
-//   FormOutlined,
-// } from "@ant-design/icons";
+// import React from "react";
+// import "./index.css"
+// import { Modal, Input } from "antd";
 
-
-// const Schedule = () => {
+// const AddCourseModal = ({ open, onOk, onCancel }) => {
 //   return (
-//     <div
-//       style={{
-//         minHeight: "100vh",
-//         padding: "50px 80px",
-//         background: "#F1EEE0",
-//         display: "flex",
-//         justifyContent: "center",
-//       }}
-//       >
-//       <Card
-//         style={{
-//             width: "100%",
-//             maxWidth: "1400px",
-//             borderRadius: 20,           
-//         }}
-//         bodyStyle={{ padding: "40px" }}
-//       >
-//         {/* Filter Section */}
-//           <div
-//             style={{
-//                 marginLeft: "auto",
-//                 display: "flex",
-//                 gap: "12px",
-//                 justifyContent: "center",
-//             }}
-//           >
-//             <SelectCouse />
-            
-//         </div>
-//         {/* Table Section */}
-//         <div style={{ overflowX: "auto" }}>
-//         </div>
-//       </Card>
-//     </div>
+//     <Modal
+//       title="เพิ่มรายวิชา"
+//       open={open}
+//       onOk={onOk}
+//       onCancel={onCancel}
+//       okText="เพิ่ม"
+//       cancelText="ยกเลิก"
+//       width={800}
+//       zIndex={7000}
+//     >
+//       {/* ตัวอย่างฟอร์มเบื้องต้น */}
+//       <div className="input_S" >
+//         <Input.Search className="search-input"
+//             placeholder="รหัสวิชา"
+//             enterButton
+//             style={{ width: 400,height: 50,justifyContent: "center",}}
+//           />
+//         {/* เพิ่ม field ตามต้องการ */}
+//       </div>
+//     </Modal>
 //   );
 // };
 
-// export default Schedule;
+// export default AddCourseModal;
 
-import { Input, Card } from "antd";
-import { useState } from "react";
-import './index.css';
+import React, { useState, useEffect } from "react";
+import { Modal, Input, List } from "antd";
+import Selectday from "../../../../components/SelectDay"
+import SelectTimeStart from "../../../../components/SelectTimeStart"
+import SelectTimeEnd from "../../../../components/SelectTimeEnd"
+import "./index.css";
 
-const AddSchedule = () => {
+const mockCourses = [
+  { code: "CS101", name: "Introduction to Computer Science" },
+  { code: "CS102", name: "Data Structures" },
+  { code: "CS103", name: "Algorithms" },
+  { code: "MA101", name: "Calculus I" },
+  { code: "PH101", name: "Physics for Engineers" },
+];
+
+const AddCourseModal = ({ open, onOk, onCancel }) => {
+  const [searchResults, setSearchResults] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
-//   const handleSearch = (value) => {
-//     // Logic สำหรับค้นหารายวิชา (สามารถใส่เพิ่มได้)
-//     console.log("Search:", value);
-//   };
+  useEffect(() => {
+    if (!open) {
+      setSearchResults([]);
+      setSelectedCourse(null);
+      setSearchText("");
+    }
+  }, [open]);
 
- return (
-  <div
-    style={{
-      minHeight: "100vh",
-      padding: "50px 80px",
-      background: "#F1EEE0",
-      display: "flex",
-      justifyContent: "center",
-    }}
-  >
-    <Card
-      style={{
-        width: "100%",
-        maxWidth: "2000px",
-        borderRadius: "40px",
-        background: "#fff",
-      }}
-      bodyStyle={{ padding: "40px" }}
+  const handleSearch = (value) => {
+    const results = mockCourses.filter((course) =>
+      course.code.toLowerCase().includes(value.toLowerCase())
+    );
+    setSearchResults(results);
+    setSelectedCourse(null); // ล้างการเลือกเดิม
+  };
+
+  const handleSelectCourse = (course) => {
+    setSelectedCourse(course);
+  };
+
+  const handleOk = () => {
+    if (selectedCourse) {
+      onOk(selectedCourse);
+    }
+  };
+
+  return (
+    <Modal
+      title="เพิ่มรายวิชา"
+      open={open}
+      onOk={handleOk}
+      onCancel={onCancel}
+      okText="เพิ่ม"
+      cancelText="ยกเลิก"
+      width={800}
+      zIndex={7000}
+      okButtonProps={{ disabled: !selectedCourse }}
     >
-      {/* Filter Section */}
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "24px",
-          paddingTop: "40px",
-        }}
-      >
+      <div className="input_S">
+        <Selectday/>
+        <SelectTimeStart/>
+        <SelectTimeEnd/>
         <Input.Search
-          className="search-input"
-          placeholder="รหัสวิชา"
+          placeholder="ค้นหารหัสวิชา เช่น CS101"
           enterButton
-          style={{ width: 400, height: 50 }}
-          // onSearch={handleSearch}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onSearch={handleSearch}
+          style={{ width: 400 }}
         />
+        {searchResults.length > 0 && (
+          <List
+            style={{ marginTop: 16, maxWidth: 500, width: "100%" }}
+            bordered
+            dataSource={searchResults}
+            renderItem={(item) => (
+              <List.Item
+                onClick={() => handleSelectCourse(item)}
+                style={{
+                  cursor: "pointer",
+                  background:
+                    selectedCourse?.code === item.code ? "#e6f7ff" : "white",
+                }}
+              >
+                <strong>{item.code}</strong>: {item.name}
+              </List.Item>
+            )}
+          />
+        )}
       </div>
-
-      {/* Subject Info */}
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 80px", marginBottom: "24px" }}>
-        <div>
-          <p><strong>ชื่อวิชา:</strong> คณิตศาสตร์พื้นฐาน1</p>
-          <p><strong>ครูประจำรายวิชา:</strong> สมศรี ผ่องใจ</p>
-        </div>
-        <div>
-          <p><strong>จำนวนคาบต่อสัปดาห์:</strong> 3</p>
-          <p><strong>หน่วยกิต:</strong> 3</p>
-        </div>
-      </div>
-
-      {/* Time Selection */}
-      <div style={{ padding: "0 80px" }}>
-        <div style={{ display: "flex", gap: "40px", marginBottom: "16px" }}>
-          <Input placeholder="วัน" style={{ background: "#f6f6f6", borderRadius: "12px" }} />
-        </div>
-        <div style={{ display: "flex", gap: "40px" }}>
-          <Input placeholder="เวลาเริ่ม" style={{ background: "#f6f6f6", borderRadius: "12px", width: "200px" }} />
-          <Input placeholder="ถึง" style={{ background: "#f6f6f6", borderRadius: "12px", width: "200px" }} />
-        </div>
-      </div>
-
-      {/* Confirm Button */}
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "40px 80px 0" }}>
-        <button
-          style={{
-            backgroundColor: "#B3E5FC",
-            border: "none",
-            borderRadius: "16px",
-            padding: "10px 30px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          ยืนยัน
-        </button>
-      </div>
-    </Card>
-  </div>
-);
-
+    </Modal>
+  );
 };
 
-export default AddSchedule;
+export default AddCourseModal;
+
