@@ -167,7 +167,8 @@
 //   );
 // };
 // export default Schedule;
-import { useState } from "react"; 
+import { useState } from "react";
+import AddCourseModal from "./AddSchedule"
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
 import SelectTerm from "../../../components/SelectTerm";
@@ -265,17 +266,9 @@ const dataSource = [
 const Schedule = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-   const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
+  const showModal = () => setIsModalVisible(true);
+  const handleOk = () => setIsModalVisible(false);
+  const handleCancel = () => setIsModalVisible(false);
   return (
     <div
       style={{
@@ -318,8 +311,8 @@ const Schedule = () => {
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
-                style={{ background: "#1677FF" }}
                 onClick={showModal}
+                style={{ background: "#1677FF" }}
               >
                 เพิ่ม
               </Button>
@@ -330,6 +323,7 @@ const Schedule = () => {
             <Button icon={<FormOutlined />} style={{ background: "#faad14", color: "#fff" }}>
               แก้ไข
             </Button>
+            <AddCourseModal open={isModalVisible} onOk={handleOk} onCancel={handleCancel}/>
           </div>
         </div>
 
@@ -344,20 +338,6 @@ const Schedule = () => {
           />
         </div>
       </Card>
-      {/* Modal เพิ่มรายวิชา */}
-      <Modal
-        title="เพิ่มรายวิชา"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okText="ยืนยัน"
-        cancelText="ยกเลิก"
-        width={800}
-        zIndex={7000}
-      >
-        {/* คุณสามารถเปลี่ยนเนื้อหาด้านล่างเป็นฟอร์มจริง */}
-        <p>เนื้อหา หรือฟอร์มสำหรับเพิ่มรายวิชา</p>
-      </Modal>
     </div>
   );
 };
