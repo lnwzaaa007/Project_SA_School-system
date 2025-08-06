@@ -167,12 +167,12 @@
 //   );
 // };
 // export default Schedule;
-
+import { useState } from "react"; 
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
 import SelectTerm from "../../../components/SelectTerm";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
-import { Button, Table, Card } from "antd";
+import { Button, Table, Card,Modal } from "antd";
 import {
   PlusOutlined,
   DeleteOutlined,
@@ -263,6 +263,19 @@ const dataSource = [
 ];
 
 const Schedule = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+   const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <div
       style={{
@@ -301,15 +314,16 @@ const Schedule = () => {
               gap: "12px",
             }}
           >
-            <Link to="/admin/schedule/add">
+            {/* <Link to="/admin/schedule/add"> */}
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
                 style={{ background: "#1677FF" }}
+                onClick={showModal}
               >
                 เพิ่ม
               </Button>
-            </Link>
+            {/* </Link> */}
             <Button icon={<DeleteOutlined />} danger>
               ลบ
             </Button>
@@ -330,6 +344,20 @@ const Schedule = () => {
           />
         </div>
       </Card>
+      {/* Modal เพิ่มรายวิชา */}
+      <Modal
+        title="เพิ่มรายวิชา"
+        open={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="ยืนยัน"
+        cancelText="ยกเลิก"
+        width={800}
+        zIndex={7000}
+      >
+        {/* คุณสามารถเปลี่ยนเนื้อหาด้านล่างเป็นฟอร์มจริง */}
+        <p>เนื้อหา หรือฟอร์มสำหรับเพิ่มรายวิชา</p>
+      </Modal>
     </div>
   );
 };
