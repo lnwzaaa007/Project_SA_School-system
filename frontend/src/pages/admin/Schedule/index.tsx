@@ -292,8 +292,8 @@ const Schedule = () => {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: "24px",
-            marginBottom: "32px",
+            gap: "5px",
+            marginBottom: "42px",
             alignItems: "center",
           }}
         >

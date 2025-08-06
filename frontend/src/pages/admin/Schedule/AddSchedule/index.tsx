@@ -77,6 +77,7 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
 
   return (
     <Modal
+        className="modal_add_schedule"
       title="เพิ่มรายวิชา"
       open={open}
       onOk={handleOk}
@@ -87,7 +88,7 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
       zIndex={7000}
       okButtonProps={{ disabled: !selectedCourse }}
     >
-      <div className="input_S">
+      <div className="input_S" style={{height:150}}>
         <Selectday/>
         <SelectTimeStart/>
         <SelectTimeEnd/>
@@ -97,8 +98,9 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onSearch={handleSearch}
-          style={{ width: 400 }}
-        />
+          style={{ width: 250 }}
+          />
+      
         {searchResults.length > 0 && (
           <List
             style={{ marginTop: 16, maxWidth: 500, width: "100%" }}
