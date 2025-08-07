@@ -15,7 +15,7 @@ const Home = () => {
       minHeight:"100vh",
       marginLeft:"6px",
       marginRight:"6px",
-      borderRadius:"6px"
+      borderRadius:"6px",
       }}>
       <Col xs={24} sm={24} md={24} lg={24} xl={24} style ={{padding: "16px"}}>
         {/* <Card style ={{background: "#ffdee2",height: "180px"}}> */}
