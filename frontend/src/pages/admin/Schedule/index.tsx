@@ -332,8 +332,9 @@ const Schedule: React.FC = () => {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: 24,
-            marginBottom: 32,
+
+            gap: "5px",
+            marginBottom: "42px",
             alignItems: "center",
           }}
         >
