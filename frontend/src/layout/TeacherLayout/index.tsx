@@ -55,7 +55,7 @@ const TeacherFullLayout: React.FC = () => {
   return (
     <>
        {isLoading && <Loader />}
-      <Layout style={{ minHeight: "100vh" }}>
+      <Layout style={{ minHeight: "100vh",background:"#F1EEE0" }}>
         {/* Sidebar */}
         <Sider
           collapsible
@@ -303,11 +303,11 @@ const TeacherFullLayout: React.FC = () => {
 
             <div
               style={{
-                padding: 24,
+                // padding: 24,
 
-                minHeight: "calc(100vh - 60px)",
+                // minHeight: "calc(100vh - 60px)",
 
-                background: colorBgContainer,
+                // background: colorBgContainer,
               }}
             >
               <Routes>
