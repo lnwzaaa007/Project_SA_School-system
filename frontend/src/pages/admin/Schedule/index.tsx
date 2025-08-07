@@ -317,14 +317,14 @@ const Schedule: React.FC = () => {
     <div
       style={{
         minHeight: "100vh",
-        padding: "50px 80px",
+        // padding: "50px 80px",
         background: "#F1EEE0",
         display: "flex",
         justifyContent: "center",
       }}
     >
       <Card
-        style={{ width: "100%", maxWidth: "2000px", borderRadius: 40 }}
+        style={{ width: "100%"}}
         bodyStyle={{ padding: "40px" }}
       >
         {/* Filter Section */}
@@ -332,7 +332,6 @@ const Schedule: React.FC = () => {
           style={{
             display: "flex",
             flexWrap: "wrap",
-
             gap: "5px",
             marginBottom: "42px",
             alignItems: "center",
