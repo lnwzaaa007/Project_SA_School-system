@@ -167,20 +167,47 @@
 //   );
 // };
 // export default Schedule;
-import { useState } from "react";
-import AddCourseModal from "./AddSchedule"
+import React, { useState } from "react";
+import AddCourseModal from "./AddSchedule";
+import DeleteCoursesModal from "./DeleteSchedule";
+// import EditCourseModal from "./EditSchedule";
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
 import SelectTerm from "../../../components/SelectTerm";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
-import { Button, Table, Card,Modal } from "antd";
-import {
-  PlusOutlined,
-  DeleteOutlined,
-  FormOutlined,
-} from "@ant-design/icons";
+import { Button, Table, Card } from "antd";
+import { PlusOutlined, DeleteOutlined, FormOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
 
-const columns = [
+interface Course {
+  id: string;
+  code: string;
+  name: string;
+  // เพิ่ม fields อื่น ๆ ได้ตามต้องการ
+}
+
+interface TimeTableRow {
+  key: string;
+  day: string;
+  time1?: string;
+  time2?: string;
+  time3?: string;
+  time4?: string;
+  time5?: string;
+  time6?: string;
+  time7?: string;
+  time8?: string;
+  time9?: string;
+}
+
+const initialTimeTableData: TimeTableRow[] = [
+  { key: "1", day: "จันทร์" },
+  { key: "2", day: "อังคาร" },
+  { key: "3", day: "พุธ" },
+  { key: "4", day: "พฤหัส" },
+  { key: "5", day: "ศุกร์" },
+];
+
+const timeTableColumns: ColumnsType<TimeTableRow> = [
   {
     title: "Day/Time",
     dataIndex: "day",
@@ -216,7 +243,7 @@ const columns = [
     dataIndex: "time5",
     key: "time5",
     align: "center",
-    render: (text, row, index) => {
+    render: (_, __, index) => {
       if (index === 0) {
         return {
           children: "พักเที่ยง",
@@ -255,20 +282,37 @@ const columns = [
   },
 ];
 
-const dataSource = [
-  { key: "1", day: "จันทร์" },
-  { key: "2", day: "อังคาร" },
-  { key: "3", day: "พุธ" },
-  { key: "4", day: "พฤหัส" },
-  { key: "5", day: "ศุกร์" },
-];
+const Schedule: React.FC = () => {
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  // const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  // const [selectedCourseForEdit, setSelectedCourseForEdit] = useState<Course | null>(null);
 
-const Schedule = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handleAddCourse = (newCourse: Course) => {
+    setCourses((prev) => [...prev, newCourse]);
+    setIsAddModalVisible(false);
+  };
 
-  const showModal = () => setIsModalVisible(true);
-  const handleOk = () => setIsModalVisible(false);
-  const handleCancel = () => setIsModalVisible(false);
+  const handleDeleteCourses = (coursesToDelete: Course[]) => {
+    const deleteIds = coursesToDelete.map((c) => c.id);
+    setCourses((prev) => prev.filter((c) => !deleteIds.includes(c.id)));
+    setIsDeleteModalVisible(false);
+  };
+
+  //   const handleEditClick = (course: Course) => {
+  //   setSelectedCourseForEdit(course);
+  //   setIsEditModalVisible(true);
+  // };
+
+  // const handleEditCourse = (updatedCourse: Course) => {
+  //   setCourses((prev) =>
+  //     prev.map((c) => (c.id === updatedCourse.id ? updatedCourse : c))
+  //   );
+  //   setIsEditModalVisible(false);
+  //   setSelectedCourseForEdit(null);
+  // };
+
   return (
     <div
       style={{
@@ -280,11 +324,7 @@ const Schedule = () => {
       }}
     >
       <Card
-        style={{
-          width: "100%",
-          maxWidth: "2000px",
-          borderRadius: 40,
-        }}
+        style={{ width: "100%", maxWidth: "2000px", borderRadius: 40 }}
         bodyStyle={{ padding: "40px" }}
       >
         {/* Filter Section */}
@@ -292,6 +332,7 @@ const Schedule = () => {
           style={{
             display: "flex",
             flexWrap: "wrap",
+
             gap: "5px",
             marginBottom: "42px",
             alignItems: "center",
@@ -304,37 +345,66 @@ const Schedule = () => {
             style={{
               marginLeft: "auto",
               display: "flex",
-              gap: "12px",
+              gap: 12,
             }}
           >
-            {/* <Link to="/admin/schedule/add"> */}
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={showModal}
-                style={{ background: "#1677FF" }}
-              >
-                เพิ่ม
-              </Button>
-            {/* </Link> */}
-            <Button icon={<DeleteOutlined />} danger>
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              onClick={() => setIsAddModalVisible(true)}
+              style={{ background: "#1677FF" }}
+            >
+              เพิ่ม
+            </Button>
+            <Button
+              icon={<DeleteOutlined />}
+              onClick={() => setIsDeleteModalVisible(true)}
+              danger
+              disabled={courses.length === 0}
+            >
               ลบ
             </Button>
-            <Button icon={<FormOutlined />} style={{ background: "#faad14", color: "#fff" }}>
+            {/* <Button
+              icon={<FormOutlined />}
+              style={{ background: "#faad14", color: "#fff" }}
+              // disabled
+              onClick={() => { handleEditClick(true)}}
+              disabled={courses.length === 0}
+            >
               แก้ไข
-            </Button>
-            <AddCourseModal open={isModalVisible} onOk={handleOk} onCancel={handleCancel}/>
+            </Button> */}
+
+            <AddCourseModal
+              open={isAddModalVisible}
+              onOk={handleAddCourse}
+              onCancel={() => setIsAddModalVisible(false)}
+            />
+            <DeleteCoursesModal
+              open={isDeleteModalVisible}
+              onDelete={handleDeleteCourses}
+              onCancel={() => setIsDeleteModalVisible(false)}
+              courses={courses}
+            />
+            {/* <EditCourseModal
+              open={isEditModalVisible}
+              onOk={handleEditCourse}
+              onCancel={() => {
+                setIsEditModalVisible(false);
+                setSelectedCourseForEdit(null);
+              }}
+              // initialCourse={selectedCourseForEdit}
+            />   */}
           </div>
         </div>
 
-
-        <div style={{ overflowX: "auto" }}>
+        {/* ตารางเวลา */}
+        <div style={{ overflowX: "auto",paddingTop:"40px" }}>
           <Table
-            dataSource={dataSource}
-            columns={columns}
+            dataSource={initialTimeTableData}
+            columns={timeTableColumns}
             pagination={false}
             bordered
-            style={{ minWidth: "1200px" }}
+            style={{ minWidth: 1200 }}
           />
         </div>
       </Card>
