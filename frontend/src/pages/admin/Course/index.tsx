@@ -1,6 +1,6 @@
 const Course = () => {
   return (
-    <div>
+    <div style = {{}}>
       <h1>รายวิชา</h1>
 
       {/* Add your schedule content here */}
