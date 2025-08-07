@@ -31,12 +31,17 @@
 
 import React, { useState, useEffect } from "react";
 import { Modal, Input, List } from "antd";
-import Selectday from "../../../../components/SelectDay"
-import SelectTimeStart from "../../../../components/SelectTimeStart"
-import SelectTimeEnd from "../../../../components/SelectTimeEnd"
+import Selectday from "../../../../components/SelectDay";
+import SelectTimeStart from "../../../../components/SelectTimeStart";
+import SelectTimeEnd from "../../../../components/SelectTimeEnd";
 import "./index.css";
 
-const mockCourses = [
+interface Course {
+  code: string;
+  name: string;
+}
+
+const mockCourses: Course[] = [
   { code: "CS101", name: "Introduction to Computer Science" },
   { code: "CS102", name: "Data Structures" },
   { code: "CS103", name: "Algorithms" },
@@ -44,10 +49,20 @@ const mockCourses = [
   { code: "PH101", name: "Physics for Engineers" },
 ];
 
-const AddCourseModal = ({ open, onOk, onCancel }) => {
-  const [searchResults, setSearchResults] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [searchText, setSearchText] = useState("");
+interface AddCourseModalProps {
+  open: boolean;
+  onOk: (selectedCourse: Course) => void;
+  onCancel: () => void;
+}
+
+const AddCourseModal: React.FC<AddCourseModalProps> = ({
+  open,
+  onOk,
+  onCancel,
+}) => {
+  const [searchResults, setSearchResults] = useState<Course[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [searchText, setSearchText] = useState<string>("");
 
   useEffect(() => {
     if (!open) {
@@ -57,7 +72,7 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
     }
   }, [open]);
 
-  const handleSearch = (value) => {
+  const handleSearch = (value: string) => {
     const results = mockCourses.filter((course) =>
       course.code.toLowerCase().includes(value.toLowerCase())
     );
@@ -65,7 +80,7 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
     setSelectedCourse(null); // ล้างการเลือกเดิม
   };
 
-  const handleSelectCourse = (course) => {
+  const handleSelectCourse = (course: Course) => {
     setSelectedCourse(course);
   };
 
@@ -77,6 +92,7 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
 
   return (
     <Modal
+      className="modal_add_schedule"
       title="เพิ่มรายวิชา"
       open={open}
       onOk={handleOk}
@@ -87,18 +103,19 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
       zIndex={7000}
       okButtonProps={{ disabled: !selectedCourse }}
     >
-      <div className="input_S">
-        <Selectday/>
-        <SelectTimeStart/>
-        <SelectTimeEnd/>
+      <div className="input_S" >
+        <Selectday />
+        <SelectTimeStart />
+        <SelectTimeEnd />
         <Input.Search
           placeholder="ค้นหารหัสวิชา เช่น CS101"
           enterButton
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onSearch={handleSearch}
-          style={{ width: 400 }}
+          style={{ width: 250 }}
         />
+
         {searchResults.length > 0 && (
           <List
             style={{ marginTop: 16, maxWidth: 500, width: "100%" }}
@@ -124,4 +141,3 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
 };
 
 export default AddCourseModal;
-

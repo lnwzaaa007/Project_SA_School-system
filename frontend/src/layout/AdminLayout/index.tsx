@@ -343,7 +343,7 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/schedule" element={<Schedule />} />
-                <Route path="/schedule/add" element={<AddSchedule />} />
+                {/* <Route path="/schedule/add" element={<AddSchedule />} /> */}
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/applyForStudy" element={<ApplyForStudy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
