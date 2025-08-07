@@ -89,9 +89,9 @@ const AddCourseModal = ({ open, onOk, onCancel }) => {
       okButtonProps={{ disabled: !selectedCourse }}
     >
       <div className="input_S" style={{height:150}}>
-        <Selectday/>
+        {/* <Selectday/>
         <SelectTimeStart/>
-        <SelectTimeEnd/>
+        <SelectTimeEnd/> */}
         <Input.Search
           placeholder="ค้นหารหัสวิชา เช่น CS101"
           enterButton
