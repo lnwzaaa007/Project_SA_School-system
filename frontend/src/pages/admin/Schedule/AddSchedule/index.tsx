@@ -34,6 +34,8 @@ import { Modal, Input, List } from "antd";
 import Selectday from "../../../../components/SelectDay";
 import SelectTimeStart from "../../../../components/SelectTimeStart";
 import SelectTimeEnd from "../../../../components/SelectTimeEnd";
+
+// import type { Course } from "../types"; 
 import "./index.css";
 
 interface Course {
@@ -51,7 +53,7 @@ const mockCourses: Course[] = [
 
 interface AddCourseModalProps {
   open: boolean;
-  onOk: (selectedCourse: Course) => void;
+  onOk: (newCourse: Omit<Course, "id">) => void;
   onCancel: () => void;
 }
 
@@ -63,6 +65,11 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
   const [searchResults, setSearchResults] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [searchText, setSearchText] = useState<string>("");
+
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<string | null>(null);
+  const [endTime, setEndTime] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!open) {
@@ -101,12 +108,27 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
       cancelText="ยกเลิก"
       width={800}
       zIndex={7000}
-      okButtonProps={{ disabled: !selectedCourse }}
+      okButtonProps={{
+        disabled: !selectedCourse || !selectedDay || !startTime || !endTime,
+      }}
     >
       <div className="input_S" >
-        <Selectday />
-        <SelectTimeStart />
-        <SelectTimeEnd />
+      <Selectday onChange={(value) => setSelectedDay(value)} />
+      <SelectTimeStart onChange={(value) => setStartTime(value)} />
+      <SelectTimeEnd onChange={(value) => setEndTime(value)} />
+      {/* <Selectday
+        value={selectedDay || ""}
+        onChange={setSelectedDay}
+      />
+      <SelectTimeStart
+        value={startTime || ""}
+        onChange={setStartTime}
+      />
+      <SelectTimeEnd
+        value={endTime || ""}
+        onChange={setEndTime}
+      /> */}
+
         <Input.Search
           placeholder="ค้นหารหัสวิชา เช่น CS101"
           enterButton
@@ -127,7 +149,7 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
                 style={{
                   cursor: "pointer",
                   background:
-                    selectedCourse?.code === item.code ? "#e6f7ff" : "white",
+                    selectedCourse?.code === item.code ? "#f6ffed" : "white",
                 }}
               >
                 <strong>{item.code}</strong>: {item.name}

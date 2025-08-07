@@ -1,10 +1,10 @@
 import React, { useState, useEffect, FC } from "react";
 import { Modal, List, Checkbox } from "antd";
-
-interface Course {
-  code: string;
-  name: string;
-}
+import type { Course } from "../types"; 
+// interface Course {
+//   code: string;
+//   name: string;
+// }
 
 interface DeleteCoursesModalProps {
   open: boolean;
@@ -52,7 +52,7 @@ const DeleteCoursesModal: FC<DeleteCoursesModalProps> = ({
       okText="ลบ"
       cancelText="ยกเลิก"
       zIndex={7000}
-      width={1000}
+      width={800}
        style={{ maxWidth: "100vw" }}
       okButtonProps={{ danger: true, disabled: selectedCodes.length === 0 }}
     >
@@ -61,20 +61,25 @@ const DeleteCoursesModal: FC<DeleteCoursesModalProps> = ({
         <p>ไม่มีรายวิชาให้ลบ</p>
       ) : (
         <List
-          style={{ marginTop: 16, maxWidth: 800, width: "100%" }}
+          style={{ marginTop: 16, maxWidth: 800, width: "800px" }}
           bordered
           dataSource={courses}
-          renderItem={(item) => (
-            <List.Item>
-              <Checkbox
-                checked={selectedCodes.includes(item.code)}
-                onChange={() => handleToggleCourse(item.code)}
-                // style={{ textAlign: "left" }} // ✅ ให้กล่อง Checkbox คลิกได้ทั้งแถว
+          renderItem={(item) => {
+            const isSelected = selectedCodes.includes(item.code);
+            return (
+              <List.Item
+                onClick={() => handleToggleCourse(item.code)}
+                style={{
+                  cursor: "pointer",
+                  background: isSelected ? "#f6ffed" : "white", // สีพื้นหลังเมื่อถูกเลือก
+                }}
               >
-                <strong>{item.code}</strong>: {item.name}
-              </Checkbox>
-            </List.Item>
-          )}
+                <Checkbox checked={isSelected}>
+                  <strong>{item.code}</strong>: {item.name}
+                </Checkbox>
+              </List.Item>
+            );
+          }}
         />
       )}
     </Modal>
