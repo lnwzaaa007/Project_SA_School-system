@@ -264,7 +264,7 @@ const TeacherFullLayout: React.FC = () => {
                   cursor: "pointer",
                 }}
               >
-                <Tooltip title="ออกจากระบบ">
+                <Tooltip title="ออกจากระบบ" overlayStyle={{ zIndex: 6000}}>
                   <LogoutIcon
                     style={{ fontSize: "24px", color: "#F1EEE0" }}
                     onClick={Logout}
@@ -273,7 +273,7 @@ const TeacherFullLayout: React.FC = () => {
               </div>
               <span style={{ fontSize: "18px", color: "#F1EEE0" }}>ครู สมศรี</span>
               <Link to="/teacher/profile">
-                <Tooltip title="ข้อมูลส่วนตัว">
+                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000}}>
                   <img
                     src={Teacher}
                     alt="React Logo"
