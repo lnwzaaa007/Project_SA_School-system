@@ -1,0 +1,8 @@
+.input_S {
+    display: flex;
+    flex-direction: row;      /* เรียงในแนวนอน */
+    flex-wrap: wrap;          /* ให้ขึ้นบรรทัดใหม่ถ้าจอแคบ */
+    gap: 5px;                /* ระยะห่างระหว่างช่อง */
+    align-items: center;      /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+    justify-content: center;  /* จัดให้อยู่กึ่งกลางแนวนอน */    
+}

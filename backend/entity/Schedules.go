@@ -11,6 +11,7 @@ type Schedules struct {
 	StartTime time.Time
 	EndTime time.Time
 	ScheduleDate time.Time
+	ScheduleDate_String string
 	
 	Attendances []Attendances `gorm:"foreignKey:SchedulesID"`
 
