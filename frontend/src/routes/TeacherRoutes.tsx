@@ -2,6 +2,7 @@ import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import Loadable from "../components/third-patry/Loadable";
 import TeacherLayout from "../layout/TeacherLayout";
+//import EditProfile from "../pages/teacher/TeachProfile/EditProfile";
 const MainPages = Loadable(lazy(() => import("../pages/authentication/Login")));
 
 const Home = Loadable(lazy(() => import("../pages/teacher/Home")));
@@ -17,6 +18,7 @@ const AttendanceRecord = Loadable(
 const TeachingSchedule = Loadable(
   lazy(() => import("../pages/teacher/TeachingSchedule")),
 );
+const EditProfile = Loadable(lazy(() => import("../pages/teacher/TeachProfile/EditProfile")));
 
 const TeacherRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -24,7 +26,11 @@ const TeacherRoutes = (isLoggedIn: boolean): RouteObject => {
     element: isLoggedIn ? <TeacherLayout /> : <MainPages />,
     children: [
       { path: "", element: <Home /> }, // /teacher
-      { path: "profile", element: <Profile /> },
+      { path: "profile", element: <Profile />,
+        children:[
+          {path: "EditProfile", element: <EditProfile/>},
+        ]
+       },
       { path: "schedule", element: <TeachingSchedule /> },
       { path: "ListOfStudent", element: <ListOfStudent /> },
       { path: "enterScore", element: <EnterScore /> },

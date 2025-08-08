@@ -35,6 +35,14 @@ const ChooseRolePage = () => {
         >
           เข้าสู่ระบบครู
         </Button>
+        <Button
+          onClick={() => {
+            navigate("/enrollment");
+            localStorage.setItem("role", "enrollment");
+          }}
+        >
+          สมัครเรียน
+        </Button>
       </Space>
     </div>
   );

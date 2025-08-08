@@ -49,12 +49,14 @@ const StudentFullLayout: React.FC = () => {
     setTimeout(() => {
       location.href = "/";
     }, 1000);
+
   };
 
   return (
     <>
+
        {isLoading && <Loader />}
-      <Layout style={{ minHeight: "100vh" }}>
+      <Layout style={{ minHeight: "100vh",background:"#F1EEE0" }}>
         {/* Sidebar */}
         <Sider
           collapsible
@@ -65,7 +67,7 @@ const StudentFullLayout: React.FC = () => {
             top: 0,
             left: 0,
             bottom: 0,
-            backgroundColor: "#B3E0FF",
+            backgroundColor: "#2F78E1",
             borderBottomRightRadius: 30,
             borderTopRightRadius: 30,
             zIndex: 1000,
@@ -91,9 +93,10 @@ const StudentFullLayout: React.FC = () => {
           <Menu
             theme="light"
             mode="inline"
-            defaultSelectedKeys={[currentPage]}
+            // defaultSelectedKeys={[currentPage]}
+            selectedKeys={[currentPage]}
             style={{
-              backgroundColor: "#B3E0FF",
+              backgroundColor: "#2F78E1",
               color: "#000",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
@@ -227,6 +230,7 @@ const StudentFullLayout: React.FC = () => {
             marginLeft: collapsed ? 87 : 207, // ขยับเฉพาะ Content
             transition: "margin-left 0.2s",
             minHeight: "100vh",
+            background:"#F1EEE0"
           }}
         >
           {/* Header */}
@@ -238,7 +242,7 @@ const StudentFullLayout: React.FC = () => {
               right: 0,
               // zIndex: 1100,
               width: `calc(100% - ${collapsed ? 87 : 207}px)`,
-              background: "linear-gradient(to right, #88CBF5, #C1E5FF)",
+              background: "linear-gradient(to right, #2F78E1, #3D62EA)",
               padding: "0 24px",
               height: "80px",
               display: "flex",
@@ -249,7 +253,7 @@ const StudentFullLayout: React.FC = () => {
               zIndex: 5000,
             }}
           >
-            <h2 style={{ margin: 0 }}> {currentPage} </h2>
+            <h2 style={{ margin: 0,color:"#F1EEE0" }}> {currentPage} </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
               <div
                 style={{
@@ -259,22 +263,24 @@ const StudentFullLayout: React.FC = () => {
                   width: 40,
                   height: 40,
                   borderRadius: "50%",
-                  backgroundColor: "#C1E5FF", 
+                  // backgroundColor: "#C1E5FF", 
                   cursor: "pointer",
                 }}
               >
-                <Tooltip title="ออกจากระบบ">
+                <Tooltip title="ออกจากระบบ" overlayStyle={{ zIndex: 6000}}>
                   <LogoutIcon
-                    style={{ fontSize: "24px", color: "#000" }}
+                    style={{ fontSize: "24px", color: "#F1EEE0" }}
                     onClick={Logout}
                   />
                 </Tooltip>
               </div>
-              <span style={{ fontSize: "18px", color: "#000" }}>
+              <span style={{ fontSize: "18px", color: "#F1EEE0" }}>
                 สมศรี ผ่องใส
               </span>
-              <Link to="/student/profile">
-                <Tooltip title="ข้อมูลส่วนตัว">
+              <Link to="/student/profile"
+                onClick={() => setCurrentPage("ประวัติ")}
+              >
+                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000}}>
 
                   <img
                     src={Studentimg}
@@ -322,7 +328,7 @@ const StudentFullLayout: React.FC = () => {
               </Routes>
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" }}>
+          <Footer style={{ textAlign: "center",background:"#F1EEE0" }}>
             System Analysis and Design
           </Footer>
         </Layout>
@@ -332,3 +338,4 @@ const StudentFullLayout: React.FC = () => {
 };
 
 export default StudentFullLayout;
+

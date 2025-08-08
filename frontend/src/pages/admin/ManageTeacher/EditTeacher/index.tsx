@@ -5,7 +5,11 @@ import { PlusOutlined, DeleteOutlined, FormOutlined, IdcardOutlined ,PushpinFill
 import { Gradient } from "@mui/icons-material";
 const { Option } = Select;
 import BackButton from "../../../../components/BackButton";
+import Upload from "../../../../components/Upload";
 import React, { useState } from "react";
+import ModalSave from "../../../../components/ModalSeve";
+import MadalCancel from "../../../../components/ModalCancel";
+import UploadImages from "../../../../components/UploadImages";
  const provinces = [
   {
     name: "กรุงเทพมหานคร",
@@ -62,8 +66,8 @@ const ManageTeacher = () => {
   };
   return (
     <div >
-      <BackButton />
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '75%' ,borderRadius: "32px" ,marginLeft : "13%"}} >
+      
+        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '60%' ,borderRadius: "32px" ,marginLeft : "20%"}} >
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -136,14 +140,14 @@ const ManageTeacher = () => {
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>จบการศึกษา (สาขา)</label>
+            <p></p>
             <Input placeholder="Ex. วิทยาการคอมพิวเตอร์" />
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>แนบไฟล์วุฒิ</label>
-            <Select placeholder="เลือก" style={{ width: "100%" }}>
-              <Option value="PDF">PDF</Option>
-              <Option value="JPG">JPG</Option>
-            </Select>
+            <p></p>
+            <Upload />
+            
           </Col>
         </Row>
         <Row gutter={[16, 12]}>
@@ -165,6 +169,13 @@ const ManageTeacher = () => {
             <label style= {{lineHeight: "2"}}>E-mail</label>
             <Input />
           </Col>
+        </Row>
+        <Row gutter={[16, 12]}>
+          <Col xs={24} md={12}>
+             <label style= {{lineHeight: "2"}}>Upload รูปภาพ</label>
+            <UploadImages />
+          </Col>
+          
         </Row>
         <h1>ที่อยู่ปัจจุบัน</h1>
         <Row gutter={[16, 12]}>
@@ -243,8 +254,10 @@ const ManageTeacher = () => {
   
 <div style={{marginLeft : "calc(44% + 24px)"}}>
       
-      <Button type="primary" style={{ marginLeft: '8px', marginTop: '16px'}} onClick={() => navigate(-1)} >บันทึก</Button>
-      <Button type="default" style={{ marginLeft: '8px', marginTop: '16px' }} onClick={() => navigate(-1)}>ยกเลิก</Button>
+      <Space>
+        <ModalSave />
+        <MadalCancel />
+      </Space>
       
     </div>
 
