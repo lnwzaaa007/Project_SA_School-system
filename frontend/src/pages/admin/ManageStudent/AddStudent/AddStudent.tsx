@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Select, DatePicker, Button, Tabs, Upload, Row, Col, Typography } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+
 
 const { Option } = Select;
 const { Title } = Typography;

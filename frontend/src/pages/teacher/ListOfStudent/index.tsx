@@ -5,8 +5,6 @@ import SelectClass from '../../../components/SelectClass';
 import { SearchOutlined, DownOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { Form, Radio, Space, Switch, Table, Tag, Button } from 'antd';
 import type {
-  GetProp,
-  RadioChangeEvent,
   TableProps,
 } from 'antd';
 
