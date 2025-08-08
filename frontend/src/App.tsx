@@ -14,9 +14,6 @@ function App() {
   return (
     <>
       <Router>
-        {/* <StudentLayout /> */}
-        {/* <TeacherLayout />/ */}
-        {/* <AdminLayout /> */}
         <ConfigRoutes />
       </Router>
     </>
