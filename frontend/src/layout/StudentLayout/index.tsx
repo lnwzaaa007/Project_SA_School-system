@@ -7,13 +7,13 @@ import eduRecordSvg from "../assets/eduRecord.svg";
 import checknameSvg from "../assets/checkname.svg";
 import walletSvg from "../assets/wallet.svg";
 import { Link, Routes,Route } from "react-router-dom";
-import AssignSubmit from "../page/Student/AssignSubmit";
-import FileUpload from "../page/Student/FileSubmit";
+import AssignSubmit from "../../pages/student/AssignSubmit/index";
+import FileUpload from "../../pages/student/AssignSubmit/FileSubmit";
 import { Content } from "antd/es/layout/layout";
-import Payment from "../../src/page/Student/Payment";
-import SlipPayment from "../page/Student/SlipPayment";
+import Payment from "../../pages/student/Payment/index";
+import SlipPayment from "../../pages/student/Payment/SlipPayment";
 
-function LayoutStudent() {
+function index() {
   const [collapsed, setCollapsed] = useState(true);
   const [selected, setSelected] = useState("home");
 
@@ -145,4 +145,4 @@ function LayoutStudent() {
   );
 }
 
-export default LayoutStudent;
+export default index;

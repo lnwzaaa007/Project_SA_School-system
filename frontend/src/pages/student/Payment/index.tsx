@@ -34,7 +34,7 @@ function PaymentBox({ name }: { name: string }) {
   );
 }
 
-function Payment() {
+function index() {
   const [gradeOPTIONS, setGradeOptions] = useState<string[]>([]);
   const [termOPTIONS, setTermOptions] = useState<string[]>([]);
 
@@ -106,4 +106,4 @@ function Payment() {
   );
 }
 
-export default Payment;
+export default index;

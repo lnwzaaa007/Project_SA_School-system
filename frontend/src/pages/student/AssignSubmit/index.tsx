@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Select } from 'antd';
 import { Link } from 'react-router-dom';
 
-function AssignSubmit() {
+function index() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const OPTIONS = [
     'ภาษาไทย', 'คณิตศาสตร์', 'พละศึกษา', 'วิทยาศาสตร์', 'สังคมศึกษา', 'ศิลปะ', 'ดนตรี',
@@ -85,4 +85,4 @@ function AssignSubmit() {
   );
 }
 
-export default AssignSubmit;
+export default index;
