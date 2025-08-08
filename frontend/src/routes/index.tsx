@@ -4,6 +4,7 @@ import StudentRoutes from "./StudentRoutes";
 import TeacherRoutes from "./TeacherRoutes";
 import AdminRoutes from "./AdminRoutes";
 import MainRoutes from "./MainRoutes";
+import EnrollmentRoutes from "./EnrollmentRoutes"; // Import EnrollmentRoutes
 
 function ConfigRoutes() {
   //   const isLoggedIn = localStorage.getItem("isLogin") === "true";
@@ -17,7 +18,10 @@ function ConfigRoutes() {
     routes = [StudentRoutes(true), MainRoutes()];
   } else if (role === "admin") {
     routes = [AdminRoutes(true), MainRoutes()];
-  } else {
+  }else if (role === "enrollment") {
+    routes = [EnrollmentRoutes(true), MainRoutes()];
+  }
+   else {
     routes = [MainRoutes()];
   }
 

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
 import SelectCourse from "../../../components/SelectCourse";
-import { Button, Card, Checkbox, Typography,Input } from "antd";
-import { SearchOutlined  } from "@ant-design/icons";
+import { Button, Card, Checkbox, Typography, Input, Table } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import './index.css';
 
 const { Text } = Typography;
 
@@ -23,8 +24,13 @@ const initialStudents: Student[] = [
   { id: 4, name: "นักเรียน ง", present: true, leave: false, absent: false, remark: "" },
   { id: 5, name: "นักเรียน จ", present: true, leave: false, absent: false, remark: "" },
 ];
+
 const AttendanceRecord: React.FC = () => {
   const [students, setStudents] = useState<Student[]>(initialStudents);
+
+  useEffect(() => {
+    handleReset(); // ✅ เรียก reset ตอนเปิด component ครั้งแรก
+  }, []);
 
   const handleStatusChange = (id: number, status: "present" | "leave" | "absent") => {
     setStudents(prev =>
@@ -41,6 +47,26 @@ const AttendanceRecord: React.FC = () => {
     );
   };
 
+  const handleRemarkChange = (id: number, remark: string) => {
+    setStudents(prev =>
+      prev.map(student =>
+        student.id === id ? { ...student, remark } : student
+      )
+    );
+  };
+
+  const handleReset = () => {
+    setStudents(prev =>
+      prev.map(student => ({
+        ...student,
+        present: false,
+        leave: false,
+        absent: false,
+        remark: "",
+      }))
+    );
+  };
+
   const summary = students.reduce(
     (acc, s) => {
       if (s.present) acc.present++;
@@ -51,37 +77,102 @@ const AttendanceRecord: React.FC = () => {
     { present: 0, leave: 0, absent: 0 }
   );
 
-  const handleRemarkChange = (id: number, remark: string) => {
-    setStudents((prev) =>
-      prev.map((student) =>
-        student.id === id ? { ...student, remark } : student
-      )
-    );
-  };
-
-  const handleReset = () => {
-  setStudents((prev) =>
-    prev.map((student) => ({
-      ...student,
-      present: false,
-      leave: false,
-      absent: false,
-      remark: "",
-    }))
-  );
-};
+  const columns = [
+    {
+      title: "ลำดับ",
+      key: "index",
+      render: (_: any, __: any, index: number) => index + 1,
+      width: 60,
+      align: "center" as const,
+    },
+    {
+      title: "ชื่อ-นามสกุล",
+      dataIndex: "name",
+      key: "name",
+      
+    },
+    {
+      title: "มา",
+      key: "present",
+      align: "center" as const,
+      width: 60,
+      render: (_: any, record: Student) => (
+        <Checkbox
+          checked={record.present}
+          onChange={() => handleStatusChange(record.id, "present")}
+          style={{
+            backgroundColor: record.present ? "#B7E4C7" : undefined,
+            padding: 4,
+            borderRadius: 4,
+          }}
+        />
+      ),
+    },
+    {
+      title: "ลา",
+      key: "leave",
+      align: "center" as const,
+      width: 60,
+      render: (_: any, record: Student) => (
+        <Checkbox
+          checked={record.leave}
+          onChange={() => handleStatusChange(record.id, "leave")}
+          style={{
+            backgroundColor: record.leave ? "#FFE066" : undefined,
+            padding: 4,
+            borderRadius: 4,
+          }}
+        />
+      ),
+    },
+    {
+      title: "ขาด",
+      key: "absent",
+      align: "center" as const,
+      width: 60,
+      render: (_: any, record: Student) => (
+        <Checkbox
+          checked={record.absent}
+          onChange={() => handleStatusChange(record.id, "absent")}
+          style={{
+            backgroundColor: record.absent ? "#FF6B6B" : undefined,
+            padding: 4,
+            borderRadius: 4,
+          }}
+        />
+      ),
+    },
+    {
+      title: "หมายเหตุ",
+      dataIndex: "remark",
+      key: "remark",
+      width: 600,
+      align: "center" as const,
+      render: (_: any, record: Student) => (
+        <Input
+          // style={{width:"600px"}}
+          placeholder="ระบุเหตุผล"
+          value={record.remark}
+          onChange={(e) => handleRemarkChange(record.id, e.target.value)}
+        />
+      ),
+    },
+  ];
 
   return (
     <div
+    className="attendance-font"
       style={{
         minHeight: "100vh",
         background: "#F1EEE0",
         display: "flex",
         justifyContent: "center",
-        // padding: 40,
+        
+
       }}
     >
-      <Card style={{ width: "100%" }} bodyStyle={{ padding: "24px" }}>
+      <Card style={{ width: "100%"  }} 
+      bodyStyle={{ padding: "24px" }}>
         {/* Filter Section */}
         <div
           style={{
@@ -94,115 +185,100 @@ const AttendanceRecord: React.FC = () => {
           <SelectGrade />
           <SelectClass />
           <SelectCourse />
-          <div style={{
-            justifyContent:"end", 
-            display: "flex",
-            width:"100px",
-            height:"40px",
-            // background:"#000"
+          <div
+            style={{
+              justifyContent: "end",
+              display: "flex",
+              width: "100px",
+              height: "40px",
             }}
-            >
-            <Button 
-            style={{width:"100%",height:"100%"}}
-            type="primary"
-            icon={<SearchOutlined />}>
-            </Button>
+          >
+            <Button
+              style={{ width: "100%", height: "100%" }}
+              type="primary"
+              icon={<SearchOutlined />}
+            />
           </div>
         </div>
 
         {/* Table Section */}
-        <div style={{ marginTop: 32, fontSize:"16px" }}>
-           <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#E6F4FF", textAlign: "center" }}>
-                <th style={{ padding: "8px", textAlign: "left" }}>ชื่อ-นามสกุล</th>
-                <th style={{ padding: "4px", width: "40px" }}>มา</th>
-                <th style={{ padding: "4px", width: "40px" }}>ลา</th>
-                <th style={{ padding: "4px", width: "40px" }}>ขาด</th>
-                <th style={{ padding: "4px", minWidth: "200px" }}>หมายเหตุ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student.id} style={{ textAlign: "center" }}>
-                  <td style={{ padding: "8px", textAlign: "left" }}>{student.name}</td>
-                  <td style={{ padding: "4px" }}>
-                    <Checkbox
-                      checked={student.present}
-                      onChange={() => handleStatusChange(student.id, "present")}
-                      style={{
-                        backgroundColor: student.present ? "#B7E4C7" : undefined,
-                        padding: "4px",
-                        borderRadius: 4,
-                      }}
-                    />
-                  </td>
-                  <td style={{ padding: "4px" }}>
-                    <Checkbox
-                      checked={student.leave}
-                      onChange={() => handleStatusChange(student.id, "leave")}
-                      style={{
-                        backgroundColor: student.leave ? "#FFE066" : undefined,
-                        padding: "4px",
-                        borderRadius: 4,
-                      }}
-                    />
-                  </td>
-                  <td style={{ padding: "4px" }}>
-                    <Checkbox
-                      checked={student.absent}
-                      onChange={() => handleStatusChange(student.id, "absent")}
-                      style={{
-                        backgroundColor: student.absent ? "#FF6B6B" : undefined,
-                        padding: "4px",
-                        borderRadius: 4,
-                      }}
-                    />
-                  </td>
-                  <td style={{ padding: "4px",width:"800px" }}>
-                    <Input
-                      value={student.remark}
-                      onChange={(e) => handleRemarkChange(student.id, e.target.value)}
-                      placeholder="ระบุเหตุผล"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div style={{ marginTop: 32, }}>
+          <Table
+            columns={columns}
+            dataSource={students}
+            rowKey="id"
+            pagination={false}
+            bordered
+          />
 
           {/* Summary */}
           <div
             style={{
-              background: "#D7EDFF",
+              // background: "#D7EDFF",
               marginTop: 24,
-              padding: "12px 24px",
-              borderRadius: 8,
+              padding: "16px 24px",
+              borderRadius: 12,
               fontWeight: "bold",
-              fontSize:"16px"
+              fontSize: "16px",
+              justifyContent:"life"
             }}
           >
-            รวม มา {summary.present} ขาด {summary.absent} ลา {summary.leave}
-          </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+              <div
+                style={{
+                  backgroundColor: "#B7E4C7", // เขียว - มา
+                  padding: "12px 24px",
+                  borderRadius: 8,
+                  minWidth: 100,
+                  textAlign: "center",
+                }}
+              >
+                มา {summary.present}
+              </div>
+              <div
+                style={{
+                  backgroundColor: "#FFE066", // เหลือง - ลา
+                  padding: "12px 24px",
+                  borderRadius: 8,
+                  minWidth: 100,
+                  textAlign: "center",
+                }}
+              >
+                ลา {summary.leave}
+              </div>
+                <div
+                  style={{
+                    backgroundColor: "#FF6B6B", // แดง - ขาด
+                    padding: "12px 24px",
+                    borderRadius: 8,
+                    minWidth: 100,
+                    textAlign: "center",
+                    color: "#fff",
+                  }}
+                >
+                  ขาด {summary.absent}
+              </div>
+              </div>
+            </div>
 
-          {/* Confirm Button */}
-          <div style={{ display: "flex", 
-            justifyContent: "flex-end", 
-            marginTop: 20, 
-            width:"100%",
-            height:"40px",
-            gap: 12
+
+          {/* Confirm & Reset Buttons */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 20,
+              width: "100%",
+              height: "40px",
+              gap: 12,
             }}
-            >
-            <Button type="primary" 
-              style={{width:"100px",height:"100%"}}>
-                บันทึก 
+          >
+            <Button type="primary" style={{ width: "100px", height: "100%" }}>
+              บันทึก
             </Button>
-            <Button 
-              style={{width:"100px",height:"100%"}}
-              onClick={handleReset}>
-                รีเซ็ต
-              </Button>
+            <Button style={{ width: "100px", height: "100%" }} onClick={handleReset}>
+              รีเซ็ต
+            </Button>
           </div>
         </div>
       </Card>

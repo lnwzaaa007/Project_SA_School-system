@@ -36,6 +36,9 @@ import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDat
 import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
 import AddStudent from "../../pages/admin/ManageStudent/AddStudent/AddStudent";
 
+import MoveAddStudent from "../../pages/admin/ApplyForStudy/MoveAddStudent";
+
+
 const { Header, Content, Footer, Sider } = Layout;
 
 const AdminFullLayout: React.FC = () => {
@@ -348,6 +351,8 @@ const AdminFullLayout: React.FC = () => {
                 {/* <Route path="/schedule/add" element={<AddSchedule />} /> */}
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/applyForStudy" element={<ApplyForStudy />} />
+                <Route path="/applyForStudy/MoveAddStudent" element={<MoveAddStudent />} />
+                
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>

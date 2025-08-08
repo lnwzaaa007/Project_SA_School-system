@@ -61,20 +61,6 @@ const ManageTeacher = () => {
                 เพิ่ม
               </Button>
             </Link>
-            {/* <Button type="primary" icon={<PlusOutlined />}  style={{backgroundColor:"#0088ff"}}  >
-              เพิ่ม
-            </Button> */}
-            {/* <Link to ="DeleteTeacher">
-            <Button type="primary" icon={<DeleteOutlined />} style={{backgroundColor:"#0088ff"}}>
-                ลบ
-              </Button>
-            </Link>
-            
-            <Link to ="EditTeacher">
-              <Button type="primary" icon={<FormOutlined />} style={{backgroundColor:"#0088ff"}}>
-                แก้ไข
-              </Button>
-            </Link> */}
           </Space>
         </Col>
       </Row>
@@ -86,13 +72,6 @@ const ManageTeacher = () => {
         </Col>
         <Col>
           <Space>
-            
-            {/* <Button type="primary" icon={<DeleteOutlined /> } style={{background:"#ff1818ff"}}>
-              ลบ
-            </Button>
-            <Button type="primary" icon={<FormOutlined />}>
-              แก้ไข
-            </Button> */}
             
             <ModalDelete />
             

@@ -49,10 +49,12 @@ const StudentFullLayout: React.FC = () => {
     setTimeout(() => {
       location.href = "/";
     }, 1000);
+
   };
 
   return (
     <>
+
        {isLoading && <Loader />}
       <Layout style={{ minHeight: "100vh",background:"#F1EEE0" }}>
         {/* Sidebar */}
@@ -91,7 +93,8 @@ const StudentFullLayout: React.FC = () => {
           <Menu
             theme="light"
             mode="inline"
-            defaultSelectedKeys={[currentPage]}
+            // defaultSelectedKeys={[currentPage]}
+            selectedKeys={[currentPage]}
             style={{
               backgroundColor: "#2F78E1",
               color: "#000",
@@ -274,7 +277,9 @@ const StudentFullLayout: React.FC = () => {
               <span style={{ fontSize: "18px", color: "#F1EEE0" }}>
                 สมศรี ผ่องใส
               </span>
-              <Link to="/student/profile">
+              <Link to="/student/profile"
+                onClick={() => setCurrentPage("ประวัติ")}
+              >
                 <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000}}>
 
                   <img
@@ -333,3 +338,4 @@ const StudentFullLayout: React.FC = () => {
 };
 
 export default StudentFullLayout;
+
