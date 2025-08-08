@@ -49,10 +49,12 @@ const StudentFullLayout: React.FC = () => {
     setTimeout(() => {
       location.href = "/";
     }, 1000);
+
   };
 
   return (
     <>
+
        {isLoading && <Loader />}
       <Layout style={{ minHeight: "100vh",background:"#F1EEE0" }}>
         {/* Sidebar */}
@@ -336,3 +338,4 @@ const StudentFullLayout: React.FC = () => {
 };
 
 export default StudentFullLayout;
+
