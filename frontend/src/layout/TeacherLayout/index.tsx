@@ -93,7 +93,8 @@ const TeacherFullLayout: React.FC = () => {
           <Menu
             theme="light"
             mode="inline"
-            defaultSelectedKeys={[currentPage]}
+            // defaultSelectedKeys={[currentPage]}
+            selectedKeys={[currentPage]}
             style={{
               backgroundColor: "#2F78E1",
               color: "#000",
@@ -273,8 +274,12 @@ const TeacherFullLayout: React.FC = () => {
                 </Tooltip>
               </div>
               <span style={{ fontSize: "18px", color: "#F1EEE0" }}>ครู สมศรี</span>
-              <Link to="/teacher/profile">
-                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000}}>
+              <Link to="/teacher/profile" 
+                onClick={() => setCurrentPage("ประวัติ")}
+              >
+                <Tooltip title="ข้อมูลส่วนตัว" 
+                  overlayStyle={{ zIndex: 6000}}
+                >
                   <img
                     src={Teacher}
                     alt="React Logo"
