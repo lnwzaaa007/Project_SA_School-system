@@ -55,7 +55,7 @@ const TeacherFullLayout: React.FC = () => {
   return (
     <>
        {isLoading && <Loader />}
-      <Layout style={{ minHeight: "100vh" }}>
+      <Layout style={{ minHeight: "100vh",background:"#F1EEE0" }}>
         {/* Sidebar */}
         <Sider
           collapsible
@@ -66,7 +66,7 @@ const TeacherFullLayout: React.FC = () => {
             top: 0,
             left: 0,
             bottom: 0,
-            backgroundColor: "#B3E0FF",
+            backgroundColor: "#2F78E1",
             borderBottomRightRadius: 30,
             borderTopRightRadius: 30,
             zIndex: 1000,
@@ -85,7 +85,7 @@ const TeacherFullLayout: React.FC = () => {
               type="text"
               icon={<MenuOutlined style={{ fontSize: "20px" }} />}
               onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 20, color: "#000" }}
+              style={{ fontSize: 20, color: "#F1EEE0" }}
             />
           </div>
 
@@ -94,7 +94,7 @@ const TeacherFullLayout: React.FC = () => {
             mode="inline"
             defaultSelectedKeys={[currentPage]}
             style={{
-              backgroundColor: "#B3E0FF",
+              backgroundColor: "#2F78E1",
               color: "#000",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
@@ -227,6 +227,7 @@ const TeacherFullLayout: React.FC = () => {
             marginLeft: collapsed ? 87 : 207, // ขยับเฉพาะ Content
             transition: "margin-left 0.2s",
             minHeight: "100vh",
+            background:"#F1EEE0"
           }}
         >
           {/* Header */}
@@ -238,7 +239,7 @@ const TeacherFullLayout: React.FC = () => {
               right: 0,
               // zIndex: 1100,
               width: `calc(100% - ${collapsed ? 87 : 207}px)`,
-              background: "linear-gradient(to right, #88CBF5, #C1E5FF)",
+              background: "linear-gradient(to right, #2F78E1, #3D62EA)",
               padding: "0 24px",
               height: "80px",
               display: "flex",
@@ -249,7 +250,7 @@ const TeacherFullLayout: React.FC = () => {
               zIndex: 5000,
             }}
           >
-            <h2 style={{ margin: 0 }}> {currentPage} </h2>
+            <h2 style={{ margin: 0 ,color:"#F1EEE0"}}> {currentPage} </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
               <div
                 style={{
@@ -259,20 +260,20 @@ const TeacherFullLayout: React.FC = () => {
                   width: 40,
                   height: 40,
                   borderRadius: "50%",
-                  backgroundColor: "#C1E5FF", 
+                  // backgroundColor: "#F1EEE0", 
                   cursor: "pointer",
                 }}
               >
-                <Tooltip title="ออกจากระบบ">
+                <Tooltip title="ออกจากระบบ" overlayStyle={{ zIndex: 6000}}>
                   <LogoutIcon
-                    style={{ fontSize: "24px", color: "#000" }}
+                    style={{ fontSize: "24px", color: "#F1EEE0" }}
                     onClick={Logout}
                   />
                 </Tooltip>
               </div>
-              <span style={{ fontSize: "18px", color: "#000" }}>ครู สมศรี</span>
+              <span style={{ fontSize: "18px", color: "#F1EEE0" }}>ครู สมศรี</span>
               <Link to="/teacher/profile">
-                <Tooltip title="ข้อมูลส่วนตัว">
+                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000}}>
                   <img
                     src={Teacher}
                     alt="React Logo"
@@ -302,11 +303,11 @@ const TeacherFullLayout: React.FC = () => {
 
             <div
               style={{
-                padding: 24,
+                // padding: 24,
 
-                minHeight: "calc(100vh - 60px)",
+                // minHeight: "calc(100vh - 60px)",
 
-                background: colorBgContainer,
+                // background: colorBgContainer,
               }}
             >
               <Routes>
@@ -324,7 +325,7 @@ const TeacherFullLayout: React.FC = () => {
               </Routes>
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" }}>
+          <Footer style={{ textAlign: "center" ,background:"#F1EEE0"}}>
             System Analysis and Design
           </Footer>
         </Layout>
