@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Select, Button } from "antd";
 import { Link } from "react-router-dom";
@@ -107,3 +108,15 @@ function index() {
 }
 
 export default index;
+
+const Payment = () => {
+  return (
+    <div>
+      <h1>ชำระเงิน</h1>
+
+      {/* Add your schedule content here */}
+    </div>
+  );
+};
+export default Payment;
+

@@ -19,4 +19,6 @@ func main() {
 				   &entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{}, &entity.Subdistrict{},
 				   &entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{}, &entity.Term{}, &entity.Tuition{},
 				   &entity.Users{}, &entity.UserType{}, &entity.Zipcode{})
+
+	
 }
