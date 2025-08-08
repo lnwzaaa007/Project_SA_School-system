@@ -21,22 +21,35 @@ const columns: TableProps<DataType>['columns'] = [
     title: 'ลำดับที่',
     dataIndex: 'key',
     key: 'key',
-    
-    width: 100
+    width: 100,
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5",
+            
+        }
+    }), 
   }, 
   {
     title: 'รหัสวิชา',
     dataIndex: 'courseid',
     key: 'courseid',
-    
-    width: 200   
+    width: 200,
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    }),   
   },
   {
     title: 'ชื่อวิชา',
     dataIndex: 'name',
     key: 'name',
     width: 180,
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
    
   },
   {
@@ -44,7 +57,11 @@ const columns: TableProps<DataType>['columns'] = [
     dataIndex: 'teachername',
     key: 'teachername',
     width: 200,
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
   },
 //   {
 //     title: 'จำนวนหน่วยกิต',
@@ -81,35 +98,55 @@ const columns: TableProps<DataType>['columns'] = [
     dataIndex: 'creditnum',
     key: 'creditnum',
     width: 180,
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
   },
   {
     title: 'ระดับชั้น',
     dataIndex: 'grade',
     key: 'grade',
     width: 150,
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
   },
   {
     title: 'ห้อง',
     dataIndex: 'class',
     key: 'class',
     width: 100,
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
   },
   {
     title: 'จำนวนคาบ/สัปดาห์',
     dataIndex: 'classinweek',
     key: 'classinweek',
     width: 180,
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
     
   },
   {
     title: 'กลุ่มสาระ',
     dataIndex: 'groupsubject',
     key: 'groupsubject',
-    
+    onHeaderCell: () => ({
+        style: {
+            background:"#42a5f5"
+        }
+    })
   },
 ];
 
@@ -146,6 +183,6 @@ const data: DataType[] = [
 //   },
 ];
 
-const CourseTable: React.FC = () => <Table<DataType> columns={columns} dataSource={data} />;
+const CourseTable: React.FC = () => <Table<DataType> columns={columns} dataSource={data}  />;
 
 export default CourseTable;

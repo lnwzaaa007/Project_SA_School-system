@@ -136,8 +136,8 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="ประวัติ"
-              onClick={() => setCurrentPage("ประวัติ")}
+              key="ประกาศ"
+              onClick={() => setCurrentPage("ประกาศ")}
               style={{ marginBottom: 8 }}
             >
               <Link

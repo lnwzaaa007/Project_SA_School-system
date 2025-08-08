@@ -33,7 +33,7 @@ const Course:React.FC = () => {
       borderRadius:"6px",
     }}>
       <Col xs={24} sm={24} md={24} lg={24} xl={24} style ={{height:"100px", fontSize:"18px"}}>
-                <div style = {{margin: "16px 0px 0px 0px",padding:"16px",color:"#f0f7ff"}}>
+                <div style = {{margin: "16px 0px 0px 0px",padding:"16px",}}>
                   รายวิชาทั้งหมด ปีการศึกษา <SelectYear/> ภาคการศึกษาที่ <SelectTerm/> 
                 </div>
                 
