@@ -116,6 +116,7 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
       }}
     >
 
+
       <div className="input_S" >
       <Selectday onChange={(value) => setSelectedDay(value)} />
       <SelectTimeStart onChange={(value) => setStartTime(value)} />
