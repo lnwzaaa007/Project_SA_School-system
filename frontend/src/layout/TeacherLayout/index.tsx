@@ -24,6 +24,7 @@ import EnterScore from "../../pages/teacher/EnterScore";
 import ListOfStudent from "../../pages/teacher/ListOfStudent";
 import TeachProfile from "../../pages/teacher/TeachProfile";
 import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
+import EditProfile from "../../pages/teacher/TeachProfile/EditProfile";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -320,6 +321,7 @@ const TeacherFullLayout: React.FC = () => {
                 <Route path="/schedule" element={<TeachingSchedule />} />
                 <Route path="/ListOfStudent" element={<ListOfStudent />} />
                 <Route path="/profile" element={<TeachProfile />} />
+                <Route path="/profile/EditProfile" element={<EditProfile />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>

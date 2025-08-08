@@ -8,6 +8,8 @@ import { Link, Route, useNavigate,Outlet } from "react-router-dom";
 import dayjs from "dayjs";
 import { Content } from 'antd/es/layout/layout';
 import ModalDelete from "../../../components/ModalDelete";
+import UploadImages from "../../../components/UploadImages";
+import TableApplyForStudy from '../../../components/TableApplyForStudy';
 type SearchProps = GetProps<typeof Input.Search>;
 
 const { Search } = Input;
@@ -79,15 +81,18 @@ const ApplyForStudy = () => {
                 </Select>
             </Col>
             <Col xs ={24} md={6} style={{padding: "18px 6px"}}>
-              
-                <Button type='primary' icon={<SearchOutlined />}> ค้นหา</Button>
+                
+                <Button type='primary' icon={<SearchOutlined />} onClick={() => alert(`ไม่พบข้อมูล `)}> ค้นหา</Button>
+                
             </Col>
             </Row>
         </div>
       </div>
       <div style={{  marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(100vh - 60px)", width: "100%",  }}>
         
+        <TableApplyForStudy />
       </div>
+      
     </div>
   );
 };

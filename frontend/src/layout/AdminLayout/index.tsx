@@ -35,6 +35,7 @@ import DataTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/DataTeach
 import AddressTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/AddressTeacher";
 import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDataTeacher";
 import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
+import MoveAddStudent from "../../pages/admin/ApplyForStudy/MoveAddStudent";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -343,9 +344,11 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/schedule" element={<Schedule />} />
-                <Route path="/schedule/add" element={<AddSchedule />} />
+                {/* <Route path="/schedule/add" element={<AddSchedule />} /> */}
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/applyForStudy" element={<ApplyForStudy />} />
+                <Route path="/applyForStudy/MoveAddStudent" element={<MoveAddStudent />} />
+                
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
