@@ -1,0 +1,198 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+button {
+  width: 50x;
+  height:30px;
+  padding: 10px;
+  cursor: pointer;
+  border: none;
+  background-color: #d3ecff;
+  border-radius: 5px;
+}
+
+
+.content1{
+    /* flex: 1; */
+    height: 150px;
+    margin: 10px 30px;
+    background-color:#d3ecff ;
+    padding: 16px;
+    border-radius: 20px;
+}
+.content1Show{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+}
+.content1ShowP{
+    height: 100px;
+    width: 100px;
+    background-color:#0777cc ;
+    margin-right: 10px;
+    display: flex;
+    border-radius: 50px;
+    align-items: center;
+    justify-content: center;
+}
+.content1ShowInfor{
+    height: 95%;
+    width: 15%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.content2{
+    flex-grow: 1;
+    margin: 10px 30px 20px 30px;
+    display: flex;
+    min-height: 10000pv;
+}
+.content2Left{
+    /* flex-grow: 1; */
+    height: 100%;
+    width: 15%;
+    background-color:#bde3ff ;
+    padding-top: 16px;
+    border-radius: 20px 0px 0px 20px;
+    align-items: flex-start;
+    display: flex;
+    justify-content: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.content2LeftFun{
+    height: 300px;
+    width: 100%;
+    padding: 10px 15px 10px 15px;
+    align-items: center;
+    /* display: flex; */
+    justify-content: top;
+    flex-direction: row;
+    flex-wrap: wrap;
+    
+}
+.content2Left-Item{
+    height: 60px;
+    width: 100%;
+    min-height: 60px;
+    min-width: 65px;
+    background-color:bde3ff ;
+    margin: 0.0625px 0px;
+    padding: 10px 15px 10px 15px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+
+
+.content2Left-Item1{
+    height: 60px;
+    width: 100%;
+    min-height: 60px;
+    min-width: 40px;
+    background-color:#ffffff ;
+    margin: 0.0625px 0px;
+    padding: 10px 15px 10px 15px;
+    border-radius: 20px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+.content2Left-ItemInner{
+    height: 100%;
+    width: 100%;
+    min-height: 60px;
+    min-width: 40px;
+    min-height: 60px;
+    min-width: 65px;
+    align-items: center;
+    justify-content: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.content2Left-ItemInner1{
+    height: 100%;
+    width: 100%;
+    min-height: 60px;
+    min-width: 65px;
+    background-color: #ffffff;
+    align-items: center;
+    justify-content: start;
+}
+
+.content2Right{
+    height: 100%;
+    width: 85%;
+    background-color: #d3ecff ;
+    /* display: flex; */
+    padding: 30px;
+    border-radius: 0px 20px 20px 0px;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+.content2RightFun{
+    height: auto;
+    width: 100%;
+    background-color:d3ecff ;
+    align-items: top;
+    /* display: flex; */
+    justify-content: top;
+}
+.cursor{
+    height: 50px;
+    width: 100%;
+    align-items: center;
+    padding: 10px;
+    justify-content: space-between;
+    box-shadow: 1px;
+}
+
+.flex-content{
+    height: 30px;
+    width: 100%;
+    align-items: center;
+    padding: 5px 0px 0px 0px;
+    display: flex;
+    justify-content: flex-start;
+}
+.student-sub-title{
+    height: 25px;
+    min-width: 160px;
+    align-items: center;
+    padding: 0px 20px 0px 0px;
+    display: flex;
+    justify-content: flex-start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.student-sub-detail{
+    height: 100%;
+    width: 85%;
+    align-items: center;
+    justify-content: flex-start;
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
