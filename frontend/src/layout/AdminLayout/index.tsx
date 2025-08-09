@@ -27,7 +27,6 @@ import Payment from "../../pages/admin/Payment";
 import Schedule from "../../pages/admin/Schedule";
 import ApplyForStudy from "../../pages/admin/ApplyForStudy";
 import Course from "../../pages/admin/Course";
-import AddSchedule from "../../pages/admin/Schedule/AddSchedule";
 import CreateTeacher from "../../pages/admin/ManageTeacher/CreateTeacher";
 import DeleteTeacher from "../../pages/admin/ManageTeacher/DeleteTeacher";
 import EditTeacher from "../../pages/admin/ManageTeacher/EditTeacher";
@@ -100,16 +99,17 @@ const AdminFullLayout: React.FC = () => {
               type="text"
               icon={<MenuOutlined style={{ fontSize: "20px" }} />}
               onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 20, color: "#fff" }}
+              style={{ fontSize: 20, color: "#F1EEE0" }}
             />
           </div>
 
           <Menu
           
-            theme="dark"
+            theme="light"
             mode="inline"
             defaultSelectedKeys={[currentPage]}
             style={{
+              // color: "#fff",
               backgroundColor: "#2F78E1",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
               lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
@@ -122,7 +122,7 @@ const AdminFullLayout: React.FC = () => {
             <Menu.Item
               key="หน้าหลัก"
               onClick={() => setCurrentPage("หน้าหลัก")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 8,}}
             >
               <Link
                 to="/admin"
@@ -136,8 +136,8 @@ const AdminFullLayout: React.FC = () => {
               </Link>
             </Menu.Item>
             <Menu.Item
-              key="ประวัติ"
-              onClick={() => setCurrentPage("ประวัติ")}
+              key="ประกาศ"
+              onClick={() => setCurrentPage("ประกาศ")}
               style={{ marginBottom: 8 }}
             >
               <Link
@@ -343,7 +343,7 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/schedule" element={<Schedule />} />
-                <Route path="/schedule/add" element={<AddSchedule />} />
+                {/* <Route path="/schedule/add" element={<AddSchedule />} /> */}
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/applyForStudy" element={<ApplyForStudy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
