@@ -9,6 +9,7 @@ import Upload from "../../../../components/Upload";
 import React, { useState } from "react";
 import ModalSave from "../../../../components/ModalSeve";
 import MadalCancel from "../../../../components/ModalCancel";
+import UploadImages from "../../../../components/UploadImages";
  const provinces = [
   {
     name: "กรุงเทพมหานคร",
@@ -65,8 +66,8 @@ const ManageTeacher = () => {
   };
   return (
     <div >
-      <BackButton />
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '75%' ,borderRadius: "32px" ,marginLeft : "13%"}} >
+      
+        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '60%' ,borderRadius: "32px" ,marginLeft : "20%"}} >
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -168,6 +169,13 @@ const ManageTeacher = () => {
             <label style= {{lineHeight: "2"}}>E-mail</label>
             <Input />
           </Col>
+        </Row>
+        <Row gutter={[16, 12]}>
+          <Col xs={24} md={12}>
+             <label style= {{lineHeight: "2"}}>Upload รูปภาพ</label>
+            <UploadImages />
+          </Col>
+          
         </Row>
         <h1>ที่อยู่ปัจจุบัน</h1>
         <Row gutter={[16, 12]}>

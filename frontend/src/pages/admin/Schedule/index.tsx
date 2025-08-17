@@ -286,8 +286,6 @@ const Schedule: React.FC = () => {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
-  // const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  // const [selectedCourseForEdit, setSelectedCourseForEdit] = useState<Course | null>(null);
 
   const handleAddCourse = (newCourse: Course) => {
     setCourses((prev) => [...prev, newCourse]);
@@ -300,18 +298,6 @@ const Schedule: React.FC = () => {
     setIsDeleteModalVisible(false);
   };
 
-  //   const handleEditClick = (course: Course) => {
-  //   setSelectedCourseForEdit(course);
-  //   setIsEditModalVisible(true);
-  // };
-
-  // const handleEditCourse = (updatedCourse: Course) => {
-  //   setCourses((prev) =>
-  //     prev.map((c) => (c.id === updatedCourse.id ? updatedCourse : c))
-  //   );
-  //   setIsEditModalVisible(false);
-  //   setSelectedCourseForEdit(null);
-  // };
 
   return (
     <div
@@ -363,15 +349,6 @@ const Schedule: React.FC = () => {
             >
               ลบ
             </Button>
-            {/* <Button
-              icon={<FormOutlined />}
-              style={{ background: "#faad14", color: "#fff" }}
-              // disabled
-              onClick={() => { handleEditClick(true)}}
-              disabled={courses.length === 0}
-            >
-              แก้ไข
-            </Button> */}
 
             <AddCourseModal
               open={isAddModalVisible}
@@ -384,15 +361,7 @@ const Schedule: React.FC = () => {
               onCancel={() => setIsDeleteModalVisible(false)}
               courses={courses}
             />
-            {/* <EditCourseModal
-              open={isEditModalVisible}
-              onOk={handleEditCourse}
-              onCancel={() => {
-                setIsEditModalVisible(false);
-                setSelectedCourseForEdit(null);
-              }}
-              // initialCourse={selectedCourseForEdit}
-            />   */}
+  
           </div>
         </div>
 

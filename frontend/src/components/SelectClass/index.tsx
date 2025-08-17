@@ -2,9 +2,11 @@ import React from 'react';
 import { Select } from 'antd';
 import './index.css';
 const options = [
-  { value: '1', label: 'Jack' },
-  { value: '2', label: 'Lucy' },
-  { value: '3', label: 'Tom' },
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+  { value: '5', label: '5' },
 ];
 
 const ButtonSelect: React.FC = () => {

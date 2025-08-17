@@ -19,6 +19,7 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "antd": "^5.26.7",
+    "antd-img-crop": "^4.25.0",
     "axios": "^1.10.0",
 
     "dayjs": "^1.11.13",
