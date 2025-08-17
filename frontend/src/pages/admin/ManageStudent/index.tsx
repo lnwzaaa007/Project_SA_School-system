@@ -87,24 +87,6 @@ const ManageStudent: React.FC = () => {
       </div>
 
       <div className="content2" style={{ width: '%'}}>
-         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          <Link to ="AddStudent">
-          <Button
-            type="primary"
-            icon={<PlusCircleOutlined />}
-            style={{
-              backgroundColor: '#9cc3ffff', // สีเขียว
-              borderColor: '#9cc3ffff',
-              fontWeight: 'bold',
-              borderRadius: '8px',
-              padding: '0 16px',
-              height: '40px',
-            }}
-          >
-            เพิ่มข้อมูล
-          </Button>
-          </Link>
-        </div>
         <Table<DataType>
           dataSource={data}
           pagination={false}
@@ -129,6 +111,24 @@ const ManageStudent: React.FC = () => {
             )}
           />
         </Table>
+                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <Link to ="AddStudent">
+          <Button
+            type="primary"
+            icon={<PlusCircleOutlined />}
+            style={{
+              backgroundColor: '#9cc3ffff', // สีเขียว
+              borderColor: '#9cc3ffff',
+              fontWeight: 'bold',
+              borderRadius: '8px',
+              padding: '0 16px',
+              height: '40px',
+            }}
+          >
+            เพิ่มข้อมูล
+          </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

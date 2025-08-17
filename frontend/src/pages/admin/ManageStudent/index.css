@@ -41,6 +41,7 @@
     padding: 16px;
     border-radius: 20px;
     /* display: flex; */
-    align-items: center;
+    /* justify-content: flex-end; */
+    align-items: start;
     
 }
