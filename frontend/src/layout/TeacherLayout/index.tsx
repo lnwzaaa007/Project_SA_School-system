@@ -309,11 +309,10 @@ const TeacherFullLayout: React.FC = () => {
 
             <div
               style={{
-                // padding: 24,
-
-                // minHeight: "calc(100vh - 60px)",
-
-                // background: colorBgContainer,
+                padding: 24,
+                borderRadius: "16px",
+                minHeight: "calc(100vh - 60px)",
+                background: colorBgContainer,
               }}
             >
               <Routes>
