@@ -312,7 +312,6 @@ const StudentFullLayout: React.FC = () => {
                 padding: 24,
                 borderRadius: "16px",
                 minHeight: "calc(100vh - 60px)",
-
                 background: colorBgContainer,
               }}
             >
