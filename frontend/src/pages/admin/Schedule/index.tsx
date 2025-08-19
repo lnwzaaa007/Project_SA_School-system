@@ -304,13 +304,13 @@ const Schedule: React.FC = () => {
       style={{
         minHeight: "100vh",
         // padding: "50px 80px",
-        background: "#F1EEE0",
+        // background: "#F1EEE0",
         display: "flex",
         justifyContent: "center",
       }}
     >
       <Card
-        style={{ width: "100%"}}
+        style={{ width: "100%", border: "none", boxShadow: "none" }}
         bodyStyle={{ padding: "40px" }}
       >
         {/* Filter Section */}

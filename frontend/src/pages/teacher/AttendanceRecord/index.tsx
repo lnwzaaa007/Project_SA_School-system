@@ -164,14 +164,15 @@ const AttendanceRecord: React.FC = () => {
     className="attendance-font"
       style={{
         minHeight: "100vh",
-        background: "#F1EEE0",
+        // background: "#F1EEE0",
         display: "flex",
         justifyContent: "center",
         
 
       }}
     >
-      <Card style={{ width: "100%"  }} 
+      <Card 
+      style={{ width: "100%", border: "none", boxShadow: "none" }} 
       bodyStyle={{ padding: "24px" }}>
         {/* Filter Section */}
         <div
@@ -189,15 +190,10 @@ const AttendanceRecord: React.FC = () => {
             style={{
               justifyContent: "end",
               display: "flex",
-              width: "100px",
+              width: "50px",
               height: "40px",
             }}
           >
-            <Button
-              style={{ width: "100%", height: "100%" }}
-              type="primary"
-              icon={<SearchOutlined />}
-            />
           </div>
         </div>
 
