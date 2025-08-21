@@ -56,20 +56,22 @@ const TeacherFullLayout: React.FC = () => {
   return (
     <>
        {isLoading && <Loader />}
-      <Layout style={{ minHeight: "100vh",background:"#F1EEE0" }}>
+      <Layout style={{ minHeight: "100vh",background:"#ffffff" }}>
         {/* Sidebar */}
         <Sider
           collapsible
           collapsed={collapsed}
           trigger={null}
+          width={230}            
+          collapsedWidth={87} 
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            bottom: 0,
-            backgroundColor: "#2F78E1",
-            borderBottomRightRadius: 30,
-            borderTopRightRadius: 30,
+            top: 10,
+            left: 10,
+            bottom: 10,
+            backgroundColor: "#C8E8FF",
+            borderRadius: 30,
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
             zIndex: 1000,
             // transition: "left 0.2s, width 0.2s",
             // overflow: "auto", // เผื่อเมนูยาว
@@ -86,7 +88,7 @@ const TeacherFullLayout: React.FC = () => {
               type="text"
               icon={<MenuOutlined style={{ fontSize: "20px" }} />}
               onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 20, color: "#F1EEE0" }}
+              style={{ fontSize: 20, color: "#000000" }}
             />
           </div>
 
@@ -96,10 +98,10 @@ const TeacherFullLayout: React.FC = () => {
             // defaultSelectedKeys={[currentPage]}
             selectedKeys={[currentPage]}
             style={{
-              backgroundColor: "#2F78E1",
-              color: "#000",
+              backgroundColor: "#C8E8FF",
+              color: "#ffffff",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
-              lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
+              lineHeight: "24px", // เพิ่มความสูงแถว (ไม่แออัด)
               marginTop: 16,
             }}
           >
@@ -226,33 +228,34 @@ const TeacherFullLayout: React.FC = () => {
         {/* Layout ด้านขวา */}
         <Layout
           style={{
-            marginLeft: collapsed ? 87 : 207, // ขยับเฉพาะ Content
+            marginLeft: collapsed ? 87 : 230, // ขยับเฉพาะ Content
+            marginRight: 10,
             transition: "margin-left 0.2s",
             minHeight: "100vh",
-            background:"#F1EEE0"
+            background: "#ffffff"
           }}
         >
           {/* Header */}
           <Header
             style={{
               position: "fixed",
-              top: 0,
-              left: collapsed ? 87 : 207, 
-              right: 0,
-              // zIndex: 1100,
-              width: `calc(100% - ${collapsed ? 87 : 207}px)`,
-              background: "linear-gradient(to right, #2F78E1, #3D62EA)",
+              top: 10,
+              left: collapsed ? 110 : 250, // ขยับตาม Sider
+              right: 15, // เว้นช่องขวา
+              width: `calc(100% - ${collapsed ? 110 + 15 : 250 + 15}px)`,
+              background: "#C8E8FF",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               padding: "0 24px",
               height: "80px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              borderBottomLeftRadius: 30,
+              borderRadius: "30px",
               transition: "left 0.2s, width 0.2s",
               zIndex: 5000,
             }}
           >
-            <h2 style={{ margin: 0 ,color:"#F1EEE0"}}> {currentPage} </h2>
+            <h2 style={{ margin: 0 ,color:"#000000"}}> {currentPage} </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
               <div
                 style={{
@@ -268,12 +271,12 @@ const TeacherFullLayout: React.FC = () => {
               >
                 <Tooltip title="ออกจากระบบ" overlayStyle={{ zIndex: 6000}}>
                   <LogoutIcon
-                    style={{ fontSize: "24px", color: "#F1EEE0" }}
+                    style={{ fontSize: "24px", color: "#000000" }}
                     onClick={Logout}
                   />
                 </Tooltip>
               </div>
-              <span style={{ fontSize: "18px", color: "#F1EEE0" }}>ครู สมศรี</span>
+              <span style={{ fontSize: "18px", color: "#000000" }}>ครู สมศรี</span>
               <Link to="/teacher/profile" 
                 onClick={() => setCurrentPage("ประวัติ")}
               >
@@ -331,9 +334,6 @@ const TeacherFullLayout: React.FC = () => {
               </Routes>
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" ,background:"#F1EEE0"}}>
-            System Analysis and Design
-          </Footer>
         </Layout>
       </Layout>
     </>
