@@ -47,7 +47,7 @@ const ManageTeacher = () => {
       <Space direction="vertical">
     
     
-    <Search placeholder="ค้นหาชื่อครู" onSearch={onSearch} enterButton />
+    <Search style={{ marginTop: 20 }} placeholder="ค้นหาชื่อครู" onSearch={onSearch} enterButton />
     
   </Space>
       <Row justify="space-between" align="middle" style={{ marginBottom: 20 }}>
@@ -68,7 +68,7 @@ const ManageTeacher = () => {
       <div style={{ padding: "16px", background: "#E9F6FF", minHeight: "calc(10vh - 60px)",width: "100%", borderRadius: "16px" }}>
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col >
-          <p style={{ marginTop: 10}}>ชื่อ-นามสกุล</p>
+          <p>ชื่อ-นามสกุล</p>
         </Col>
         <Col>
           <Space>
@@ -79,7 +79,7 @@ const ManageTeacher = () => {
             <Button
               type="primary"
               icon={<FormOutlined />}
-              style={{ backgroundColor: "#0088ff" }}
+              style={{ backgroundColor: "#ffca00" }}
               onClick={showModal}
             >
               แก้ไข

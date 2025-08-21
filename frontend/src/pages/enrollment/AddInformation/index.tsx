@@ -158,12 +158,7 @@ const AddInformation = () => {
           </Col>
           
         </Row>
-        
-    </div>
-    
-
-  
-<div style={{marginLeft : "calc(44% + 24px)"}}>
+        <div style={{display:"flex",justifyContent:"end"}}>
           <Space>
             <ModalSave />
             <MadalCancel />
@@ -171,6 +166,12 @@ const AddInformation = () => {
           
       
     </div>
+        
+    </div>
+    
+
+  
+
     
     
    

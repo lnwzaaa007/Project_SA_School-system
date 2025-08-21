@@ -14,13 +14,13 @@ interface DataType {
 
 const columns: TableColumnsType<DataType> = [
   {
-    title: 'Full Name',
+    title: 'ชื่อ-นามสกุล',
     width: 100,
     dataIndex: 'name',
     fixed: 'left',
   },
   {
-    title: 'Age',
+    title: 'อายุ',
     width: 100,
     dataIndex: 'age',
   },

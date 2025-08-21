@@ -23,7 +23,7 @@ const MoveAddStudent = () => {
     <div >
       
       
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '60%' ,borderRadius: "32px" ,marginLeft : "20%"}} >
+        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '75px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '100%' ,borderRadius: "16px" }} >
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -93,8 +93,8 @@ const MoveAddStudent = () => {
             </Select>
           </Col>
         </Row>
-        <Row gutter={[16, 12]}>
-          <Col xs={24} md={12}>
+        <Row gutter={[16, 12]} >
+          <Col  xs={24} md={12} >
           <label style= {{lineHeight: "2"}}>ชั้น</label>
           <p></p>
 
@@ -130,41 +130,47 @@ const MoveAddStudent = () => {
         </Row>
         <Row gutter={[16, 12]}>
 
-          <Col xs={24} md={12}>
+          <Col xs={24} md={6}>
              <label style= {{lineHeight: "2"}}>ปพ.1</label>
              <p> </p>
             <Upload />
           </Col>
+<Col xs={24} md={6} style={{marginTop:"40px"}}>
+             <label style= {{lineHeight: "2"}}>Upload รูปภาพ</label>
+            <UploadImages />
+          </Col>
 
-          <Col xs={24} md={12}>
-             <label style= {{lineHeight: "2"}}>สำเนาทะเบียนบ้าน</label>
-             <p></p>
-            <Upload />
-          </Col> 
-
-          <Col xs={24} md={12}>
+ 
+        </Row>
+        <Row gutter={[16, 12]} style={{marginTop:"-80px"}}>
+          <Col xs={24} md={6}>
              <label style= {{lineHeight: "2"}}>สำเนาบัตรประชาชน</label>
                 <p></p>
             <Upload />
           </Col>
-          <Col xs={24} md={12}>
-             <label style= {{lineHeight: "2"}}>Upload รูปภาพ</label>
-            <UploadImages />
-          </Col>
+          
           
         </Row>
+        <Row gutter={[16, 12]}>
+          <Col xs={24} md={6}>
+             <label style= {{lineHeight: "2"}}>สำเนาทะเบียนบ้าน</label>
+             <p></p>
+            <Upload />
+          </Col>
+        </Row>
         
-    </div>
-    
-
-  
-<div style={{marginLeft : "calc(44% + 24px)"}}>
+        <div style={{display:"flex",justifyContent:"end",marginLeft : "calc(44% + 24px)"}}>
           <Space>
             <ModalSave />
             <MadalCancel />
           </Space>
       
     </div>
+    </div>
+    
+
+  
+
 
     
     
