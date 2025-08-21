@@ -1,0 +1,22 @@
+/* label ของทุกช่อง */
+.ant-form-item-label > label {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* input, select, datepicker */
+.ant-input,
+.ant-select-selector,
+.ant-picker {
+  font-size: 18px !important;
+  padding: 8px 12px !important;
+  height: 44px; /* ให้สูงขึ้น ดูทันสมัย */
+  border-radius: 6px;
+}
+
+/* ปุ่ม */
+.ant-btn {
+  font-size: 18px !important;
+  height: 44px !important;
+  border-radius: 6px;
+}

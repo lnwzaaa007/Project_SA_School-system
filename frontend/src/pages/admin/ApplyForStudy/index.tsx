@@ -49,20 +49,17 @@ const ApplyForStudy = () => {
         </Col>
       </Row>
 
-      <div style={{ marginLeft: "15%",marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(10vh - 60px)", width: "70%", borderRadius: "16px" }}>
+      <div style={{display:"flex", justifyContent:"center",marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(10vh - 60px)", width: "70%", borderRadius: "16px",marginLeft:"15%" }}>
         <div >
-          <Row gutter={[24, 12]} style={{marginLeft: "15%", marginTop: "5px",marginBottom: "5px"}}>
+          <Row gutter={[24, 12]} style={{ marginTop: "5px",marginBottom: "5px",}}>
             <Col xs ={24} md={6} >
-              {/* <Space direction="vertical">
-                <Search placeholder="ค้นหาชื่อผู้สมัคร" onSearch={onSearch} enterButton />
-                
-              </Space> */}
               <label>ชื่อผู้สมัคร</label>
-              <Input placeholder="ค้นหาชื่อผู้สมัคร" />
+              <Input style={{ width: "100%" }} placeholder="ค้นหาชื่อผู้สมัคร" 
+              />
             </Col>
             <Col xs ={24} md={6}>
               <label>ระดับชั้น</label>
-                <Select placeholder="เลือก" style={{ width: "100%" }}>
+                <Select placeholder="เลือก" style={{ width: "100%",height:"45px" }}>
                   <Option value="มัธยมศึกษาปีที่ 1">มัธยมศึกษาปีที่ 1</Option>
                   <Option value="มัธยมศึกษาปีที่ 2">มัธยมศึกษาปีที่ 2</Option>
                   <Option value="มัธยมศึกษาปีที่ 3">มัธยมศึกษาปีที่ 3</Option>
@@ -73,7 +70,7 @@ const ApplyForStudy = () => {
             </Col>
             <Col xs ={24} md={6}>
               <label>สถานะ</label>
-                <Select placeholder="เลือก" style={{ width: "100%" }}>
+                <Select placeholder="เลือก" style={{ width: "100%",height:"45px"  }}>
                   <Option value="รอการอนุมัติ">รอการอนุมัติ</Option>
                   <Option value="อนุมัติ">อนุมัติ</Option>
                   <Option value="ไม่อนุมัติ">ไม่อนุมัติ</Option>

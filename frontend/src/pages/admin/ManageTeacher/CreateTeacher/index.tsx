@@ -30,39 +30,6 @@ import UploadImages from "../../../../components/UploadImages";
 ];
 
 const ManageTeacher = () => {
-  // const navigate = useNavigate();
-  // return (
-  //   <div style={{ padding: "16px",marginLeft: "34%"}}>
-  //     <Row justify="space-between" align="middle" style={{ marginBottom: 24, marginTop: 24 }}>
-              
-  //             <Col>
-  //               <Space>
-  //                 <Button icon={<ArrowLeftOutlined />} style={{padding: "32px 32px"}} onClick={() => navigate(-1)}>
-  //                   กลับ
-  //                 </Button >
-  //                 <Link to="DataTeacher">
-  //                   <Button  icon={<IdcardOutlined />} style={{padding: "32px 32px"}} >
-  //                     ข้อมูลทั่วไป
-  //                   </Button>
-  //                 </Link>
-
-  //                  <Link to="AddressTeacher">
-  //                   <Button  icon={<PushpinFilled />} style={{padding: "32px 32px"}}>
-  //                     ที่อยู่
-  //                   </Button>
-  //                 </Link>
-  //               </Space>
-  //             </Col>
-  //     </Row>
-      
-          
-          
-        
-
-  //   </div>
-  // );
-
-  const navigate = useNavigate();
   const [selectedProvince, setSelectedProvince] = useState(null);
     const [selectedDistrict, setSelectedDistrict] = useState(null);
     const [selectedSubdisistrict, setSelectedSubdisistrict] = useState(null);
@@ -96,9 +63,9 @@ const ManageTeacher = () => {
   };
   return (
     <div >
-      <BackButton />
       
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '60%' ,borderRadius: "32px" ,marginLeft : "20%"}} >
+      
+        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '48px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '100%' ,borderRadius: "16px"}} >
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -279,17 +246,18 @@ const ManageTeacher = () => {
         </Select>
             </Col>
           </Row>
-    </div>
-    
-
-  
-<div style={{marginLeft : "calc(44% + 24px)"}}>
+          <div style={{display:"flex", justifyContent:"end",marginTop:"16px"}}>
           <Space>
             <ModalSave />
             <MadalCancel />
           </Space>
       
     </div>
+    </div>
+    
+
+  
+
 
     
     

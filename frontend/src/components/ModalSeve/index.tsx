@@ -3,7 +3,7 @@ import { Button, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const ModalSave = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -13,7 +13,6 @@ const ModalSave = () => {
   const handleOk = () => {
     setIsModalOpen(false);
     navigate(-1);
-    // ทำสิ่งที่ต้องการหลังจากกดยืนยัน เช่น ลบข้อมูล
   };
 
   const handleCancel = () => {
@@ -22,17 +21,22 @@ const ModalSave = () => {
 
   return (
     <>
-      <Button type="primary" style={{ marginTop: '16px' }} onClick={showModal}   >
+      <Button type="primary" style={{ marginTop: "16px" }} onClick={showModal}>
         บันทึก
       </Button>
       <Modal
         title="ยืนยันการบันทึก"
         open={isModalOpen}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText="ยืนยัน"
-        cancelText="ยกเลิก"
-        centered // ✅ ให้แสดงกลางหน้าจอ
+        centered
+        footer={[
+          <Button key="ok" type="primary" onClick={handleOk}>
+            ยืนยัน
+          </Button>,
+          <Button key="cancel" onClick={handleCancel}>
+            ยกเลิก
+          </Button>,
+        ]}
       >
         <p>คุณต้องการบันทึกข้อมูลนี้หรือไม่?</p>
       </Modal>
