@@ -20,7 +20,8 @@ const props: UploadProps = {
 
 const Uploads: React.FC = () => (
   <Upload {...props}>
-    <Button icon={<UploadOutlined />}>Upload</Button>
+    <Button icon={<UploadOutlined /> }
+    style={{ width: "200%" }}>Upload</Button>
   </Upload>
 );
 

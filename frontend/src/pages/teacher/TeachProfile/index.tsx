@@ -4,6 +4,8 @@ import { EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import teacherImage from "../../../assets/teacher.jpeg";
 
+const titleTxt = { fontSize: 22 }; 
+const txt = { fontSize: 16 };
 const Profile: React.FC = () => {
   const navigate = useNavigate();
 
@@ -30,55 +32,67 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: 50 }}>
+    <div style={{ display: "flex", justifyContent: "center", marginTop: 50,height:"90vh" }}>
       <Card
         style={{
-          width: 800,
+          width: "100%",
           borderRadius: 10,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+          
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
-        >
+      <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        marginBottom: "2.5%",
+        justifyContent: "space-between", // ดันให้ชื่ออยู่ซ้าย ปุ่มอยู่ขวา
+      }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
           <Avatar
             src={teacherData.image}
             size={120}
             style={{ marginRight: 20 }}
           />
-          <div>
-            <h2 style={{ marginBottom: 5 }}>{teacherData.name}</h2>
-            <p style={{ color: "gray" }}>ครูประจำวิชา {teacherData.subject}</p>
-
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={handleEdit}
-            >
-              แก้ไขข้อมูล
-            </Button>
-          </div>
+        <div>
+          <h2 style={{ marginBottom: 5, fontSize: "32px" }}>
+            {teacherData.name}
+          </h2>
+          <p style={{ color: "gray", fontSize: "24px" }}>
+            ครูประจำวิชา {teacherData.subject}
+          </p>
         </div>
+      </div>
 
-        <Descriptions title="ข้อมูลส่วนตัว" column={2} bordered>
-          <Descriptions.Item label="รหัสครู">{teacherData.id}</Descriptions.Item>
-          <Descriptions.Item label="เพศ">{teacherData.gender}</Descriptions.Item>
-          <Descriptions.Item label="เลขบัตรประชาชน">{teacherData.citizenId}</Descriptions.Item>
-          <Descriptions.Item label="วันเกิด">{teacherData.birthDate}</Descriptions.Item>
-          <Descriptions.Item label="สถานะ">{teacherData.status}</Descriptions.Item>
-          <Descriptions.Item label="วุฒิการศึกษา">{teacherData.education}</Descriptions.Item>
-          <Descriptions.Item label="สัญชาติ">{teacherData.nationality}</Descriptions.Item>
-          <Descriptions.Item label="ศาสนา">{teacherData.religion}</Descriptions.Item>
-          <Descriptions.Item label="อีเมล">{teacherData.email}</Descriptions.Item>
-          <Descriptions.Item label="เบอร์โทร">{teacherData.phone}</Descriptions.Item>
-          <Descriptions.Item label="ที่อยู่" span={2}>
+  {/* <Button
+    type="primary"
+    icon={<EditOutlined />}
+    onClick={handleEdit}
+    size="large"
+  >
+    แก้ไขข้อมูล
+  </Button> */}
+</div>
+
+        <div style={{fontSize:"100px"}}>
+          <Descriptions title={<span style={titleTxt}>ข้อมูลส่วนตัว</span>} column={2} bordered >
+          <Descriptions.Item  label= "รหัสครู" labelStyle={titleTxt} contentStyle={txt}>{teacherData.id}</Descriptions.Item>
+          <Descriptions.Item  label="เพศ" labelStyle={titleTxt} contentStyle={txt}>{teacherData.gender}</Descriptions.Item>
+          <Descriptions.Item  label="เลขบัตรประชาชน" labelStyle={titleTxt} contentStyle={txt}>{teacherData.citizenId}</Descriptions.Item>
+          <Descriptions.Item  label="วันเกิด" labelStyle={titleTxt} contentStyle={txt}>{teacherData.birthDate}</Descriptions.Item>
+          <Descriptions.Item  label="สถานะ" labelStyle={titleTxt} contentStyle={txt}>{teacherData.status}</Descriptions.Item>
+          <Descriptions.Item  label="วุฒิการศึกษา" labelStyle={titleTxt} contentStyle={txt}>{teacherData.education}</Descriptions.Item>
+          <Descriptions.Item  label="สัญชาติ" labelStyle={titleTxt} contentStyle={txt}>{teacherData.nationality}</Descriptions.Item>
+          <Descriptions.Item  label="ศาสนา" labelStyle={titleTxt} contentStyle={txt}>{teacherData.religion}</Descriptions.Item>
+          <Descriptions.Item  label="อีเมล" labelStyle={titleTxt} contentStyle={txt}>{teacherData.email}</Descriptions.Item>
+          <Descriptions.Item  label="เบอร์โทร" labelStyle={titleTxt} contentStyle={txt}>{teacherData.phone}</Descriptions.Item>
+          <Descriptions.Item  label="ที่อยู่" span={2} labelStyle={titleTxt} contentStyle={txt}>
             {teacherData.address}
           </Descriptions.Item>
         </Descriptions>
+        </div>
+        
       </Card>
     </div>
   );

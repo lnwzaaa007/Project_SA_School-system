@@ -24,30 +24,20 @@ const CheckStatus = () => {
       
       
         <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '30vh', maxWidth: '35%' ,borderRadius: "32px" ,marginLeft : "31%",marginTop:"18%",alignItems: "center"}} >
-          <h1 style={{justifyContent: "center", textAlign : "center"}}>ตรวจสอบสถานะ</h1>
+          <h1 style={{justifyContent: "center", textAlign : "center",marginTop:"center"}}>ตรวจสอบสถานะ</h1>
           <Row style={{width: "100%", marginLeft : "center", alignItems: "center", justifyContent: "center"}}>
             <Col  style={{textAlign : "center"}}>
               <label style= {{lineHeight: "2",textAlign : "center", marginLeft : "center"}}>เลขบัตรประชาชน</label>
               <Input placeholder="กรอกเลขบัตรประชาชน" />
-              <p></p>
-              <ModalCheckStatus/>
+              
+              
             </Col>
+
           </Row>
-        </div>
-          
-    
-
-  
-<div style={{marginLeft : "calc(44% + 24px)"}}>
-          <Space>
-            
-          </Space>
-      
-    </div>
-
-    
-    
-    
+          <div style={{display:"flex",justifyContent:"center",marginTop:"center"}}>
+                <ModalCheckStatus/>
+                </div>
+        </div>    
 </div>
   );
 };

@@ -30,7 +30,7 @@ const ModalDelete = () => {
         onCancel={handleCancel}
         okText="ยืนยัน"
         cancelText="ยกเลิก"
-        centered // ✅ ให้แสดงกลางหน้าจอ
+        centered 
       >
         <p>คุณต้องการลบข้อมูลนี้หรือไม่?</p>
       </Modal>

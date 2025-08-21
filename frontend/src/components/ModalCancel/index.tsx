@@ -22,7 +22,7 @@ const ModalCancel = () => {
 
   return (
     <>
-      <Button type="primary" style={{ marginTop: '16px' }} onClick={showModal}   >
+      <Button  style={{ marginTop: '16px' ,backgroundColor:"#ffffffff",color:"black"}} onClick={showModal}   >
         ยกเลิก
       </Button>
       <Modal
@@ -30,9 +30,15 @@ const ModalCancel = () => {
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
-        okText="ยืนยัน"
-        cancelText="ยกเลิก"
         centered // ✅ ให้แสดงกลางหน้าจอ
+        footer={[
+                  <Button key="ok" type="primary" onClick={handleOk}>
+                    ยืนยัน
+                  </Button>,
+                  <Button key="cancel" onClick={handleCancel}>
+                    ยกเลิก
+                  </Button>,
+                ]}
       >
         <p>คุณต้องการยกเลิกข้อมูลนี้หรือไม่?</p>
       </Modal>
