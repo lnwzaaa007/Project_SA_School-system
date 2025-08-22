@@ -33,7 +33,7 @@ const ChooseRolePage = () => {
       <header
         style={{
           width: "100%",
-          background: "linear-gradient(to right, #3b82f6, #60a5fa)",
+          background: "linear-gradient(to right, #4a7fd4ff, #60a5fa)",
           padding: "16px 32px",
           display: "flex",
           justifyContent: "space-between",
@@ -83,7 +83,7 @@ const ChooseRolePage = () => {
       >
         <Card
           style={{
-            width: 350,
+            width: 450,
             borderRadius: 16,
             boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
             textAlign: "center",
