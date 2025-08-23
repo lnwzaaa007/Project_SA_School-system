@@ -3,18 +3,94 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
-import { Button, Space, Typography, Input, Card } from "antd";
+import { Button, Space, Typography, Input, Card,Form,message} from "antd";
 import School from "../../../assets/School.jpg"
+import { authAPI ,studentAPI } from "../../../services/https";
 
+type SignInForm = {
+  username: string;
+  password: string;
+};
+const COOKIE_NAME = "0195f494-feaa-734a-92a6-05739101ede9"; // ให้ตรงกับ axios.getCookie
 
 const { Title } = Typography;
 
-const ChooseRolePage = () => {
+const SignInPages = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState("");
-  const [password, setPassword] = useState("");
+  const [messageApi, contextHolder] = message.useMessage();
+  // const [user, setUser] = useState("");
+  // const [password, setPassword] = useState("");
+
+  const onFinish = async (values: SignInForm) => {
+  try {
+    const payload = {
+      ...values,
+      username: (values.username || "").trim().toUpperCase(),
+    };
+
+    const res = await authAPI.userLogin(payload);
+    const { token, id } = res?.data?.data ?? {};
+
+    if (token && id) {
+      const first = payload.username.charAt(0); // S/T/A
+      let role: "student" | "teacher" | "admin" | undefined;
+
+      if (first === "S") {
+        const student = await studentAPI.getNameStudentById(id);
+        if (student?.student_id === payload.username) {
+          role = "student";
+        }
+      } 
+      // else if (first === "T") {
+      //   const teacher = await teacherAPI.getNameTeacherById(id);
+      //   if (teacher?.teacher_id === payload.username) {
+      //     role = "teacher";
+      //   }
+      // } else if (first === "A") {
+      //   const admin = await adminAPI.getNameAdminById(id);
+      //   if (admin?.admin_id === payload.username) {
+      //     role = "admin";
+      //   }
+      // }
+
+      if (role) {
+        // เก็บ token และข้อมูลลง localStorage
+        localStorage.setItem("isLogin", "true");
+        localStorage.setItem("token", token);
+        localStorage.setItem("id", String(id));
+        localStorage.setItem("role", role);
+        document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=86400; SameSite=Lax`;
+
+        
+        // Navigate ไปตาม role
+        const nextPath =
+        role === "student" ? "/student" :
+        role === "teacher" ? "/teacher" : "/admin";
+        
+        messageApi.success({
+          content: "Sign-in successful",
+          duration: 1,                 // วินาที
+          onClose: () => navigate(nextPath),
+        });
+        // setTimeout(() => navigate(nextPath), 300);
+      } else {
+        messageApi.error("ไม่สามารถยืนยันตัวตนผู้ใช้ได้");
+      }
+    } else {
+      messageApi.error(res?.error || "Login failed");
+    }
+    } catch (e: any) {
+      const msg =
+        e?.response?.data?.error ||
+        e?.message ||
+        "Unable to sign in. Please try again.";
+      messageApi.error(msg);
+    }
+  };
 
   return (
+    <>
+    {contextHolder}
     <div style={{ minHeight: "100vh"}}> <img
           src={School}
           alt="School Background"
@@ -94,44 +170,54 @@ const ChooseRolePage = () => {
           <Title level={4} style={{ marginBottom: 24 }}>
             SUT School
           </Title>
-
-          <Input
-            size="large"
-            placeholder="User"
-            prefix={<span role="img" aria-label="user">👤</span>}
-            style={{ marginBottom: 16, borderRadius: 24 }}
-            value={user}
-            onChange={e => setUser(e.target.value)}
-          />
-          <Input.Password
-            size="large"
-            placeholder="Password"
-            prefix={<span role="img" aria-label="lock">🔒</span>}
-            style={{ marginBottom: 24, borderRadius: 24 }}
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-          {/* Forget Password */}
-          <div style={{ textAlign: "right", marginBottom: 4 }}>
-            <a
-              href="/forgot-password"
-              style={{ fontSize: "14px", color: "#1677ff", textDecoration: "underline" }}
+          <Form name="basic" onFinish={onFinish} autoComplete="off" layout="vertical">
+            <Form.Item
+                  label="Username"
+                  name="username"
+                  rules={[{ required: true, message: "Please input your username!" }]}
+                >
+                  <Input
+                    size="large"
+                    placeholder="User"
+                    prefix={<span role="img" aria-label="user">👤</span>}
+                    style={{ marginBottom: 16, borderRadius: 24 }}
+                    // value={user}
+                    // onChange={e => setUser(e.target.value)}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="Password"
+                  name="password"
+                  rules={[{ required: true, message: "Please input your password!" }]}
+                >
+                  <Input.Password
+                    size="large"
+                    placeholder="Password"
+                    prefix={<span role="img" aria-label="lock">🔒</span>}
+                    style={{ marginBottom: 24, borderRadius: 24 }}
+                    // value={password}
+                    // onChange={e => setPassword(e.target.value)}
+                  />
+                </Form.Item> 
+            {/* Forget Password */}
+            <div style={{ textAlign: "right", marginBottom: 4 }}>
+              <a
+                href="/forgot-password"
+                style={{ fontSize: "14px", color: "#1677ff", textDecoration: "underline" }}
+              >
+                Forget Password?
+              </a>
+            </div>
+            <Button
+              type="primary"
+              block
+              htmlType="submit"
+              size="large"
+              style={{ borderRadius: 24, marginBottom: 16 }}
             >
-              Forget Password?
-            </a>
-          </div>
-          <Button
-            type="primary"
-            block
-            size="large"
-            style={{ borderRadius: 24, marginBottom: 16 }}
-            onClick={() => {
-              // TODO: handle login logic
-            }}
-          >
-            Login
-          </Button>
-
+              Login
+            </Button>
+          </Form>
           <Space direction="vertical" style={{ width: "100%" }}>
             <Button
               block
@@ -165,7 +251,8 @@ const ChooseRolePage = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };
 
-export default ChooseRolePage;
+export default SignInPages;
