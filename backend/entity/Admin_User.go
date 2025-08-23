@@ -5,6 +5,7 @@ import (
 )
 type Admin_User struct {
 	gorm.Model
+	Admin_ID string
 	TitleTH  TitleNameTH
 	TFirst_Name string
 	TLast_Name    string
@@ -14,7 +15,8 @@ type Admin_User struct {
 	Tel string
 	Email string
 	
-	Users Users
+	// Users Users
+	UsersID uint
 
 	Enrollment []Enrollment `gorm:"foreignKey:AdminID"`
 

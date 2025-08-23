@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { studentAPI } from "../../services/https";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
@@ -30,7 +31,51 @@ import FileUpload from "../../pages/student/Upload/uploadfile";
 const { Header, Content, Footer, Sider } = Layout;
 
 const StudentFullLayout: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [student, setStudent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const userIdStr = localStorage.getItem("id");
+  //       if (!userIdStr) {
+  //         throw new Error("ไม่พบ userId ใน localStorage");
+  //       }
+
+  //       const userId = Number(userIdStr); // ✅ แปลงเป็น number
+  //       console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+
+  //       const res = await studentAPI.getNameStudentById(userId);
+  //       console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+
+  //       setStudent(res ?? null);
+  //     } catch (e) {
+  //       console.error(e);
+  //       setStudent(null);
+  //       messageApi.error("ไม่สามารถโหลดข้อมูลนักเรียนได้");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   })();
+  // }, []);
+  useEffect(() => {
+    (async () => {
+    
+        const userId = Number(localStorage.getItem("id"));
+        
+        console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+
+        const res = await studentAPI.getNameStudentById(userId);
+        console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+
+        setStudent(res);
+        setIsLoading(false);
+  
+    })();
+  }, []);
+
+  
+  // const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -46,13 +91,15 @@ const StudentFullLayout: React.FC = () => {
   } = theme.useToken();
 
   const Logout = () => {
-    setIsLoading(true);
-    localStorage.clear();
-    messageApi.success("Logout successful");
-    setTimeout(() => {
-      location.href = "/";
-    }, 1000);
+      setIsLoading(true);
+      localStorage.clear();
+      // ลบ cookie token ถ้ามี
+      document.cookie = "0195f494-feaa-734a-92a6-05739101ede9=; Path=/; Max-Age=0; SameSite=Lax";
+      messageApi.success("Logout successful");
+      setTimeout(() => (location.href = "/"), 500);
   };
+
+
 
   return (
     <>
@@ -279,7 +326,7 @@ const StudentFullLayout: React.FC = () => {
                 </Tooltip>
               </div>
               <span style={{ fontSize: "18px", color: "#000000" }}>
-                สมศรี ผ่องใส
+                {student?.t_first_name} {student?.t_last_name}
               </span>
               <Link to="/student/profile"
                 onClick={() => setCurrentPage("ประวัติ")}

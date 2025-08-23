@@ -1,24 +1,48 @@
 package main
 
 import (
-	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/controllers"
+	"github.com/gin-gonic/gin"
 )
 
+const PORT = "8088"
+
 func main() {
-	db, err := gorm.Open(sqlite.Open("sa.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
+	config.ConnectionDB()
+	config.SetupDatabase()
+
+	r := gin.Default()
+	r.Use(CORSMiddleware())
+
+	router := r.Group("/")
+	{
+		router.GET("/student", controllers.GetNameStudent)
+		router.GET("/student/:id", controllers.GetNameStudentById)
 	}
 
-	// Migrate the schema
-	db.AutoMigrate(&entity.Address{}, &entity.Admin_User{}, &entity.Announcement{}, &entity.AssignmentSubmit{}, &entity.Attendances{},
-				   &entity.AttendanceStatus{}, &entity.Bill{}, &entity.Course{}, &entity.District{}, &entity.EducationRecords{},
-				   &entity.Enrollment{}, &entity.Grade{}, &entity.Guardian{}, &entity.GuardianStudent{}, &entity.Payment{},
-				   &entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{}, &entity.Subdistrict{},
-				   &entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{}, &entity.Term{}, &entity.Tuition{},
-				   &entity.Users{}, &entity.UserType{}, &entity.Zipcode{})
 
-	
+	// Login routes
+	r.POST("/auth", controllers.LoginUser)
+	// r.POST("/creator/auth", controllers.LoginUser)
+
+	// Run the server go run main.go
+	r.Run("localhost:" + PORT)
+
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }
