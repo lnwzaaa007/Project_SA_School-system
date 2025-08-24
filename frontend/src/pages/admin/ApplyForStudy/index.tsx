@@ -26,7 +26,7 @@ const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?
 const ApplyForStudy = () => {
    
   return (
-    <div style={{ padding: "20px", backgroundColor: "#F9F9F9", minHeight: "100vh" }}>
+    <div style={{ padding: "20px", backgroundColor: "#ffffffff", minHeight: "100vh" }}>
       
       <Row gutter={[16, 12]}>
         <Col xs={24} md={8} >
