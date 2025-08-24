@@ -51,7 +51,7 @@ func SetupDatabase() {
 
 // 	password, _ := bcrypt.GenerateFromPassword([]byte("123456"), 14)
 
-// 	// ✅ Insert student ได้เลย
+// // 	// ✅ Insert student ได้เลย
 // 	db.Model(&entity.Student{}).Create(&entity.Student{
 // 		Student_ID:   "S650001",
 // 		TitleTH:      entity.TitleNameTH("นาย"),
@@ -92,7 +92,7 @@ func SetupDatabase() {
 // 		GradeID:      0,
 // 		UsersID: 2,
 // 	})
-// 	// User type
+// // 	// User type
 // 	db.Model(&entity.UserType{}).Create(&entity.UserType{
 // 		UserType_Name: "Student",
 // 		UserType_Prefix: "S",
@@ -105,7 +105,7 @@ func SetupDatabase() {
 // 		UserType_Name: "Admin",
 // 		UserType_Prefix: "A",
 // 	})
-// 	// User
+// // 	// User
 // 	db.Model(&entity.Users{}).Create(&entity.Users{
 // 		Username: "S650001",
 // 		Password: string(password),
@@ -116,4 +116,30 @@ func SetupDatabase() {
 // 		Password: string(password),
 // 		UserTypeID: 2,
 // 	})
+// db.Model(&entity.Teacher{}).Create(&entity.Teacher{
+// 		Teacher_ID:   "T540001",
+// 		TitleTH:      entity.TitleNameTH("นาง"),
+// 		TFirst_Name:  "สมศรี",
+// 		TLast_Name:   "ผ่องใจ",
+// 		TitleENG:     entity.TitleNameENG("Ms."),
+// 		EFirst_Name:  "Somsri",
+// 		ELast_Name:   "pongjia",
+// 		Citizen_ID:   "1101700234567",
+// 		Tel:          "0812345678",
+// 		DateOfBirth:  mustDate("1986-03-20"),
+// 		Gender:       entity.Gendertype("Female"),
+// 		Nationality:  "Thai",
+// 		Email:        "Somsri.T540001@example.com",
+// 		Religious:    "Buddhist",
+// 		Teacher_image: nil,
+// 		Qualification: "สาขาคณิตศาสตร์",
+// 		Qualification_image: nil,
+// 		AddressID:    1,
+// 		UsersID: 3,
+// 	})
+	// db.Model(&entity.Users{}).Create(&entity.Users{
+	// 	Username: "T540001",
+	// 	Password: string(password),
+	// 	UserTypeID: 2,
+	// })
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { teacherAPI } from "../../services/https";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
@@ -30,7 +31,45 @@ import CheckHomework from "../../pages/teacher/CreateWork/CheckWork";
 const { Header, Content, Footer, Sider } = Layout;
 
 const TeacherFullLayout: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [teacher, setTeacher] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+    // useEffect(() => {
+    //   (async () => {
+    //     try {
+    //       const userIdStr = localStorage.getItem("id");
+    //       if (!userIdStr) {
+    //         throw new Error("ไม่พบ userId ใน localStorage");
+    //       }
+  
+    //       const userId = Number(userIdStr); // ✅ แปลงเป็น number
+    //       console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+  
+    //       const res = await studentAPI.getNameStudentById(userId);
+    //       console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+  
+    //       setStudent(res ?? null);
+    //     } catch (e) {
+    //       console.error(e);
+    //       setStudent(null);
+    //       messageApi.error("ไม่สามารถโหลดข้อมูลนักเรียนได้");
+    //     } finally {
+    //       setIsLoading(false);
+    //     }
+    //   })();
+    // }, []);
+    useEffect(() => {
+      (async () => {
+      
+          const userId = Number(localStorage.getItem("id"));
+  
+          const res = await teacherAPI.getNameTeacherById(1);
+          console.log("📌  result:", res);
+          setTeacher(res);
+          setIsLoading(false);
+    
+      })();
+    }, []);
+
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -277,7 +316,9 @@ const TeacherFullLayout: React.FC = () => {
                   />
                 </Tooltip>
               </div>
-              <span style={{ fontSize: "18px", color: "#000000" }}>ครู สมศรี</span>
+              <span style={{ fontSize: "18px", color: "#000000" }}>
+                {teacher?.tfirst_name} {teacher?.tlast_name}
+              </span>
               <Link to="/teacher/profile" 
                 onClick={() => setCurrentPage("ประวัติ")}
               >

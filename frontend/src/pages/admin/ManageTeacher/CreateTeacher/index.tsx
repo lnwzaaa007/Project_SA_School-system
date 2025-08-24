@@ -65,7 +65,7 @@ const ManageTeacher = () => {
     <div >
       
       
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '48px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '100%' ,borderRadius: "16px"}} >
+        <div style={{justifyContent: "center", padding: '48px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '100%' ,borderRadius: "16px"}} >
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>

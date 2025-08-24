@@ -2,8 +2,10 @@ import axios from "axios";
 import type { AxiosResponse, AxiosError } from "axios";
 import type {
     Student,
+    //  Teacher,
     SignInInterface,
     LoginStudentRequest,
+    // LoginTeacherRequest,
 } from "../../interfaces";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
@@ -121,4 +123,9 @@ export const authAPI = {
 export const studentAPI = {
   getNameStudent: () => Get("/student"),
   getNameStudentById: (id: number | string) => Get(`/student/${id}`),
+};
+
+export const teacherAPI = {
+  getNameTeacher: () => Get("/teacher"),
+  getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
 };

@@ -19,6 +19,9 @@ func main() {
 	{
 		router.GET("/student", controllers.GetNameStudent)
 		router.GET("/student/:id", controllers.GetNameStudentById)
+
+		router.GET("/teacher", controllers.GetNameTeacher)
+		router.GET("/teacher/:id", controllers.GetNameTeacherById)
 	}
 
 

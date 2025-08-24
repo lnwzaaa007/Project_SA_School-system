@@ -34,7 +34,7 @@ const CheckStatus = () => {
             </Col>
 
           </Row>
-          <div style={{display:"flex",justifyContent:"center",marginTop:"center"}}>
+          <div style={{display:"flex",justifyContent:"center",marginTop:"2.5%"}}>
                 <ModalCheckStatus/>
                 </div>
         </div>    
