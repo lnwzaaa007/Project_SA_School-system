@@ -173,13 +173,13 @@ const SignInPages = () => {
           </Title>
           <Form name="basic" onFinish={onFinish} autoComplete="off" layout="vertical">
             <Form.Item
-                  label="Username"
+                  // label="Username"
                   name="username"
                   rules={[{ required: true, message: "Please input your username!" }]}
                 >
                   <Input
                     size="large"
-                    placeholder="User"
+                    placeholder="Username"
                     prefix={<span role="img" aria-label="user">👤</span>}
                     style={{ marginBottom: 16, borderRadius: 24 }}
                     // value={user}
@@ -187,7 +187,7 @@ const SignInPages = () => {
                   />
                 </Form.Item>
                 <Form.Item
-                  label="Password"
+                  // label="Password"
                   name="password"
                   rules={[{ required: true, message: "Please input your password!" }]}
                 >
