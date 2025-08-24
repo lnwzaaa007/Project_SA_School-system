@@ -25,33 +25,57 @@
 
 // export default ButtonSelect;
 
-import React from "react";
-import { Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { Select, message } from "antd";
+import { enumScheduleAPI } from "../../services/https";
+import './index.css';
+
+const { Option } = Select;
 
 interface SelectTimeStartProps {
-  value: string;
+  value: string | null;
   onChange: (value: string) => void;
 }
 
 const SelectTimeStart: React.FC<SelectTimeStartProps> = ({value, onChange }) => {
-  const options = [
-    { label: "08:00", value: "08:00" },
-    { label: "09:00", value: "09:00" },
-    { label: "10:00", value: "10:00" },
-    { label: "11:00", value: "11:00" },
-    { label: "13:00", value: "13:00" },
-    { label: "14:00", value: "14:00" },
-    { label: "15:00", value: "15:00" },
-  ];
+  const [timeOptions, setTimeOptions] = useState<string[]>([]);
+    
+    const fetchTimes = async () => {
+        try {
+          const res = await enumScheduleAPI.getTimes();
+          console.log("📅 Days Response:", res);
+          
+          if (Array.isArray(res.times)) {
+            setTimeOptions(res.times);
+          } else {
+            message.error("โหลดวันไม่สำเร็จ");
+          }
+        } catch (err) {
+          console.error(err);
+          message.error("เกิดข้อผิดพลาดในการโหลดวัน");
+        }
+      };
+    
+      useEffect(() => {
+        fetchTimes();
+      }, []);
 
   return (
     <Select
+      className="custom-select-time-start"
       placeholder="เวลาเริ่ม"
-      style={{ width: 100 }}
-      onChange={onChange}
       value={value}
-      options={options}
-    />
+      onChange={(value) => {
+        console.log("เลือก:", value);
+        onChange(value);
+      }}
+    >
+    {timeOptions.map((time) => (
+      <Option key={time} value={time}>
+        {time}
+      </Option>
+    ))}
+  </Select>
   );
 };
 

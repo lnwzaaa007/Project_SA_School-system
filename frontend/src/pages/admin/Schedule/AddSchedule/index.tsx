@@ -102,7 +102,7 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
 
       className="modal_add_schedule"
 
-
+      maskClosable={false}
       title="เพิ่มรายวิชา"
       open={open}
       onOk={handleOk}
@@ -118,30 +118,18 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
 
 
       <div className="input_S" >
-      <Selectday onChange={(value) => setSelectedDay(value)} />
-      <SelectTimeStart onChange={(value) => setStartTime(value)} />
-      <SelectTimeEnd onChange={(value) => setEndTime(value)} />
-      {/* <Selectday
-        value={selectedDay || ""}
-        onChange={setSelectedDay}
-      />
-      <SelectTimeStart
-        value={startTime || ""}
-        onChange={setStartTime}
-      />
-      <SelectTimeEnd
-        value={endTime || ""}
-        onChange={setEndTime}
-      /> */}
-
+        <Selectday value={selectedDay} onChange={setSelectedDay} />
+        <SelectTimeStart value={startTime} onChange={setStartTime} />
+        <SelectTimeEnd value={endTime} onChange={setEndTime} />
 
         <Input.Search
-          placeholder="ค้นหารหัสวิชา เช่น CS101"
+          className="search-input"
+          placeholder="รหัสวิชา เช่น CS101"
           enterButton
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onSearch={handleSearch}
-          style={{ width: 250 }}
+          style={{ width: 250}}
 
         />
 

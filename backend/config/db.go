@@ -159,4 +159,156 @@ func SetupDatabase() {
 	// 	Password: string(password),
 	// 	UserTypeID: 3,
 	// })
+
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 1",		
+	// 	Grade_Class	: 1,
+	// 	TeacherID :nil ,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 1",		
+	// 	Grade_Class	: 2,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 1",		
+	// 	Grade_Class	: 3,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 2",		
+	// 	Grade_Class	: 1,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 2",		
+	// 	Grade_Class	: 2,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 2",		
+	// 	Grade_Class	: 3,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 3",		
+	// 	Grade_Class	: 1,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 3",		
+	// 	Grade_Class	: 2,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 3",		
+	// 	Grade_Class	: 3,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 4",		
+	// 	Grade_Class	: 1,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 4",		
+	// 	Grade_Class	: 2,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 4",		
+	// 	Grade_Class	: 3,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 5",		
+	// 	Grade_Class	: 1,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 5",		
+	// 	Grade_Class	: 2,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 5",		
+	// 	Grade_Class	: 3,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 6",		
+	// 	Grade_Class	: 1,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 6",		
+	// 	Grade_Class	: 2,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // db.Model(&entity.Grade{}).Create(&entity.Grade{
+	// 	Grade_Year: "มัธยมศึกษาปีที่ 6",		
+	// 	Grade_Class	: 3,
+	// 	TeacherID : nil,	
+	// 	Course 	: nil,	
+	// 	Student: nil,
+    // })
+    // term
+    db.Model(&entity.Term{}).Create(&entity.Term{
+		Academic_year: 2566,
+        Semester:      1,
+        Start_date:    time.Date(2023, 5, 15, 0, 0, 0, 0, time.Local),
+        End_date:      time.Date(2023, 9, 30, 0, 0, 0, 0, time.Local),
+    })
+    db.Model(&entity.Term{}).Create(&entity.Term{
+		Academic_year: 2566,
+        Semester:      2,
+        Start_date:    time.Date(2023, 11, 1, 0, 0, 0, 0, time.Local),
+        End_date:      time.Date(2024, 3, 31, 0, 0, 0, 0, time.Local),
+    })
+    db.Model(&entity.Term{}).Create(&entity.Term{
+		Academic_year: 2567,
+        Semester:      1,
+        Start_date:    time.Date(2024, 5, 15, 0, 0, 0, 0, time.Local),
+        End_date:      time.Date(2024, 9, 30, 0, 0, 0, 0, time.Local),
+    })
+    db.Model(&entity.Term{}).Create(&entity.Term{
+		Academic_year: 2567,
+        Semester:      2,
+        Start_date:    time.Date(2024, 11, 1, 0, 0, 0, 0, time.Local),
+        End_date:      time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local),
+    })
 }

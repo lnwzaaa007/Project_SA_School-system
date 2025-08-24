@@ -24,6 +24,15 @@ func main() {
 		router.GET("/teacher/:id", controllers.GetNameTeacherById)
 
 		router.GET("/admin/:id", controllers.GetNameAdminById)
+
+		router.GET("/grades", controllers.GetGradeYearAll)
+		router.GET("/classes", controllers.GetGradeClassAll)
+
+		router.GET("/terms", controllers.GetTermAll)
+
+		router.GET("/enums/schedule-days", controllers.GetDaysEnums)
+		router.GET("/enums/schedule-times", controllers.GetTimesEnums)
+
 	}
 
 

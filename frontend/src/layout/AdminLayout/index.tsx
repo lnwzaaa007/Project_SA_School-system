@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { adminAPI } from "../../services/https";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
@@ -39,7 +40,19 @@ import AddStudent from "../../pages/admin/ManageStudent/AddStudent/AddStudent";
 const { Header, Content, Footer, Sider } = Layout;
 
 const AdminFullLayout: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [admin, setAdmin] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      (async () => {
+          const userId = Number(localStorage.getItem("id"));
+          const res = await adminAPI.getNameAdminById(userId);
+          setAdmin(res);
+          setIsLoading(false);
+    
+      })();
+    }, []);
+
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -284,7 +297,7 @@ const AdminFullLayout: React.FC = () => {
               alignItems: "center",
               borderRadius: "30px",
               transition: "left 0.2s, width 0.2s",
-              zIndex: 5000,
+              zIndex: 1000,
             }}
           >
             <h2 style={{ margin: 0 ,color:"#000000"}}> {currentPage} </h2>
@@ -311,7 +324,9 @@ const AdminFullLayout: React.FC = () => {
                 </Tooltip>
               </div>
 
-              <span style={{ fontSize: "18px", color: "#000000" }}>ผู้ดูแลระบบ</span>
+              <span style={{ fontSize: "18px", color: "#000000" }}>
+                {admin?.t_first_name} {admin?.t_last_name}
+              </span>
             </div>
           </Header>
 

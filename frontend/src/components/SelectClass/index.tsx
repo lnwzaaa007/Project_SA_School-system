@@ -1,34 +1,53 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Select, message } from 'antd';
+import { classAPI } from '../../services/https';
+import type { GradeClassInterface } from '../../interfaces/Grade';
 import './index.css';
-const options = [
-  { value: '1', label: '1' },
-  { value: '2', label: '2' },
-  { value: '3', label: '3' },
-  { value: '4', label: '4' },
-  { value: '5', label: '5' },
-];
 
-const ButtonSelect: React.FC = () => {
-  const handleChange = (value: string, option: any) => {
-    console.log('Selected value:', value); // value เช่น '1'
-    console.log('Selected label:', option.label); // label เช่น 'Jack'
-    
+const { Option } = Select;
+
+const SelectClass: React.FC = () => {
+  const [class_, setClass_] = useState<GradeClassInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const fetchGrades = async () => {
+    try {
+      const res = await classAPI.getClassesAll();
+      if (Array.isArray(res)) {
+        setClass_(res);
+      } else {
+        messageApi.error('ไม่พบข้อมูลชั้นปี');
+      }
+    } catch (err) {
+      console.error('❌ โหลด grade ผิดพลาด:', err);
+      messageApi.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  return (
-    <Select
-     className="custom-select-class"
-      showSearch
-      placeholder="ห้อง"
-      filterOption={(input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-      }
-      options={options}
-      onChange={handleChange}
+  useEffect(() => {
+    fetchGrades();
+  }, []);
 
-    />
+  return (
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-grade"
+        placeholder="เลือกห้อง"
+        style={{ width: 300 }}
+        showSearch
+        optionFilterProp="children"
+        onChange={(value) => console.log('เลือก:', value)}
+      >
+        {class_.map((g) => (
+          <Option key={g.ID} value={`${g.grade_class}`}>
+            ห้อง {g.grade_class}
+          </Option>
+        ))}
+      </Select>
+    </>
   );
 };
 
-export default ButtonSelect;
+export default SelectClass;
+     
