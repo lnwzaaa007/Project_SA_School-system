@@ -49,7 +49,7 @@ func SetupDatabase() {
 		panic("failed to migrate database: " + err.Error())
 	}
 
-// 	password, _ := bcrypt.GenerateFromPassword([]byte("123456"), 14)
+	// password, _ := bcrypt.GenerateFromPassword([]byte("123456"), 14)
 
 // // 	// ✅ Insert student ได้เลย
 // 	db.Model(&entity.Student{}).Create(&entity.Student{
@@ -141,5 +141,22 @@ func SetupDatabase() {
 	// 	Username: "T540001",
 	// 	Password: string(password),
 	// 	UserTypeID: 2,
+	// })
+    // db.Model(&entity.Admin_User{}).Create(&entity.Admin_User{
+    //     Admin_ID:    "A0001",
+    //     TitleTH:    "นาย",
+    //     TFirst_Name: "สมชาย",
+    //     TLast_Name:  "ใจดี",
+    //     TitleENG:   "Mr",
+    //     EFirst_Name: "Somchai",
+    //     ELast_Name:  "Jaidee",
+    //     Tel:        "0812345678",
+    //     Email:      "somchai@example.com",
+    //     UsersID:    4,
+	// })
+    //  db.Model(&entity.Users{}).Create(&entity.Users{
+    // 	Username: "A0001",
+	// 	Password: string(password),
+	// 	UserTypeID: 3,
 	// })
 }

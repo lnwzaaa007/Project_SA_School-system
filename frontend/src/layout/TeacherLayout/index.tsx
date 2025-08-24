@@ -62,7 +62,7 @@ const TeacherFullLayout: React.FC = () => {
       
           const userId = Number(localStorage.getItem("id"));
   
-          const res = await teacherAPI.getNameTeacherById(1);
+          const res = await teacherAPI.getNameTeacherById(userId);
           console.log("📌  result:", res);
           setTeacher(res);
           setIsLoading(false);

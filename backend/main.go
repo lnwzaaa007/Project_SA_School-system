@@ -22,6 +22,8 @@ func main() {
 
 		router.GET("/teacher", controllers.GetNameTeacher)
 		router.GET("/teacher/:id", controllers.GetNameTeacherById)
+
+		router.GET("/admin/:id", controllers.GetNameAdminById)
 	}
 
 

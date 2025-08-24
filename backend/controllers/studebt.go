@@ -31,7 +31,7 @@ func GetNameStudentById(c *gin.Context) {
 
 	if err := config.DB().Table("students").
 		Select("student_id,t_first_name, t_last_name").
-		Where("id = ?", id).
+		Where("users_id = ?", id).
 		Scan(&name).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "student not found"})
 		return

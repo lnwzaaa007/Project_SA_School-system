@@ -129,3 +129,7 @@ export const teacherAPI = {
   getNameTeacher: () => Get("/teacher"),
   getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
 };
+
+export const adminAPI = {
+  getNameAdminById: (id: number | string) => Get(`/admin/${id}`),
+};
