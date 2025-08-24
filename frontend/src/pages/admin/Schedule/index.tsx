@@ -342,7 +342,7 @@ const Schedule: React.FC = () => {
               type="primary"
               onClick={() => setIsAddModalVisible(true)}
               style={{ background: "#1677FF" }}
-              disabled={!selectedGrade || !selectedClass || !selectedTerm}
+              
             >
               เพิ่ม
             </Button>
