@@ -1,30 +1,9 @@
-// import React from 'react';
-// import { Select } from 'antd';
 
-// const ButtonSelect: React.FC = () => (
-//   <Select
-//     className="custom-select-day"
-//     showSearch
-//     placeholder="เลือกวัน"
-//     filterOption={(input, option) =>
-//       (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-//     }
-//     options={[
-//       { value: '1', label: 'จ.' },
-//       { value: '2', label: 'อ.' },
-//       { value: '3', label: 'พ.' },
-//       { value: '4', label: 'พฤ.' },
-//       { value: '5', label: 'ศ.' },
-      
-//     ]}
-//   />
-// );
-
-// export default ButtonSelect;
 
 import React, { useEffect, useState } from "react";
 import { Select, message } from "antd";
-import { enumScheduleAPI } from "../../services/https";
+import { ScheduleAPI } from "../../services/https";
+import type { DayInterface } from "../../interfaces/Schedule";
 import './index.css';
 
 const { Option } = Select;
@@ -35,22 +14,20 @@ interface SelectdayProps {
 }
 
 const Selectday: React.FC<SelectdayProps> = ({ value, onChange }) => {
-  const [dayOptions, setDayOptions] = useState<string[]>([]);
-
+  const [dayOptions, setDayOptions] = useState<DayInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
    const fetchDays = async () => {
     try {
-      const res = await enumScheduleAPI.getDays();
-      console.log("📅 Days Response:", res);
-      
-      if (Array.isArray(res.days)) {
-        setDayOptions(res.days);
+      const res = await ScheduleAPI.getDays();
+       if (Array.isArray(res)) {
+        setDayOptions(res);
       } else {
-        message.error("โหลดวันไม่สำเร็จ");
+        messageApi.error("โหลดวันไม่สำเร็จ");
       }
     } catch (err) {
       console.error(err);
-      message.error("เกิดข้อผิดพลาดในการโหลดวัน");
+      messageApi.error("เกิดข้อผิดพลาดในการโหลดวัน");
     }
   };
 
@@ -59,21 +36,25 @@ const Selectday: React.FC<SelectdayProps> = ({ value, onChange }) => {
   }, []);
 
   return (
-    <Select
-      className="custom-select-day"
-      placeholder="เลือกวัน"
-      value={value}
-       onChange={(value) => {
-        console.log("เลือก:", value);
-        onChange(value);
-      }}
-    >
-      {dayOptions.map((day) => (
-        <Option key={day} value={day}>
-          {day}
-        </Option>
-      ))}
-    </Select>
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-day"
+        placeholder="เลือกวัน"
+        value={value}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
+      >
+        {dayOptions.map((d) => (
+          <Option key={d.ID} value={d.thai_day}>
+          {d.thai_day}
+          </Option>
+
+        ))}
+      </Select>
+    </>
   );
 };
 

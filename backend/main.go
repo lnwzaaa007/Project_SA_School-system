@@ -17,22 +17,30 @@ func main() {
 
 	router := r.Group("/")
 	{
+		// User routes
 		router.GET("/student", controllers.GetNameStudent)
 		router.GET("/student/:id", controllers.GetNameStudentById)
 
+		// Teacher routes
 		router.GET("/teacher", controllers.GetNameTeacher)
 		router.GET("/teacher/:id", controllers.GetNameTeacherById)
 
+		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
 
+		// Static data routes
 		router.GET("/grades", controllers.GetGradeYearAll)
 		router.GET("/classes", controllers.GetGradeClassAll)
 
+		// New routes for terms and schedule
 		router.GET("/terms", controllers.GetTermAll)
 
-		router.GET("/enums/schedule-days", controllers.GetDaysEnums)
-		router.GET("/enums/schedule-times", controllers.GetTimesEnums)
+		// Schedule routes
+		router.GET("/schedule-days", controllers.GetDaysAll)
+		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
+		router.GET("/schedule-times-end", controllers.GetTimeEndAll)
 
+		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)
 
 	}

@@ -1,34 +1,9 @@
-// import React from 'react';
-// import { Select } from 'antd';
 
-// const ButtonSelect: React.FC = () => (
-//   <Select
-//     className="custom-select-day"
-//     showSearch
-//     placeholder="จบคาบ"
-//     filterOption={(input, option) =>
-//       (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-//     }
-//     options={[
-//       { value: '1', label: '09.30' },
-//       { value: '2', label: '10.20' },
-//       { value: '3', label: '11.10'},
-//       { value: '4', label: '12.00' },
-//       { value: '5', label: '13.50' },
-//       { value: '6', label: '14.40' },
-//       { value: '7', label: '15.30' },
-//       { value: '8', label: '16.30' },
-      
-//     ]}
-//   />
-  
-// );
-
-// export default ButtonSelect;
 
 import React, { useEffect, useState } from "react";
 import { Select, message } from "antd";
-import { enumScheduleAPI } from "../../services/https";
+import { ScheduleAPI } from "../../services/https";
+import type { TimeStartInterface } from "../../interfaces/Schedule";
 import './index.css';
 
 const { Option } = Select;
@@ -39,21 +14,22 @@ interface SelectTimeEndProps {
 }
 
 const SelectTimeEnd: React.FC<SelectTimeEndProps> = ({ value, onChange }) => {
-  const [timeOptions, setTimeOptions] = useState<string[]>([]);
+  const [timeOptions, setTimeOptions] = useState<TimeStartInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
   
   const fetchTimes = async () => {
       try {
-        const res = await enumScheduleAPI.getTimes();
+        const res = await ScheduleAPI.getTimeEnd();
         console.log("📅 Days Response:", res);
         
         if (Array.isArray(res.times)) {
           setTimeOptions(res.times);
         } else {
-          message.error("โหลดวันไม่สำเร็จ");
+          messageApi.error("โหลดวันไม่สำเร็จ");
         }
       } catch (err) {
         console.error(err);
-        message.error("เกิดข้อผิดพลาดในการโหลดวัน");
+        messageApi.error("เกิดข้อผิดพลาดในการโหลดวัน");
       }
     };
   
@@ -63,7 +39,9 @@ const SelectTimeEnd: React.FC<SelectTimeEndProps> = ({ value, onChange }) => {
   
 
   return (
-   <Select
+    <>
+      {contextHolder}
+    <Select
          className="custom-select-time-end"
          placeholder="เวลาจบ"
          value={value}
@@ -72,12 +50,13 @@ const SelectTimeEnd: React.FC<SelectTimeEndProps> = ({ value, onChange }) => {
             onChange(value);
           }}
        >
-         {timeOptions.map((time) => (
-           <Option key={time} value={time}>
-             {time}
+         {timeOptions.map((t) => (
+           <Option key={t.ID} value={t.period}>
+             {t.period}
            </Option>
          ))}
        </Select>
+    </>
   );
 };
 

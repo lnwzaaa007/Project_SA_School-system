@@ -142,9 +142,10 @@ export const classAPI = {
 export const termAPI = {
   getTermsAll: () => Get("/terms"),
 };
-export const enumScheduleAPI = {
-  getDays: () => Get("/enums/schedule-days"),
-  getTimes: () => Get("/enums/schedule-times"),
+export const ScheduleAPI = {
+  getDays: () => Get("/schedule-days"),
+  getTimeStart: () => Get("/schedule-times-start"),
+  getTimeEnd: () => Get("/schedule-times-end"),
 };
 export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),

@@ -360,105 +360,105 @@ func SetupDatabase() {
     //     Schedules: nil,
     // })
     // TimeStart
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "08:40",
-        FullTime: mustTimeOnly("08:40:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "09:30",
-        FullTime: mustTimeOnly("09:30:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "10:20",
-        FullTime: mustTimeOnly("10:20:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "11:10",
-        FullTime: mustTimeOnly("11:10:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "12:00",
-        FullTime: mustTimeOnly("12:00:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "13:00",
-        FullTime: mustTimeOnly("13:00:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "13:50",
-        FullTime: mustTimeOnly("13:50:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "14:40",
-        FullTime: mustTimeOnly("14:40:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "15:30",
-        FullTime: mustTimeOnly("15:30:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "16:30",
-        FullTime: mustTimeOnly("16:30:00"),
-        Schedules: nil,
-    })
-    // TimeEnd
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "08:40",
-        FullTime: mustTimeOnly("08:40:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "09:30",
-        FullTime: mustTimeOnly("09:30:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "10:20",
-        FullTime: mustTimeOnly("10:20:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "11:10",
-        FullTime: mustTimeOnly("11:10:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "12:00",
-        FullTime: mustTimeOnly("12:00:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "13:00",
-        FullTime: mustTimeOnly("13:00:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "13:50",
-        FullTime: mustTimeOnly("13:50:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "14:40",
-        FullTime: mustTimeOnly("14:40:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "15:30",
-        FullTime: mustTimeOnly("15:30:00"),
-        Schedules: nil,
-    })
-    db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
-        Period: "16:30",
-        FullTime: mustTimeOnly("16:30:00"),
-        Schedules: nil,
-    })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "08:40",
+    //     FullTime: mustTimeOnly("08:40:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "09:30",
+    //     FullTime: mustTimeOnly("09:30:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "10:20",
+    //     FullTime: mustTimeOnly("10:20:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "11:10",
+    //     FullTime: mustTimeOnly("11:10:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "12:00",
+    //     FullTime: mustTimeOnly("12:00:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "13:00",
+    //     FullTime: mustTimeOnly("13:00:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "13:50",
+    //     FullTime: mustTimeOnly("13:50:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "14:40",
+    //     FullTime: mustTimeOnly("14:40:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "15:30",
+    //     FullTime: mustTimeOnly("15:30:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeStart{}).Create(&entity.TimeStart{
+    //     Period: "16:30",
+    //     FullTime: mustTimeOnly("16:30:00"),
+    //     Schedules: nil,
+    // })
+    // // TimeEnd
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "08:40",
+    //     FullTime: mustTimeOnly("08:40:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "09:30",
+    //     FullTime: mustTimeOnly("09:30:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "10:20",
+    //     FullTime: mustTimeOnly("10:20:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "11:10",
+    //     FullTime: mustTimeOnly("11:10:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "12:00",
+    //     FullTime: mustTimeOnly("12:00:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "13:00",
+    //     FullTime: mustTimeOnly("13:00:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "13:50",
+    //     FullTime: mustTimeOnly("13:50:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "14:40",
+    //     FullTime: mustTimeOnly("14:40:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "15:30",
+    //     FullTime: mustTimeOnly("15:30:00"),
+    //     Schedules: nil,
+    // })
+    // db.Model(&entity.TimeEnd{}).Create(&entity.TimeEnd{
+    //     Period: "16:30",
+    //     FullTime: mustTimeOnly("16:30:00"),
+    //     Schedules: nil,
+    // })
 }
