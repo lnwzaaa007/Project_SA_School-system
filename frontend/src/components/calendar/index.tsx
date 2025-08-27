@@ -11,7 +11,7 @@ const Calendars: React.FC = () => {
   const { token } = theme.useToken();
 
   const wrapperStyle: React.CSSProperties = {
-    width: 740,
+    width: '100%',
     border: `1px solid ${token.colorBorderSecondary}`,
     borderRadius: token.borderRadiusLG,
   };

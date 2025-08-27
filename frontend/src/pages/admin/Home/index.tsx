@@ -5,7 +5,7 @@ import{
     UserOutlined,
     IdcardOutlined
 }from '@ant-design/icons';
-import Calendars from "../../../components/calendar";
+import Calendars from "../../../components/Calendar";
 
 const Home = () => {
   
@@ -104,9 +104,7 @@ const Home = () => {
           <div style={{marginTop: "16px",}}> 
                 
             <Calendars/>
-            {/* <Calendar onChange={setDate} value={date} />; */}
-            {/* <GoogleCalendar /> */}
-            {/* <Calendar1_/> */}
+            
           </div>
         </Col>
         </Row>
