@@ -5,7 +5,7 @@ import { Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Button, Space, Typography, Input, Card,Form,message} from "antd";
 import School from "../../../assets/School.jpg"
-import { authAPI ,studentAPI,teacherAPI ,adminAPI} from "../../../services/https";
+import { authAPI ,studentAPI,teacherAPI ,adminAPI,userTypeAPI} from "../../../services/https";
 
 type SignInForm = {
   username: string;
@@ -32,22 +32,22 @@ const SignInPages = () => {
     const { token, id } = res?.data?.data ?? {};
 
     if (token && id) {
-      const first = payload.username.charAt(0); // S/T/A
+      const userType = await userTypeAPI.getUserTypes(id);
       let role: "student" | "teacher" | "admin" | undefined;
 
-      if (first === "S") {
+      if (userType.prefix === "S") {
         const student = await studentAPI.getNameStudentById(id);
         if (student?.student_id === payload.username) {
           role = "student";
         }
       } 
-      else if (first === "T") {
+      else if (userType.prefix === "T") {
         const teacher = await teacherAPI.getNameTeacherById(id);//ค้นหาด้วย id users
         if (teacher?.teacher_id === payload.username) {
           role = "teacher";
         }
       } 
-      else if (first === "A") {
+      else if (userType.prefix === "A") {
         const admin = await adminAPI.getNameAdminById(id);
         if (admin?.admin_id === payload.username) {
           role = "admin";

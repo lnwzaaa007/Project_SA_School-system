@@ -6,4 +6,19 @@
     align-items: center;      /* จัดให้อยู่กึ่งกลางแนวตั้ง */
     justify-content: center;  /* จัดให้อยู่กึ่งกลางแนวนอน */    
 }
+.search-input.ant-input-search {
+  height: 40px;
+}
 
+.search-input .ant-input {
+  height: 40px;
+  font-size: 16px;
+}
+
+.search-input .ant-input-search-button,
+.search-input .ant-btn {
+  height: 40px !important;
+  line-height: 40px !important;
+  padding: 0 16px;
+  font-size: 16px;
+}

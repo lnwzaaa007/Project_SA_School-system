@@ -287,6 +287,10 @@ const Schedule: React.FC = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
 
+  const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
+
   const handleAddCourse = (newCourse: Course) => {
     setCourses((prev) => [...prev, newCourse]);
     setIsAddModalVisible(false);
@@ -323,9 +327,9 @@ const Schedule: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <SelectGrade />
-          <SelectClass />
-          <SelectTerm />
+        <SelectGrade/>
+        <SelectClass/>
+        <SelectTerm/>
           <div
             style={{
               marginLeft: "auto",
@@ -338,6 +342,7 @@ const Schedule: React.FC = () => {
               type="primary"
               onClick={() => setIsAddModalVisible(true)}
               style={{ background: "#1677FF" }}
+              
             >
               เพิ่ม
             </Button>

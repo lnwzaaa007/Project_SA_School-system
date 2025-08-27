@@ -9,7 +9,7 @@ import (
 
 type Student struct {
 	gorm.Model
-	Student_ID 		string			`json:"student_id"`
+	Student_ID 		string			`gorm:"uniqueIndex" json:"student_id"`
 	TitleTH  		TitleNameTH		`json:"title_th"`
 	TFirst_Name 	string			`json:"t_first_name"`
 	TLast_Name    	string			`json:"t_last_name"`

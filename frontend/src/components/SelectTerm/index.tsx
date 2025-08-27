@@ -1,34 +1,52 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Select, message } from 'antd';
+import { termAPI } from '../../services/https';
+import type { TermInterface } from '../../interfaces/Term';
 import './index.css';
-const options = [
-  { value: '1', label: '1' },
-  { value: '2', label: '2' },
-  
-];
 
-const ButtonSelect: React.FC = () => {
-  const handleChange = (value: string, option: any) => {
-    console.log('Selected value:', value); // value เช่น '1'
-    console.log('Selected label:', option.label); // label เช่น 'Jack'
-    
-    // คุณสามารถส่งไปหลังบ้านตรงนี้ได้ เช่น
-    // axios.post('/api/save-selection', { value });
+const { Option } = Select;
+
+const SelectTerm: React.FC = () => {
+  const [term, setTerm] = useState<TermInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const fetchTerm = async () => {
+    try {
+      const res = await termAPI.getTermsAll();
+      if (Array.isArray(res)) {
+        setTerm(res);
+      } else {
+        messageApi.error('ไม่พบข้อมูลชั้นปี');
+      }
+    } catch (err) {
+      console.error('❌ โหลด grade ผิดพลาด:', err);
+      messageApi.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  return (
-    <Select
-     className="custom-select-term"
-      showSearch
-      placeholder="เทอม"
-      filterOption={(input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-      }
-      options={options}
-      onChange={handleChange}
+  useEffect(() => {
+    fetchTerm();
+  }, []);
 
-    />
+  return (
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-term"
+        placeholder="เลือกปีการศึกษา"
+        style={{ width: 300 }}
+        showSearch
+        optionFilterProp="children"
+        onChange={(value) => console.log('เลือก:', value)}
+      >
+        {term.map((t) => (
+          <Option key={t.ID} value={`${t.academic_year} ${t.semester}`}>
+           ปีการศึกษา {t.academic_year} / {t.semester}
+          </Option>
+        ))}
+      </Select>
+    </>
   );
 };
 
-export default ButtonSelect;
+export default SelectTerm;

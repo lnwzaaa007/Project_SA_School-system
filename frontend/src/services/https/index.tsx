@@ -133,3 +133,20 @@ export const teacherAPI = {
 export const adminAPI = {
   getNameAdminById: (id: number | string) => Get(`/admin/${id}`),
 };
+export const gradeAPI = {
+  getGradesAll: () => Get("/grades"),
+};
+export const classAPI = {
+  getClassesAll: () => Get("/classes"),
+};
+export const termAPI = {
+  getTermsAll: () => Get("/terms"),
+};
+export const ScheduleAPI = {
+  getDays: () => Get("/schedule-days"),
+  getTimeStart: () => Get("/schedule-times-start"),
+  getTimeEnd: () => Get("/schedule-times-end"),
+};
+export const userTypeAPI = {
+  getUserTypes: (id: number) => Get(`/users/${id}`),
+};
