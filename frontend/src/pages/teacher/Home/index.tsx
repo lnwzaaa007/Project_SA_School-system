@@ -1,5 +1,5 @@
 import PictureSlide from '../../../components/PictureSlide'
-import Calendars from '../../../components/Calendar';
+import Calendars from '../../../components/calendar';
 import { Col,Row,Card,Statistic } from 'antd';
 const Home = () => {
   return (

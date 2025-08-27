@@ -5,7 +5,7 @@ import{
     UserOutlined,
     IdcardOutlined
 }from '@ant-design/icons';
-import Calendars from "../../../components/Calendar";
+import Calendars from "../../../components/calendar";
 
 const Home = () => {
   
