@@ -36,6 +36,9 @@ import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDat
 import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
 import MoveAddStudent from "../../pages/admin/ApplyForStudy/MoveAddStudent";
 import AddStudent from "../../pages/admin/ManageStudent/AddStudent/AddStudent";
+import CreateCourse from "../../pages/admin/Course/CreateCourse";  //pangเพิ่มมา
+import DeleteCourse from "../../pages/admin/Course/Delete"; //pangเพิ่มมา
+import EditCourse from "../../pages/admin/Course/edit"; //pangเพิ่มมา
 const { Header, Content, Footer, Sider } = Layout;
 
 const AdminFullLayout: React.FC = () => {
@@ -348,6 +351,9 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/manageTeacher/EditTeacher/EditDataTeacher" element={<EditDataTeacher />} />
                 <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
+                <Route path="/course/CreateCourse" element={<CreateCourse/>}/> 
+                <Route path="/course/DeleteCourse" element={<DeleteCourse/>}/>
+                <Route path="/course/EditCourse" element={<EditCourse/>}/>
                 <Route path="/schedule" element={<Schedule />} />
                 {/* <Route path="/schedule/add" element={<AddSchedule />} /> */}
                 <Route path="/payment" element={<Payment />} />
