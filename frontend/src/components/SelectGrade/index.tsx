@@ -41,7 +41,7 @@ const SelectGrade: React.FC = () => {
       >
         {grades.map((g) => (
           <Option key={g.ID} value={`${g.grade_year}`}>
-            {g.grade_year}
+          ม. {g.grade_year}
           </Option>
         ))}
       </Select>

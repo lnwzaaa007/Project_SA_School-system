@@ -41,5 +41,4 @@ export interface Grade {
 export interface LoginStudentRequest {
   username: string;
   password: string;
-  user_type: string;
 }
