@@ -5,40 +5,61 @@ import (
   
     "github.com/gin-gonic/gin"
     "github.com/lnwzaaa007/Project_SA_School-system/backend/config"
-    "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
+    // "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 
 )
 
 type GradeYearBrief struct {
+	ID 	  uint   `json:"id"`
 	GradeYear string `json:"grade_year"`
 }
 type GradeClassBrief struct {
+	ID 	  uint   `json:"id"`
 	GradeClass int `json:"grade_class"`
 }
 
+// func GetGradeYearAll(c *gin.Context) {
+// 	var gradeYears []GradeYearBrief
+// 	if err := config.DB().
+// 		Model(&entity.Grade{}).
+// 		Select("DISTINCT grade_year").
+// 		Scan(&gradeYears).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, gradeYears)
+// }
+
+// func GetGradeClassAll(c *gin.Context) {
+// 	var gradeClasses []GradeClassBrief
+// 	if err := config.DB().
+// 		Model(&entity.Grade{}).
+// 		Select("DISTINCT grade_class").
+// 		Scan(&gradeClasses).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, gradeClasses)
+// }
+
 func GetGradeYearAll(c *gin.Context) {
 	var gradeYears []GradeYearBrief
-	if err := config.DB().
-		Model(&entity.Grade{}).
-		Select("DISTINCT grade_year").
+	if err := config.DB().Raw("SELECT DISTINCT grade_year, MIN(id) AS id FROM grades GROUP BY grade_year").
 		Scan(&gradeYears).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gradeYears)
 }
 
 func GetGradeClassAll(c *gin.Context) {
 	var gradeClasses []GradeClassBrief
-	if err := config.DB().
-		Model(&entity.Grade{}).
-		Select("DISTINCT grade_class").
+	if err := config.DB().Raw("SELECT DISTINCT grade_class AS grade_class, MIN(id) AS id FROM grades GROUP BY grade_class").
 		Scan(&gradeClasses).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 	c.JSON(http.StatusOK, gradeClasses)
 }
-
 

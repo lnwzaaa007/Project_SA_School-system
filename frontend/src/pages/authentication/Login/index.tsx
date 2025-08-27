@@ -34,7 +34,7 @@ const SignInPages = () => {
     if (token && id) {
       const userType = await userTypeAPI.getUserTypes(id);
       let role: "student" | "teacher" | "admin" | undefined;
-
+      
       if (userType.prefix === "S") {
         const student = await studentAPI.getNameStudentById(id);
         if (student?.student_id === payload.username) {

@@ -112,7 +112,7 @@ export const Delete = async (
 // Authentication APIs
 export const authAPI = {
   // Member authentication
-  userLogin: (data: LoginStudentRequest) => Post("/auth", data, false),
+  userLogin: (data: SignInInterface) => Post("/auth", data, false),
 
 };
 
