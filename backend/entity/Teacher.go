@@ -34,7 +34,7 @@ const (
 
 type Teacher struct {
 	gorm.Model
-	Teacher_ID 				string		`json:"teacher_id"`
+	Teacher_ID 				string		`gorm:"uniqueIndex" json:"teacher_id"`
 	TitleTH  				TitleNameTH    `json:"title_th"`
 	TFirst_Name 			string      `json:"tfirst_name"`
 	TLast_Name    			string    `json:"tlast_name"`

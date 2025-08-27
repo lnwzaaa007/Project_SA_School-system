@@ -33,6 +33,8 @@ func main() {
 		router.GET("/enums/schedule-days", controllers.GetDaysEnums)
 		router.GET("/enums/schedule-times", controllers.GetTimesEnums)
 
+		router.GET("users/:id", controllers.GetUserTypeByID)
+
 	}
 
 

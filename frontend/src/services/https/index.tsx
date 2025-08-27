@@ -146,3 +146,6 @@ export const enumScheduleAPI = {
   getDays: () => Get("/enums/schedule-days"),
   getTimes: () => Get("/enums/schedule-times"),
 };
+export const userTypeAPI = {
+  getUserTypes: (id: number) => Get(`/users/${id}`),
+};

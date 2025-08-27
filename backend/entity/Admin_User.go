@@ -5,7 +5,7 @@ import (
 )
 type Admin_User struct {
 	gorm.Model
-	Admin_ID 			string   	`json:"admin_id"`
+	Admin_ID 			string   	`gorm:"uniqueIndex" json:"admin_id"`
 	TitleTH  			TitleNameTH	`json:"title_th"`
 	TFirst_Name 		string		`json:"t_first_name"`
 	TLast_Name    		string		`json:"t_last_name"`
