@@ -10,27 +10,22 @@ import (
 
 type Schedules struct {
 	gorm.Model
-	// StartTime time.Time		`json:"start_time"`
-	// EndTime time.Time		`json:"end_time"`
-	// ScheduleDate time.Time		`json:"schedule_date"`
-	ScheduleDate_String string	`json:"schedule_date_string"`
 
-	Attendances []Attendances `gorm:"foreignKey:SchedulesID" json:"attendances"`
-	DayID uint
-	Day   *Days `gorm:"foreignKey:DayID" json:"day"`
-	TeacherID uint
-	Teacher   *Teacher `gorm:"foreignKey:TeacherID" json:"teacher"`
-	CourseID uint
-	Course     *Course `gorm:"foreignKey:CourseID" json:"course"`
-	GradeID uint
-	Grade     *Grade `gorm:"foreignKey:GradeID" json:"grade"`
-	TermID uint
-	Term     *Term `gorm:"foreignKey:TermID" json:"term"`
-	TimeStartID uint
-	TimeStart   *TimeStart `gorm:"foreignKey:TimeStartID" json:"time_start"`
-	TimeEndID uint
-	TimeEnd   *TimeEnd `gorm:"foreignKey:TimeEndID" json:"time_end"`
+	Attendances []Attendances  `gorm:"foreignKey:SchedulesID" json:"attendances"`
+	DayID uint	`json:"day_id"`
+	Day   *Days `gorm:"foreignKey:DayID;references:ID"`
+	TeacherID uint `json:"teacher_id"`
+	Teacher   *Teacher `gorm:"foreignKey:TeacherID;references:ID"`
+	CourseID uint `json:"course_id"`
+	Course     *Course `gorm:"foreignKey:CourseID" json:"ID"`
+	GradeID uint `json:"grade_id"`
+	Grade     *Grade 
+	TermID uint `json:"term_id"`
+	Term     *Term 
+	TimeStartID uint `json:"time_start_id"`
+	TimeStart   *TimeStart  
+	TimeEndID uint `json:"time_end_id"`
+	TimeEnd   *TimeEnd 
 
-	
 
 }

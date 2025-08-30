@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Select, message } from 'antd';
-import { classAPI } from '../../services/https';
+import { gradeAPI } from '../../services/https';
 import type { GradeClassInterface } from '../../interfaces/Grade';
 import './index.css';
 
 const { Option } = Select;
 
-const SelectClass: React.FC = () => {
+interface SelectClass { 
+  value: string | null;
+  onChange: (value: string) => void;
+}
+
+const SelectClass: React.FC<SelectClass> = ({value, onChange}) => {
   const [class_, setClass_] = useState<GradeClassInterface[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
 
   const fetchGrades = async () => {
     try {
-      const res = await classAPI.getClassesAll();
+      const res = await gradeAPI.getClassesAll();
       if (Array.isArray(res)) {
         setClass_(res);
       } else {
@@ -36,8 +41,12 @@ const SelectClass: React.FC = () => {
         placeholder="เลือกห้อง"
         style={{ width: 300 }}
         showSearch
+        value={value}
         optionFilterProp="children"
-        onChange={(value) => console.log('เลือก:', value)}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+       }}
       >
         {class_.map((g) => (
           <Option key={g.ID} value={`${g.grade_class}`}>

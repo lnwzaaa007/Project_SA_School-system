@@ -28,9 +28,10 @@ func main() {
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
 
-		// Static data routes
-		router.GET("/grades", controllers.GetGradeYearAll)
-		router.GET("/classes", controllers.GetGradeClassAll)
+		// Grade routes
+		router.GET("/gradeyears", controllers.GetGradeYearAll)
+		router.GET("/gradeclasses", controllers.GetGradeClassAll)
+		router.GET("/gradeclassID", controllers.GetGradesByYearAndClass)
 
 		// New routes for terms and schedule
 		router.GET("/terms", controllers.GetTermAll)
@@ -39,6 +40,8 @@ func main() {
 		router.GET("/schedule-days", controllers.GetDaysAll)
 		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
 		router.GET("/schedule-times-end", controllers.GetTimeEndAll)
+		router.GET("/schedule-get-id", controllers.GetSchedulesByID) //schedule-get-all?grade=2&term=1
+		router.POST("/schedules", controllers.CreateSchedule)
 
 		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)
