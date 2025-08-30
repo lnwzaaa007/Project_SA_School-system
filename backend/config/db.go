@@ -49,5 +49,7 @@ func SetupDatabase() {
     seedGrade()
     seedTerm()
     seedUsers()
+	seedProvince()
+	//seeddistrict()
 
 }
