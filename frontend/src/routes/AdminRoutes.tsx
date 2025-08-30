@@ -26,6 +26,8 @@ const MoveAddStudent = Loadable(lazy(() => import("../pages/admin/ApplyForStudy/
 const CreateCourse = Loadable(lazy(() => import("../pages/admin/Course/CreateCourse"))); //pang edit หน้าสร้างรายวิชา
 const DeleteCourse = Loadable(lazy(() => import("../pages/admin/Course/Delete"))); //pang edit หน้าลบรายวิชา
 const EditCourse = Loadable(lazy(() => import("../pages/admin/Course/edit"))); //pang edit หน้าแก้ไขรายวิชา
+const CreateAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/CraeteAnnouncement"))); //pang เพิ่มหน้าสร้างประกาศ
+const EditAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/EditAnnouncement"))); //pang เพิ่มหน้าแก้ไขประกาศ
 
 const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -33,7 +35,12 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
     element: isLoggedIn ? <AdminLayout /> : <MainPages />,
     children: [
       { path: "", element: <Home /> }, // /teacher
-      { path: "announce", element: <Announce /> },
+      { path: "announce", element: <Announce />, 
+        children:[
+          {path : "CreateAnnouncement", element: <CreateAnnouncement/>},
+          {path : "EditAnnouncement", element: <EditAnnouncement/>}
+        ]
+      },
       { path: "manageStudent", element: <ManageStudent />,
           children:[
           {path:"AddStudent",element: <AddStudent/>,}
