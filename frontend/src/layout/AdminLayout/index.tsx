@@ -40,6 +40,8 @@ import AddStudent from "../../pages/admin/ManageStudent/AddStudent/AddStudent";
 import CreateCourse from "../../pages/admin/Course/CreateCourse";  //pangเพิ่มมา
 import DeleteCourse from "../../pages/admin/Course/Delete"; //pangเพิ่มมา
 import EditCourse from "../../pages/admin/Course/edit"; //pangเพิ่มมา
+import CreateAnnouncement from "../../pages/admin/Announce/CraeteAnnouncement";
+import EditAnnouncement from "../../pages/admin/Announce/EditAnnouncement";
 const { Header, Content, Footer, Sider } = Layout;
 
 const AdminFullLayout: React.FC = () => {
@@ -355,6 +357,8 @@ const AdminFullLayout: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/announce"element={<Announce />}/>
+                <Route path="/announce/CreateAnnouncement" element={<CreateAnnouncement/>}/>
+                <Route path="/announce/EditAnnouncement" element={<EditAnnouncement/>}/>
                 <Route path="/manageStudent" element={<ManageStudent />} />
                 <Route path="/manageStudent/AddStudent" element={<AddStudent />} />
                 <Route path="/manageTeacher" element={<ManageTeacher />} />

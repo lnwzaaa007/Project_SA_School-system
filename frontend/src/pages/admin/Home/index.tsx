@@ -41,7 +41,7 @@ const Home = () => {
                 
             </Col>
             <Col xs={24} sm={24} md={24} lg={12} xl={8} style = {{border:30}}>
-                <Card style = {{marginTop: "0px",height:"150px",background:"#0d47a1",opacity:0.4}}>
+                <Card style = {{marginTop: "0px",height:"150px",background:"#0d47a1",boxShadow:"1px 2px 3px grey",opacity:0.4}}>
                     <div style = {{ display: 'flex', flexDirection: 'column'}}>
                         <div style = {{ textAlign: 'left', fontSize: 18, color: '#fff'}}>
                             <UserOutlined style = {{marginRight: 16, fontSize:24}}/>
