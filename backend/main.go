@@ -46,6 +46,14 @@ func main() {
 		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)
 
+		// Province routes
+		router.GET("/province", controllers.GetProvince)
+		router.GET("/province/:id", controllers.GetProvinceById)
+
+		// District routes
+		router.GET("/district", controllers.GetDistrict)
+		router.GET("/district/:id", controllers.GetDistrictById)
+
 	}
 
 
