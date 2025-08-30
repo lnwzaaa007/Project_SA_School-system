@@ -6,7 +6,12 @@ import './index.css';
 
 const { Option } = Select;
 
-const SelectGrade: React.FC = () => {
+interface SelectGrade {
+  value: string | null;
+  onChange: (value: string) => void;
+}
+
+const SelectGrade: React.FC<SelectGrade> = ({value,onChange}) => {
   const [grades, setGrades] = useState<GradeYearInterface[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -36,8 +41,12 @@ const SelectGrade: React.FC = () => {
         placeholder="เลือกชั้นปี"
         style={{ width: 300 }}
         showSearch
+        value={value}
         optionFilterProp="children"
-        onChange={(value) => console.log('เลือก:', value)}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
       >
         {grades.map((g) => (
           <Option key={g.ID} value={`${g.grade_year}`}>

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -38,8 +39,8 @@ func SetupDatabase() {
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
 	}
-    //ฟังก์ชัน seed ข้อมูล
 
+	//ฟังก์ชัน seed ข้อมูล
     seedDays()
     seedTimeStart()
     seedTimeEnd()
@@ -52,5 +53,7 @@ func SetupDatabase() {
     seedUsers()
 	seedProvince()
 	//seeddistrict()
+	seedCourses()
+	seedSubjectGroup()
 
 }

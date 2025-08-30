@@ -1,34 +1,3 @@
-// import React from "react";
-// import "./index.css"
-// import { Modal, Input } from "antd";
-
-// const AddCourseModal = ({ open, onOk, onCancel }) => {
-//   return (
-//     <Modal
-//       title="เพิ่มรายวิชา"
-//       open={open}
-//       onOk={onOk}
-//       onCancel={onCancel}
-//       okText="เพิ่ม"
-//       cancelText="ยกเลิก"
-//       width={800}
-//       zIndex={7000}
-//     >
-//       {/* ตัวอย่างฟอร์มเบื้องต้น */}
-//       <div className="input_S" >
-//         <Input.Search className="search-input"
-//             placeholder="รหัสวิชา"
-//             enterButton
-//             style={{ width: 400,height: 50,justifyContent: "center",}}
-//           />
-//         {/* เพิ่ม field ตามต้องการ */}
-//       </div>
-//     </Modal>
-//   );
-// };
-
-// export default AddCourseModal;
-
 import React, { useState, useEffect } from "react";
 import { Modal, Input, List } from "antd";
 import Selectday from "../../../../components/SelectDay";

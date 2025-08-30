@@ -6,7 +6,12 @@ import './index.css';
 
 const { Option } = Select;
 
-const SelectTerm: React.FC = () => {
+interface SelectTerm {
+  value: string | null;
+  onChange: (value: string) => void;
+}
+
+const SelectTerm: React.FC<SelectTerm> = ({value,onChange}) => {
   const [term, setTerm] = useState<TermInterface[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -37,7 +42,11 @@ const SelectTerm: React.FC = () => {
         style={{ width: 300 }}
         showSearch
         optionFilterProp="children"
-        onChange={(value) => console.log('เลือก:', value)}
+        value={value}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
       >
         {term.map((t) => (
           <Option key={t.ID} value={`${t.academic_year} ${t.semester}`}>
