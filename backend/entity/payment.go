@@ -11,9 +11,9 @@ const (
 
 type Payment struct {
 	gorm.Model
-	Silp []byte
-	DateTime time.Time
-	Status Statuspayment
-
-	Bill []Bill `gorm:"foreignKey:PaymentID"`
+	Silp []byte `json:"silp"`
+	DateTime time.Time `json:"dateTime"`
+	Amount int `json:"amount"`
+	Status Statuspayment `json:"status"`
+	
 }

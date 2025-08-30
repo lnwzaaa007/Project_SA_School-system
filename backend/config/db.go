@@ -39,15 +39,15 @@ func SetupDatabase() {
 		panic("failed to migrate database: " + err.Error())
 	}
     //ฟังก์ชัน seed ข้อมูล
-    seedDays()
-    seedTimeStart()
-    seedTimeEnd()
-    seedStudent()
-    seedTeachers()
-    seedAdmin()
-    seedUserType()
-    seedGrade()
-    seedTerm()
-    seedUsers()
+    // seedDays()
+    // seedTimeStart()
+    // seedTimeEnd()
+    // seedStudent()
+    // seedTeachers()
+    // seedAdmin()
+    // seedUserType()
+    // seedGrade()
+    // seedTerm()
+    // seedUsers()
 
 }
