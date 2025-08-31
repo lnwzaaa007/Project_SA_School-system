@@ -155,3 +155,11 @@ export const ScheduleAPI = {
 export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),
 };
+
+export const ProvinceAPI ={
+  getProvince: () => Get("/province"),
+}
+
+export const DistrictAPI ={
+  getDistrict: (id: number) => Get(`/district/${id}`)
+}

@@ -8,6 +8,7 @@ import { Link, Route, useNavigate,Outlet } from "react-router-dom";
 import dayjs from "dayjs";
 import { Content } from 'antd/es/layout/layout';
 import ModalDelete from "../../../components/ModalDelete";
+import SelectProvince from '../../../components/SelectProvince';
 
 
 type SearchProps = GetProps<typeof Input.Search>;
@@ -44,7 +45,9 @@ const ManageTeacher = () => {
   return (
       
      <div style={{ padding: "16px", background: "#fff", minHeight: "calc(100vh - 60px)",width: "100%" }}>
+      
       <Space direction="vertical">
+        
     
     
     <Search style={{ marginTop: 20 }} placeholder="ค้นหาชื่อครู" onSearch={onSearch} enterButton />
@@ -60,7 +63,9 @@ const ManageTeacher = () => {
               <Button type="primary" icon={<PlusOutlined />} style={{backgroundColor:"#0088ff"}}>
                 เพิ่ม
               </Button>
+              
             </Link>
+            
           </Space>
         </Col>
       </Row>
@@ -103,6 +108,7 @@ const ManageTeacher = () => {
       </Row>
      
       </div>
+
     </div>
     
     
