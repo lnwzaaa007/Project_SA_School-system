@@ -56,6 +56,16 @@ func main() {
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
 
+		// CreateAssignments routes
+		router.POST("/assignments", controllers.CreateHomeWork)
+
+		// AssignmentSubmit routes
+		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+
+		// Course routes
+		r.GET("/courses", controllers.GetCourses)
+		
+
 	}
 
 

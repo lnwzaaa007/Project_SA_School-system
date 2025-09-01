@@ -24,5 +24,8 @@ type Course struct {
 	TeacherID uint
 	Teacher   *Teacher
 
-	Schedules []Schedules
+	Schedules []Schedules `gorm:"foreignKey:CourseID"`
+
+	AssignmentSubmit []AssignmentSubmit `gorm:"foreignKey:CourseID"`
+
 }
