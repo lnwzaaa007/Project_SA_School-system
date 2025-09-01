@@ -10,4 +10,6 @@
 		TeacherID 		*uint  	`gorm:"column:teacher_id" json:"teacher_id"` //FK
 		Course 			[]Course `gorm:"foreignKey:GradeID" json:"course_id"`
 		Student 		[]Student `gorm:"foreignKey:GradeID" json:"student_id"`
+		AssignmentSubmit []AssignmentSubmit `gorm:"foreignKey:GradeID" json:"assignment_submit"`
+		
 	}

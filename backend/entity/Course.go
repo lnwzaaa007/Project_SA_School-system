@@ -27,4 +27,6 @@ type Course struct{
 
 	Schedules []Schedules `gorm:"foreignKey:CourseID"`
 
+	AssignmentSubmit []AssignmentSubmit `gorm:"foreignKey:CourseID"`
+
 }
