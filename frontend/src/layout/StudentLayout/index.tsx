@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { studentAPI } from "../../services/https";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
@@ -11,6 +12,7 @@ import {
   UploadOutlined,
   CreditCardOutlined,
   MenuOutlined,
+  LeftOutlined,
 } from "@ant-design/icons";
 import Studentimg from "../../assets/student.png";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -18,16 +20,62 @@ import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
 import ScheduleStudent from "../../pages/student/ScheduleStudent";
 import Home from "../../pages/student/Home";
-import Playment from "../../pages/student/Payment";
+import Payment from "../../pages/student/Payment";
 import Upload from "../../pages/student/Upload";
 import Profile from "../../pages/student/StudentProfile";
 import Attendance from "../../pages/student/Attendance";
 import AcademicResult from "../../pages/student/AcademicResult";
+import SlipPayment from "../../pages/student/Payment/Slippayment";
+import FileUpload from "../../pages/student/Upload/uploadfile";
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const StudentFullLayout: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [student, setStudent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const userIdStr = localStorage.getItem("id");
+  //       if (!userIdStr) {
+  //         throw new Error("ไม่พบ userId ใน localStorage");
+  //       }
+
+  //       const userId = Number(userIdStr); // ✅ แปลงเป็น number
+  //       console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+
+  //       const res = await studentAPI.getNameStudentById(userId);
+  //       console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+
+  //       setStudent(res ?? null);
+  //     } catch (e) {
+  //       console.error(e);
+  //       setStudent(null);
+  //       messageApi.error("ไม่สามารถโหลดข้อมูลนักเรียนได้");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   })();
+  // }, []);
+  useEffect(() => {
+    (async () => {
+    
+        const userId = Number(localStorage.getItem("id"));
+        
+        console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+
+        const res = await studentAPI.getNameStudentById(userId);
+        console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+
+        setStudent(res);
+        setIsLoading(false);
+  
+    })();
+  }, []);
+
+  
+  // const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",
   );
@@ -43,31 +91,35 @@ const StudentFullLayout: React.FC = () => {
   } = theme.useToken();
 
   const Logout = () => {
-    setIsLoading(true);
-    localStorage.clear();
-    messageApi.success("Logout successful");
-    setTimeout(() => {
-      location.href = "/";
-    }, 1000);
+      setIsLoading(true);
+      localStorage.clear();
+      // ลบ cookie token ถ้ามี
+      document.cookie = "0195f494-feaa-734a-92a6-05739101ede9=; Path=/; Max-Age=0; SameSite=Lax";
+      messageApi.success("Logout successful");
+      setTimeout(() => (location.href = "/"), 500);
   };
+
+
 
   return (
     <>
        {isLoading && <Loader />}
-      <Layout style={{ minHeight: "100vh" }}>
+      <Layout style={{ minHeight: "100vh", background: "#ffffff" }}>
         {/* Sidebar */}
         <Sider
           collapsible
           collapsed={collapsed}
           trigger={null}
+          width={230}            
+          collapsedWidth={87} 
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            bottom: 0,
-            backgroundColor: "#B3E0FF",
-            borderBottomRightRadius: 30,
-            borderTopRightRadius: 30,
+            top: 10,
+            left: 10,
+            bottom: 10,
+            backgroundColor: "#C8E8FF",
+            borderRadius: 30,
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
             zIndex: 1000,
             // transition: "left 0.2s, width 0.2s",
             // overflow: "auto", // เผื่อเมนูยาว
@@ -80,36 +132,37 @@ const StudentFullLayout: React.FC = () => {
               padding: 16,
             }}
           >
-            <Button
-              type="text"
-              icon={<MenuOutlined style={{ fontSize: "20px" }} />}
+            <LeftOutlined
+              rotate={collapsed ? 180 : 0}
               onClick={() => setCollapsed(!collapsed)}
-              style={{ fontSize: 20, color: "#000" }}
+              style={{ fontSize: 20, color: "#000000" }}
             />
           </div>
 
           <Menu
             theme="light"
             mode="inline"
-            defaultSelectedKeys={[currentPage]}
+            // defaultSelectedKeys={[currentPage]}
+            selectedKeys={[currentPage]}
             style={{
-              backgroundColor: "#B3E0FF",
-              color: "#000",
+              backgroundColor: "#C8E8FF",
+              color: "#ffffff",
               fontSize: "18px", // เพิ่มขนาดข้อความเมนู
-              lineHeight: "48px", // เพิ่มความสูงแถว (ไม่แออัด)
+              lineHeight: "24px", // เพิ่มความสูงแถว (ไม่แออัด)
               marginTop: 16,
+              
             }}      
           >
             <Menu.Item
               key="หน้าหลัก"
               onClick={() => setCurrentPage("หน้าหลัก")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom: 8  ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
-                  marginTop: `3px`,
+                  marginTop: `3 px`,
                 }}
               >
                 <HomeOutlined style={{ fontSize: "20px" }} />
@@ -119,7 +172,7 @@ const StudentFullLayout: React.FC = () => {
             <Menu.Item
               key="ประวัติ"
               onClick={() => setCurrentPage("ประวัติ")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student/profile"
@@ -136,7 +189,7 @@ const StudentFullLayout: React.FC = () => {
             <Menu.Item
               key="ตารางเรียน"
               onClick={() => setCurrentPage("ตารางเรียน")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student/schedule"
@@ -153,7 +206,7 @@ const StudentFullLayout: React.FC = () => {
             <Menu.Item
               key="ผลการเรียน"
               onClick={() => setCurrentPage("ผลการเรียน")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student/result"
@@ -170,7 +223,7 @@ const StudentFullLayout: React.FC = () => {
             <Menu.Item
               key="การเข้าเรียน"
               onClick={() => setCurrentPage("การเข้าเรียน")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student/checkin"
@@ -187,7 +240,7 @@ const StudentFullLayout: React.FC = () => {
             <Menu.Item
               key="ส่งงาน"
               onClick={() => setCurrentPage("ส่งงาน")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student/upload"
@@ -204,7 +257,7 @@ const StudentFullLayout: React.FC = () => {
             <Menu.Item
               key="ชำระเงิน"
               onClick={() => setCurrentPage("ชำระเงิน")}
-              style={{ marginBottom: 8 }}
+              style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
                 to="/student/payment"
@@ -224,32 +277,34 @@ const StudentFullLayout: React.FC = () => {
         {/* Layout ด้านขวา */}
         <Layout
           style={{
-            marginLeft: collapsed ? 87 : 207, // ขยับเฉพาะ Content
+            marginLeft: collapsed ? 87 : 230, // ขยับเฉพาะ Content
+            marginRight: 10,
             transition: "margin-left 0.2s",
             minHeight: "100vh",
+            background: "#ffffff"
           }}
         >
           {/* Header */}
           <Header
             style={{
               position: "fixed",
-              top: 0,
-              left: collapsed ? 87 : 207, // ขยับตาม Sider
-              right: 0,
-              // zIndex: 1100,
-              width: `calc(100% - ${collapsed ? 87 : 207}px)`,
-              background: "linear-gradient(to right, #88CBF5, #C1E5FF)",
+              top: 10,
+              left: collapsed ? 110 : 250, // ขยับตาม Sider
+              right: 15, // เว้นช่องขวา
+              width: `calc(100% - ${collapsed ? 110 + 15 : 250 + 15}px)`,
+              background: "#C8E8FF",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               padding: "0 24px",
               height: "80px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              borderBottomLeftRadius: 30,
+              borderRadius: "30px",
               transition: "left 0.2s, width 0.2s",
               zIndex: 5000,
             }}
           >
-            <h2 style={{ margin: 0 }}> {currentPage} </h2>
+            <h2 style={{ margin: 0,color:"#000000" }}> {currentPage} </h2>
             <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
               <div
                 style={{
@@ -259,22 +314,24 @@ const StudentFullLayout: React.FC = () => {
                   width: 40,
                   height: 40,
                   borderRadius: "50%",
-                  backgroundColor: "#C1E5FF", 
+                  // backgroundColor: "#C1E5FF", 
                   cursor: "pointer",
                 }}
               >
-                <Tooltip title="ออกจากระบบ">
+                <Tooltip title="ออกจากระบบ" overlayStyle={{ zIndex: 6000}}>
                   <LogoutIcon
-                    style={{ fontSize: "24px", color: "#000" }}
+                    style={{ fontSize: "24px", color: "#000000" }}
                     onClick={Logout}
                   />
                 </Tooltip>
               </div>
-              <span style={{ fontSize: "18px", color: "#000" }}>
-                สมศรี ผ่องใส
+              <span style={{ fontSize: "18px", color: "#000000" }}>
+                {student?.t_first_name} {student?.t_last_name}
               </span>
-              <Link to="/student/profile">
-                <Tooltip title="ข้อมูลส่วนตัว">
+              <Link to="/student/profile"
+                onClick={() => setCurrentPage("ประวัติ")}
+              >
+                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000}}>
 
                   <img
                     src={Studentimg}
@@ -295,26 +352,29 @@ const StudentFullLayout: React.FC = () => {
           <Content
             style={{
               margin: "0 5px",
-              marginTop: "60px",
+              marginTop: "80px",
+              marginLeft: "25px",
 
             }}
           >
-            <Breadcrumb style={{ margin: "16px 0" }} />
+            <Breadcrumb style={{ margin: "12px 0" }} />
 
             <div
               style={{
                 padding: 24,
-
+                borderRadius: "16px",
                 minHeight: "calc(100vh - 60px)",
-
                 background: colorBgContainer,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
             >
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/schedule" element={<ScheduleStudent />} />
-                <Route path="/payment" element={<Playment />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/payment/slip" element={<SlipPayment />} />
                 <Route path="/Upload" element={<Upload />} />
+                <Route path="/Upload/fileupload" element={<FileUpload />} />
                 <Route path="/result" element={<AcademicResult />} />
                 <Route path="/checkin" element={<Attendance />} />
                 <Route path="/profile" element={<Profile />} />
@@ -322,9 +382,6 @@ const StudentFullLayout: React.FC = () => {
               </Routes>
             </div>
           </Content>
-          <Footer style={{ textAlign: "center" }}>
-            System Analysis and Design
-          </Footer>
         </Layout>
       </Layout>
     </>

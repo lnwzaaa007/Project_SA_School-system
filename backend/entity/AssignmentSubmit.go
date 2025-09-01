@@ -15,13 +15,13 @@ const (
 
 type AssignmentSubmit struct {
 	gorm.Model
-	Submit_at 				time.Time
-	Assignment_title    	string
-	Assignment_file  		string
-	Teacher_comment  		string
-	Submit_Point 			float32
-	Submit_Point_all 		float32
-	Submit_status 			Submit_status
+	Submit_at 				time.Time `json:"submit_at"`
+	Assignment_title    	string `json:"assignment_title"`
+	Assignment_file  		string `json:"assignment_file"`
+	Teacher_comment  		string `json:"teacher_comment"`
+	Submit_Point 			float32 `json:"submit_Point"`
+	Submit_Point_all 		float32 `json:"submit_Point_all"`
+	Submit_status 			Submit_status `json:"submit_status"`
 
 	
 	GradeID uint

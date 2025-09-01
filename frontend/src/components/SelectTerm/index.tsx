@@ -1,34 +1,60 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Select, message } from 'antd';
+import { termAPI } from '../../services/https';
+import type { TermInterface } from '../../interfaces/Term';
 import './index.css';
-const options = [
-  { value: '1', label: 'Jack' },
-  { value: '2', label: 'Lucy' },
-  { value: '3', label: 'Tom' },
-];
 
-const ButtonSelect: React.FC = () => {
-  const handleChange = (value: string, option: any) => {
-    console.log('Selected value:', value); // value เช่น '1'
-    console.log('Selected label:', option.label); // label เช่น 'Jack'
-    
-    // คุณสามารถส่งไปหลังบ้านตรงนี้ได้ เช่น
-    // axios.post('/api/save-selection', { value });
+const { Option } = Select;
+
+interface SelectTerm {
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+const SelectTerm: React.FC<SelectTerm> = ({value,onChange}) => {
+  const [term, setTerm] = useState<TermInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const fetchTerm = async () => {
+    try {
+      const res = await termAPI.getTermsAll();
+      if (Array.isArray(res)) {
+        setTerm(res);
+      } else {
+        messageApi.error('ไม่พบข้อมูลเทอม');
+      }
+    } catch (err) {
+      console.error('❌ โหลด term ผิดพลาด:', err);
+      messageApi.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  return (
-    <Select
-     className="custom-select-term"
-      showSearch
-      placeholder="เทอม"
-      filterOption={(input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-      }
-      options={options}
-      onChange={handleChange}
+  useEffect(() => {
+    fetchTerm();
+  }, []);
 
-    />
+  return (
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-term"
+        placeholder="เลือกปีการศึกษา"
+        showSearch
+        optionFilterProp="children"
+        value={value}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
+      >
+        {term.map((t) => (
+          <Option key={t.id} value={t.id}>
+           ปีการศึกษา {t.academic_year} / {t.semester}
+          </Option>
+        ))}
+      </Select>
+    </>
   );
 };
 
-export default ButtonSelect;
+export default SelectTerm;

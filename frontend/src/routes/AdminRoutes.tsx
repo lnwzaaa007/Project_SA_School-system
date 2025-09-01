@@ -1,7 +1,8 @@
-import { lazy } from "react";
+import { Children, lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import Loadable from "../components/third-patry/Loadable";
 import AdminLayout from "../layout/AdminLayout";
+import ApplyForStudy from "../pages/admin/ApplyForStudy";
 const MainPages = Loadable(lazy(() => import("../pages/authentication/Login")));
 const Home = Loadable(lazy(() => import("../pages/admin/Home")));
 const Announce = Loadable(lazy(() => import("../pages/admin/Announce")));
@@ -10,9 +11,10 @@ const ManageTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher")
 const Course = Loadable(lazy(() => import("../pages/admin/Course")));
 const Schedule = Loadable(lazy(() => import("../pages/admin/Schedule")));
 const Payment = Loadable(lazy(() => import("../pages/admin/Payment")));
-const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
-const AddSchedule = Loadable(lazy(() => import("../pages/admin/Schedule/AddSchedule")));
+// const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
+// const AddSchedule = Loadable(lazy(() => import("../pages/admin/Schedule/AddSchedule")));
 
+const AddStudent = Loadable(lazy(() => import("../pages/admin/ManageStudent/AddStudent/AddStudent")))
 const CreateTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher")));
 const DeleteTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/DeleteTeacher")));
 const EditTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher")));
@@ -20,14 +22,30 @@ const DataTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/Cre
 const AddressTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher/AddressTeacher")));
 const EditDataTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher/EditDataTeacher")));
 const EditAddressTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher")));
+const MoveAddStudent = Loadable(lazy(() => import("../pages/admin/ApplyForStudy/MoveAddStudent"))); //toto
+const CreateCourse = Loadable(lazy(() => import("../pages/admin/Course/CreateCourse"))); //pang edit หน้าสร้างรายวิชา
+const DeleteCourse = Loadable(lazy(() => import("../pages/admin/Course/Delete"))); //pang edit หน้าลบรายวิชา
+const EditCourse = Loadable(lazy(() => import("../pages/admin/Course/edit"))); //pang edit หน้าแก้ไขรายวิชา
+const CreateAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/CraeteAnnouncement"))); //pang เพิ่มหน้าสร้างประกาศ
+const EditAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/EditAnnouncement"))); //pang เพิ่มหน้าแก้ไขประกาศ
+
 const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
     path: "/admin",
     element: isLoggedIn ? <AdminLayout /> : <MainPages />,
     children: [
       { path: "", element: <Home /> }, // /teacher
-      { path: "announce", element: <Announce /> },
-      { path: "manageStudent", element: <ManageStudent /> },
+      { path: "announce", element: <Announce />, 
+        children:[
+          {path : "CreateAnnouncement", element: <CreateAnnouncement/>},
+          {path : "EditAnnouncement", element: <EditAnnouncement/>}
+        ]
+      },
+      { path: "manageStudent", element: <ManageStudent />,
+          children:[
+          {path:"AddStudent",element: <AddStudent/>,}
+        ]
+      },
       { path: "manageTeacher", element: <ManageTeacher />,
         children: [
           {path : "CreateTeacher", element: <CreateTeacher />, children: [{path : "DataTeacher", element: <DataTeacher />}, {path : "AddressTeacher", element: <AddressTeacher />}]},
@@ -40,14 +58,24 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       //     {path : "DeleteTeacher", element: <DeleteTeacher />}
       //   ]
       //  },
-      { path: "course", element: <Course /> },
+      { path: "course", element: <Course />,
+        children: [
+          {path : "CreateCourse", element: <CreateCourse/>},
+          {path : "DeleteCourse", element: <DeleteCourse/>},
+          {path : "EditCourse", element: <EditCourse/>}
+        ]
+       },
       { path: "schedule", element: <Schedule />,
         children:[
-          {path:"add",element: <AddSchedule />,}
+          // {path:"add",element: <AddSchedule />,}
         ]
        },
       { path: "payment", element: <Payment /> },
-      { path: "applyForStudy", element: <AcademicResult /> },
+      { path: "applyForStudy", element: <ApplyForStudy />, 
+        children: [
+          {path: "MoveAddStudent", element: <MoveAddStudent />}
+        ]
+       },
     ],
   };
 };

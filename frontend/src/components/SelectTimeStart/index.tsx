@@ -1,26 +1,61 @@
-import React from 'react';
-import { Select } from 'antd';
 
-const ButtonSelect: React.FC = () => (
-  <Select
-    className="custom-select-day"
-    showSearch
-    placeholder="เริ่มคาบ"
-    filterOption={(input, option) =>
-      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-    }
-    options={[
-      { value: '1', label: '08.40' },
-      { value: '2', label: '09.30' },
-      { value: '3', label: '10.20' },
-      { value: '4', label: '11.10' },
-      { value: '5', label: '13.00' },
-      { value: '6', label: '13.50' },
-      { value: '7', label: '14.40' },
-      { value: '8', label: '15.30' },
-      
-    ]}
-  />
-);
+import React, { useEffect, useState } from "react";
+import { Select, message } from "antd";
+import { ScheduleAPI } from "../../services/https";
+import type { TimeStartInterface } from "../../interfaces/Schedule";
+import './index.css';
 
-export default ButtonSelect;
+const { Option } = Select;
+
+interface SelectTimeStartProps {
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+const SelectTimeStart: React.FC<SelectTimeStartProps> = ({value, onChange }) => {
+  const [timeOptions, setTimeOptions] = useState<TimeStartInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+  
+    const fetchTimes = async () => {
+        try {
+          const res = await ScheduleAPI.getTimeStart();
+          console.log("📅 Days Response:", res);
+          
+          if (Array.isArray(res.times)) {
+            setTimeOptions(res.times);
+          } else {
+            messageApi.error("โหลดวันไม่สำเร็จ");
+          }
+        } catch (err) {
+          console.error(err);
+          messageApi.error("เกิดข้อผิดพลาดในการโหลดวัน");
+        }
+      };
+    
+      useEffect(() => {
+        fetchTimes();
+      }, []);
+
+  return (
+    <>
+      {contextHolder}
+    <Select
+      className="custom-select-time-start"
+      placeholder="เวลาเริ่ม"
+      value={value}
+      onChange={(value) => {
+        console.log("เลือก:", value);
+        onChange(value);
+      }}
+    >
+    {timeOptions.map((t) => (
+      <Option key={t.id} value={t.id}>
+        {t.period}
+      </Option>
+    ))}
+  </Select>
+    </>
+  );
+};
+
+export default SelectTimeStart;

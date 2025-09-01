@@ -1,0 +1,8 @@
+.timetable .ant-table-tbody > tr > td:not(:first-child) {
+  white-space: pre-line;   /* ให้ \n กลายเป็นขึ้นบรรทัดจริง */
+  line-height: 1.2;
+}
+
+.timetable .ant-table-tbody > tr > td:not(:first-child)::first-line {
+  font-weight: 600;
+}

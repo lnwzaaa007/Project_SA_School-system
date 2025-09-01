@@ -1,23 +1,61 @@
-import React from 'react';
-import { Select } from 'antd';
 
-const ButtonSelect: React.FC = () => (
-  <Select
-    className="custom-select-day"
-    showSearch
-    placeholder="เลือกวัน"
-    filterOption={(input, option) =>
-      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+
+import React, { useEffect, useState } from "react";
+import { Select, message } from "antd";
+import { ScheduleAPI } from "../../services/https";
+import type { DayInterface } from "../../interfaces/Schedule";
+import './index.css';
+
+const { Option } = Select;
+
+interface SelectdayProps {
+  value:number | null;
+  onChange: (value: number) => void;
+}
+
+const Selectday: React.FC<SelectdayProps> = ({ value, onChange }) => {
+  const [dayOptions, setDayOptions] = useState<DayInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+   const fetchDays = async () => {
+    try {
+      const res = await ScheduleAPI.getDays();
+       if (Array.isArray(res)) {
+        setDayOptions(res);
+      } else {
+        messageApi.error("โหลดวันไม่สำเร็จ");
+      }
+    } catch (err) {
+      console.error(err);
+      messageApi.error("เกิดข้อผิดพลาดในการโหลดวัน");
     }
-    options={[
-      { value: '1', label: 'จ.' },
-      { value: '2', label: 'อ.' },
-      { value: '3', label: 'พ.' },
-      { value: '4', label: 'พฤ.' },
-      { value: '5', label: 'ศ.' },
-      
-    ]}
-  />
-);
+  };
 
-export default ButtonSelect;
+  useEffect(() => {
+    fetchDays();
+  }, []);
+
+  return (
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-day"
+        placeholder="เลือกวัน"
+        value={value}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
+      >
+        {dayOptions.map((d) => (
+          <Option key={d.id} value={d.id}>
+          {d.thai_day}
+          </Option>
+
+        ))}
+      </Select>
+    </>
+  );
+};
+
+export default Selectday;

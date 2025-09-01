@@ -7,9 +7,9 @@ import (
 )
 type Province struct {
 	gorm.Model
-	Province_name string
+	Province_Name string `gorm:"uniqueIndex" json:"province_name"`
 
-	District []District `gorm:"foreignKey:ProvinceID"`
+	District []District `gorm:"foreignKey:ProvinceID" json:"district"`
 
 	Address Address 
 } 
