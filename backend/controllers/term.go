@@ -10,10 +10,11 @@ import (
 )
 
 type Term_ struct {
-	Academic_year int `json:"academic_year"`
-	Semester      int `json:"semester"`
-	Start_date    time.Time `json:"start_date"`
-	End_date      time.Time `json:"end_date"`
+	ID 				int `json:"id"`
+	Academic_year 	int `json:"academic_year"`
+	Semester      	int `json:"semester"`
+	Start_date    	time.Time `json:"start_date"`
+	End_date      	time.Time `json:"end_date"`
 }
 
 

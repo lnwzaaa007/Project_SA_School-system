@@ -8,8 +8,8 @@ import './index.css';
 const { Option } = Select;
 
 interface SelectTimeStartProps {
-  value: string | null;
-  onChange: (value: string) => void;
+  value: number | null;
+  onChange: (value: number) => void;
 }
 
 const SelectTimeStart: React.FC<SelectTimeStartProps> = ({value, onChange }) => {
@@ -49,7 +49,7 @@ const SelectTimeStart: React.FC<SelectTimeStartProps> = ({value, onChange }) => 
       }}
     >
     {timeOptions.map((t) => (
-      <Option key={t.ID} value={t.period}>
+      <Option key={t.id} value={t.id}>
         {t.period}
       </Option>
     ))}

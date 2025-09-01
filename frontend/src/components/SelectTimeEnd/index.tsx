@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { Select, message } from "antd";
 import { ScheduleAPI } from "../../services/https";
@@ -9,8 +7,8 @@ import './index.css';
 const { Option } = Select;
 
 interface SelectTimeEndProps {
-  value: string | null;
-  onChange: (value: string) => void;
+  value: number | null;
+  onChange: (value: number) => void;
 }
 
 const SelectTimeEnd: React.FC<SelectTimeEndProps> = ({ value, onChange }) => {
@@ -51,7 +49,7 @@ const SelectTimeEnd: React.FC<SelectTimeEndProps> = ({ value, onChange }) => {
           }}
        >
          {timeOptions.map((t) => (
-           <Option key={t.ID} value={t.period}>
+           <Option key={t.id} value={t.id}>
              {t.period}
            </Option>
          ))}

@@ -47,6 +47,7 @@ func seedTimeStart() {
 // 🕔 Seed เวลาสิ้นสุดคาบเรียน
 func seedTimeEnd() {
 	db.Model(&entity.TimeEnd{}).Create([]entity.TimeEnd{
+		{Period: "08:40", FullTime: MustTimeOnly("08:40:00")},
 		{Period: "09:30", FullTime: MustTimeOnly("09:30:00")},
 		{Period: "10:20", FullTime: MustTimeOnly("10:20:00")},
 		{Period: "11:10", FullTime: MustTimeOnly("11:10:00")},
@@ -56,7 +57,6 @@ func seedTimeEnd() {
 		{Period: "14:40", FullTime: MustTimeOnly("14:40:00")},
 		{Period: "15:30", FullTime: MustTimeOnly("15:30:00")},
 		{Period: "16:30", FullTime: MustTimeOnly("16:30:00")},
-		{Period: "17:20", FullTime: MustTimeOnly("17:20:00")},
 	})
 }
 
