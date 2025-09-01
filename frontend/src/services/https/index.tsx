@@ -7,6 +7,7 @@ import type {
     LoginStudentRequest,
     // LoginTeacherRequest,
 } from "../../interfaces";
+import type {PostSchedule} from "../../interfaces/Schedule"
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
@@ -149,6 +150,9 @@ export const ScheduleAPI = {
   getTimeStart: () => Get("/schedule-times-start"),
   getTimeEnd: () => Get("/schedule-times-end"),
   getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
+  getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
+  postSchedule: (data: PostSchedule) => Post(`/schedules`,data,false),
+  deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
 
 };
 
@@ -156,6 +160,9 @@ export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),
 };
 
+<<<<<<< HEAD
+
+=======
 export const ProvinceAPI ={
   getProvince: () => Get("/province"),
 }
@@ -163,3 +170,4 @@ export const ProvinceAPI ={
 export const DistrictAPI ={
   getDistrict: (id: number) => Get(`/district/${id}`)
 }
+>>>>>>> dev2/UI

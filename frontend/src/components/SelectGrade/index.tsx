@@ -7,8 +7,8 @@ import './index.css';
 const { Option } = Select;
 
 interface SelectGrade {
-  value: string | null;
-  onChange: (value: string) => void;
+  value: number | null;
+  onChange: (value: number) => void;
 }
 
 const SelectGrade: React.FC<SelectGrade> = ({value,onChange}) => {
@@ -39,7 +39,6 @@ const SelectGrade: React.FC<SelectGrade> = ({value,onChange}) => {
       <Select
         className="custom-select-grade"
         placeholder="เลือกชั้นปี"
-        style={{ width: 300 }}
         showSearch
         value={value}
         optionFilterProp="children"
@@ -49,7 +48,7 @@ const SelectGrade: React.FC<SelectGrade> = ({value,onChange}) => {
         }}
       >
         {grades.map((g) => (
-          <Option key={g.ID} value={`${g.grade_year}`}>
+          <Option key={g.id} value={`${g.grade_year}`}>
           ม. {g.grade_year}
           </Option>
         ))}
