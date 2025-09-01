@@ -160,4 +160,14 @@ export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),
 };
 
+<<<<<<< HEAD
 
+=======
+export const ProvinceAPI ={
+  getProvince: () => Get("/province"),
+}
+
+export const DistrictAPI ={
+  getDistrict: (id: number) => Get(`/district/${id}`)
+}
+>>>>>>> dev2/UI

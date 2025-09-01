@@ -29,15 +29,17 @@ func GetDistrict(c *gin.Context) {
 }
 
 func GetDistrictById(c *gin.Context) {
-	var name district
-	id := c.Param("id")
+	provinceID := c.Param("id")
+    var rows []district
 
-	if err := config.DB().Table("districts").
-		Select("*").
-		Where("id = ?", id).
-		Scan(&name).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "district not found"})
-		return
-	}
-	c.JSON(http.StatusOK, name)
+    if err := config.DB().
+        Table("districts").
+        Select("id, province_id, district_name").
+        Where("province_id = ?", provinceID).
+        Order("id ASC").
+        Scan(&rows).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, rows)
 }
