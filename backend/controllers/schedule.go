@@ -127,7 +127,7 @@ func GetSchedulesByID(c *gin.Context) {
 			Subject_Group: 	subjectGroupName,
 			GradeYeaer:  	s.Grade.Grade_Year,
 			Grade_Class: 	s.Grade.Grade_Class,
-			Teacher:     	string(s.Teacher.TitleTH) + " " + s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
+			Teacher:     	s.Teacher.Title.TitleTH + " " + s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
 		}
 		responses = append(responses, res)
 	}
