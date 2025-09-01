@@ -56,6 +56,9 @@ func main() {
 
 		// AssignmentSubmit routes
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+
+		// Course routes
+		r.GET("/courses", controllers.GetCourses)
 		
 
 	}

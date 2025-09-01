@@ -11,6 +11,14 @@ import (
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 )
+func GetCourses(c *gin.Context) {
+	var courses []entity.Course
+	if err := config.DB().Find(&courses).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลวิชาได้"})
+        return
+    }
+    c.JSON(http.StatusOK, gin.H{"data": courses})
+}
 
 func AssignmentSubmit(c *gin.Context) {
 	// รับค่าจาก form-data

@@ -17,6 +17,15 @@ type CreateAssignmentInput struct {
 	Submit_Point_all float32 `json:"submit_Point_all"`
 }
 
+func GetCoursess(c *gin.Context) {
+	var courses []entity.Course	
+	if err := config.DB().Find(&courses).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลวิชาได้"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": courses})
+}
+
 func CreateHomeWork(c *gin.Context) {
 	var input CreateAssignmentInput
 
