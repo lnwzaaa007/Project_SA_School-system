@@ -7,6 +7,7 @@ import type {
     LoginStudentRequest,
     // LoginTeacherRequest,
 } from "../../interfaces";
+import type {PostSchedule} from "../../interfaces/Schedule"
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
@@ -133,20 +134,36 @@ export const teacherAPI = {
 export const adminAPI = {
   getNameAdminById: (id: number | string) => Get(`/admin/${id}`),
 };
+
 export const gradeAPI = {
-  getGradesAll: () => Get("/grades"),
-};
-export const classAPI = {
-  getClassesAll: () => Get("/classes"),
+  getGradesAll: () => Get("/gradeyears"),
+  getClassesAll: () => Get("/gradeclasses"),
+  getGradeByYearAndClass: (year: number, className: string) => Get(`/gradeclassID?grade_year_id=${year}&grade_class_id=${className}`),
+
 };
 export const termAPI = {
   getTermsAll: () => Get("/terms"),
 };
+
 export const ScheduleAPI = {
   getDays: () => Get("/schedule-days"),
   getTimeStart: () => Get("/schedule-times-start"),
   getTimeEnd: () => Get("/schedule-times-end"),
+  getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
+  getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
+  postSchedule: (data: PostSchedule) => Post(`/schedules`,data,false),
+  deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
+
 };
+
 export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),
 };
+
+export const ProvinceAPI ={
+  getProvince: () => Get("/province"),
+}
+
+export const DistrictAPI ={
+  getDistrict: (id: number) => Get(`/district/${id}`)
+}

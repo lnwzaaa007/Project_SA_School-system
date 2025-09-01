@@ -1,13 +1,24 @@
 import {Routes,Route, Link, useNavigate} from 'react-router-dom'
 import { Col, Row, Card, Statistic, Table,Button, Modal, Divider, Form, Input,} from "antd";
-const CreateCourse = () => {
+const EditAnnouncement = () => {
     const navigate = useNavigate();
+
+    const courseData = {
+        courseCode: "101101",
+        courseName: "คณิตศาสตร์พื้นฐาน",
+        credit: "3",
+        teacher: "ครูสมชาย ใจดี",
+        subjectGroup: "คณิตศาสตร์",
+        room: "ม.1/1",
+        level: "ม.1",
+        period: "4"
+    };
 
     const onFinish = (values: any) => {
         // ส่งข้อมูลไป backend หรือจัดการข้อมูลที่นี่
         // ตัวอย่าง: console.log(values);
         // เสร็จแล้วค่อย navigate กลับ
-        navigate('/admin/course');
+        navigate('/admin/announce');
     };
     return(
         <>
@@ -19,21 +30,20 @@ const CreateCourse = () => {
             borderRadius:"6px",
             }}>
         <h1 style={{
-            padding:'16px',
+            padding:'20px',
             //fontFamily:'Kanit, sans-serif',
             //fontWeight: 200 // เพิ่มบรรทัดนี้เพื่อให้ตัวไม่หนา
-        }}>เพิ่มข้อมูลรายวิชา ปีการศึกษา 2568/1
-            {/* <Divider/> */}
+        }}>แก้ไขข้อมูลรายวิชา ปีการศึกษา 2568/1
+            <Divider/>
         </h1>
         
         <Col >
-        <Card style={{ padding: 10, margin: "0 auto", maxWidth: 1500 }}>
-        
         <Form
             layout="vertical"
             style={{ maxWidth: 1500, margin: "0 auto", }} 
             requiredMark={false}// เพิ่ม requiredMark ที่นี่
             onFinish={onFinish}
+            initialValues={courseData} // กำหนดค่าเริ่มต้นให้กับฟอร์ม
         >
             <Row gutter={24}>
             <Col span={12}>
@@ -106,7 +116,6 @@ const CreateCourse = () => {
                 {/* </Link> */}
                 </Form.Item>
         </Form>
-        </Card>
         </Col>
         
 
@@ -115,4 +124,4 @@ const CreateCourse = () => {
         </>
     );
 };
-export default CreateCourse
+export default EditAnnouncement

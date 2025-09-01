@@ -6,7 +6,12 @@ import './index.css';
 
 const { Option } = Select;
 
-const SelectTerm: React.FC = () => {
+interface SelectTerm {
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+const SelectTerm: React.FC<SelectTerm> = ({value,onChange}) => {
   const [term, setTerm] = useState<TermInterface[]>([]);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -16,10 +21,10 @@ const SelectTerm: React.FC = () => {
       if (Array.isArray(res)) {
         setTerm(res);
       } else {
-        messageApi.error('ไม่พบข้อมูลชั้นปี');
+        messageApi.error('ไม่พบข้อมูลเทอม');
       }
     } catch (err) {
-      console.error('❌ โหลด grade ผิดพลาด:', err);
+      console.error('❌ โหลด term ผิดพลาด:', err);
       messageApi.error('เกิดข้อผิดพลาด');
     }
   };
@@ -34,13 +39,16 @@ const SelectTerm: React.FC = () => {
       <Select
         className="custom-select-term"
         placeholder="เลือกปีการศึกษา"
-        style={{ width: 300 }}
         showSearch
         optionFilterProp="children"
-        onChange={(value) => console.log('เลือก:', value)}
+        value={value}
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
       >
         {term.map((t) => (
-          <Option key={t.ID} value={`${t.academic_year} ${t.semester}`}>
+          <Option key={t.id} value={t.id}>
            ปีการศึกษา {t.academic_year} / {t.semester}
           </Option>
         ))}

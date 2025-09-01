@@ -7,10 +7,9 @@ func seedTeachers(){
 	db.Model(&entity.Teacher{}).Create([]entity.Teacher{
 		{
 			Teacher_ID:   "T540001",
-			TitleTH:      entity.TitleNameTH("นาง"),
+			TitleID:     1,
 			TFirst_Name:  "สมศรี",
 			TLast_Name:   "ผ่องใจ",
-			TitleENG:     entity.TitleNameENG("Ms."),
 			EFirst_Name:  "Somsri",
 			ELast_Name:   "pongjia",
 			Citizen_ID:   "1101700234567",
