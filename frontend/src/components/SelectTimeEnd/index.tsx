@@ -1,26 +1,62 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useState } from "react";
+import { Select, message } from "antd";
+import { ScheduleAPI } from "../../services/https";
+import type { TimeStartInterface } from "../../interfaces/Schedule";
+import './index.css';
 
-const ButtonSelect: React.FC = () => (
-  <Select
-    className="custom-select-day"
-    showSearch
-    placeholder="จบคาบ"
-    filterOption={(input, option) =>
-      (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-    }
-    options={[
-      { value: '1', label: '09.30' },
-      { value: '2', label: '10.20' },
-      { value: '3', label: '11.10'},
-      { value: '4', label: '12.00' },
-      { value: '5', label: '13.50' },
-      { value: '6', label: '14.40' },
-      { value: '7', label: '15.30' },
-      { value: '8', label: '16.30' },
-      
-    ]}
-  />
-);
+const { Option } = Select;
 
-export default ButtonSelect;
+interface SelectTimeEndProps {
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+const SelectTimeEnd: React.FC<SelectTimeEndProps> = ({ value, onChange }) => {
+  const [timeOptions, setTimeOptions] = useState<TimeStartInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+  
+  const fetchTimes = async () => {
+      try {
+        const res = await ScheduleAPI.getTimeEnd();
+        console.log("📅 Days Response:", res);
+        
+        if (Array.isArray(res.times)) {
+          setTimeOptions(res.times);
+        } else {
+          messageApi.error("โหลดวันไม่สำเร็จ");
+        }
+      } catch (err) {
+        console.error(err);
+        messageApi.error("เกิดข้อผิดพลาดในการโหลดวัน");
+      }
+    };
+  
+    useEffect(() => {
+      fetchTimes();
+    }, []);
+  
+
+  return (
+    <>
+      {contextHolder}
+    <Select
+         className="custom-select-time-end"
+         placeholder="เวลาจบ"
+         value={value}
+          onChange={(value) => {
+            console.log("เลือก:", value);
+            onChange(value);
+          }}
+       >
+         {timeOptions.map((t) => (
+           <Option key={t.id} value={t.id}>
+             {t.period}
+           </Option>
+         ))}
+       </Select>
+    </>
+  );
+};
+
+export default SelectTimeEnd;
+

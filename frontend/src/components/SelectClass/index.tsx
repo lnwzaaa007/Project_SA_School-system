@@ -1,32 +1,61 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Select, message } from 'antd';
+import { gradeAPI } from '../../services/https';
+import type { GradeClassInterface } from '../../interfaces/Grade';
 import './index.css';
-const options = [
-  { value: '1', label: 'Jack' },
-  { value: '2', label: 'Lucy' },
-  { value: '3', label: 'Tom' },
-];
 
-const ButtonSelect: React.FC = () => {
-  const handleChange = (value: string, option: any) => {
-    console.log('Selected value:', value); // value เช่น '1'
-    console.log('Selected label:', option.label); // label เช่น 'Jack'
-    
+const { Option } = Select;
+
+interface SelectClass { 
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+const SelectClass: React.FC<SelectClass> = ({value, onChange}) => {
+  const [class_, setClass_] = useState<GradeClassInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const fetchGrades = async () => {
+    try {
+      const res = await gradeAPI.getClassesAll();
+      if (Array.isArray(res)) {
+        setClass_(res);
+      } else {
+        messageApi.error('ไม่พบข้อมูลชั้นปี');
+      }
+    } catch (err) {
+      console.error('❌ โหลด grade ผิดพลาด:', err);
+      messageApi.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  return (
-    <Select
-     className="custom-select-class"
-      showSearch
-      placeholder="ห้อง"
-      filterOption={(input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-      }
-      options={options}
-      onChange={handleChange}
+  useEffect(() => {
+    fetchGrades();
+  }, []);
 
-    />
+  return (
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-grade"
+        placeholder="เลือกห้อง"
+        showSearch
+        value={value}
+        optionFilterProp="children"
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+       }}
+      >
+        {class_.map((g) => (
+          <Option key={g.id} value={`${g.grade_class}`}>
+            ห้อง {g.grade_class}
+          </Option>
+        ))}
+      </Select>
+    </>
   );
 };
 
-export default ButtonSelect;
+export default SelectClass;
+     

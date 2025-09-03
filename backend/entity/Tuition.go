@@ -1,11 +1,14 @@
 package entity
 
 import (
-	"gorm.io/gorm"
+    "gorm.io/gorm"
 )
-type Tuition struct {
-	gorm.Model
-	Amount int
 
-	Bill []Bill `gorm:"foreignKey:TuitionID"`
+type Tuition struct {
+    gorm.Model
+    Title          string `json:"title"`
+    AmountTuition  int    `json:"amountTuition"`
+
+    BillID uint
+    Bill   Bill `gorm:"foreignKey:BillID;references:ID"`
 }

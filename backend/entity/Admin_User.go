@@ -5,18 +5,18 @@ import (
 )
 type Admin_User struct {
 	gorm.Model
-	TitleTH  TitleNameTH
-	TFirst_Name string
-	TLast_Name    string
-	TitleENG TitleNameENG
-	EFirst_Name string
-	ELast_Name    string
-	Tel string
-	Email string
+	Admin_ID 			string   	`gorm:"uniqueIndex" json:"admin_id"`
+	TitleID uint
+	Title   *Title 					`gorm:"foreignKey:TitleID" json:"title_id"` 
+	TFirst_Name 		string		`json:"t_first_name"`
+	TLast_Name    		string		`json:"t_last_name"`
+	EFirst_Name 		string		`json:"e_first_name"`
+	ELast_Name    		string		`json:"e_last_name"`
+	Tel 				string		`json:"tel"`
+	Email 				string		`json:"email"`
 	
-	Users Users
-
-	Enrollment []Enrollment `gorm:"foreignKey:AdminID"`
-
-	Announcement []Announcement `gorm:"foreignKey:AdminID"`
+	// Users Users
+	UsersID uint	`json:"users_id"`
+	Enrollment []Enrollment `gorm:"foreignKey:AdminID" json:"enrollment"`
+	Announcement []Announcement `gorm:"foreignKey:AdminID" json:"announcement"`
 }

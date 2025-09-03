@@ -1,34 +1,60 @@
-import React from 'react';
-import { Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Select, message } from 'antd';
+import { gradeAPI } from '../../services/https';
+import type { GradeYearInterface } from '../../interfaces/Grade';
 import './index.css';
-const options = [
-  { value: '1', label: 'Jack' },
-  { value: '2', label: 'Lucy' },
-  { value: '3', label: 'Tom' },
-];
 
-const ButtonSelect: React.FC = () => {
-  const handleChange = (value: string, option: any) => {
-    console.log('Selected value:', value); // value เช่น '1'
-    console.log('Selected label:', option.label); // label เช่น 'Jack'
-    
-    // คุณสามารถส่งไปหลังบ้านตรงนี้ได้ เช่น
-    // axios.post('/api/save-selection', { value });
+const { Option } = Select;
+
+interface SelectGrade {
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+const SelectGrade: React.FC<SelectGrade> = ({value,onChange}) => {
+  const [grades, setGrades] = useState<GradeYearInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const fetchGrades = async () => {
+    try {
+      const res = await gradeAPI.getGradesAll();
+      if (Array.isArray(res)) {
+        setGrades(res);
+      } else {
+        messageApi.error('ไม่พบข้อมูลชั้นปี');
+      }
+    } catch (err) {
+      console.error('❌ โหลด grade ผิดพลาด:', err);
+      messageApi.error('เกิดข้อผิดพลาด');
+    }
   };
 
-  return (
-    <Select
-     className="custom-select-grade"
-      showSearch
-      placeholder="ชั้นปี"
-      filterOption={(input, option) =>
-        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-      }
-      options={options}
-      onChange={handleChange}
+  useEffect(() => {
+    fetchGrades();
+  }, []);
 
-    />
+  return (
+    <>
+      {contextHolder}
+      <Select
+        className="custom-select-grade"
+        placeholder="เลือกชั้นปี"
+        showSearch
+        value={value}
+        optionFilterProp="children"
+        onChange={(value) => {
+          console.log("เลือก:", value);
+          onChange(value);
+        }}
+      >
+        {grades.map((g) => (
+          <Option key={g.id} value={`${g.grade_year}`}>
+          ม. {g.grade_year}
+          </Option>
+        ))}
+      </Select>
+    </>
   );
 };
 
-export default ButtonSelect;
+export default SelectGrade;

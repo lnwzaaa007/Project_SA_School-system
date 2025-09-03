@@ -5,95 +5,52 @@ import { PlusOutlined, DeleteOutlined, FormOutlined, IdcardOutlined ,PushpinFill
 import { Gradient } from "@mui/icons-material";
 const { Option } = Select;
 import BackButton from "../../../../components/BackButton";
+import Upload from "../../../../components/Upload";
 import React, { useState } from "react";
- const provinces = [
-  {
-    name: "กรุงเทพมหานคร",
-    districts: [{ name: "เขตพระนคร", subdistricts: [{name : "พระบรมมหาราชวัง" ,postcode: ["10100"]},{ name : "วังบูรพาภิรมย์", postcode: ["10200", "10300"] },]},
-                { name: "เขตดุสิต", subdistricts: [{name :"สวนจิตรลดา", postcode: [10300]},{name : "ดุสิต",postcode: [10400]}],
-      }
-    ]
-  },
-  {
-    name: "เชียงใหม่",
-    districts: [
-      {
-        name: "เมืองเชียงใหม่",
-        subdistricts: [{name :"ศรีภูมิ", postcode: [50200]}, {name:"ช้างเผือก",postcode: [50200]}],
-      }
-    ]
-  }
-];
+import ModalSave from "../../../../components/ModalSeve";
+import MadalCancel from "../../../../components/ModalCancel";
+import UploadImages from "../../../../components/UploadImages";
+import SelectProvince from "../../../../components/SelectProvince";
+import SelectDistrict from "../../../../components/SelectDistrict";
+
 
 const ManageTeacher = () => {
-  // const navigate = useNavigate();
-  // return (
-  //   <div style={{ padding: "16px",marginLeft: "34%"}}>
-  //     <Row justify="space-between" align="middle" style={{ marginBottom: 24, marginTop: 24 }}>
-              
-  //             <Col>
-  //               <Space>
-  //                 <Button icon={<ArrowLeftOutlined />} style={{padding: "32px 32px"}} onClick={() => navigate(-1)}>
-  //                   กลับ
-  //                 </Button >
-  //                 <Link to="DataTeacher">
-  //                   <Button  icon={<IdcardOutlined />} style={{padding: "32px 32px"}} >
-  //                     ข้อมูลทั่วไป
-  //                   </Button>
-  //                 </Link>
-
-  //                  <Link to="AddressTeacher">
-  //                   <Button  icon={<PushpinFilled />} style={{padding: "32px 32px"}}>
-  //                     ที่อยู่
-  //                   </Button>
-  //                 </Link>
-  //               </Space>
-  //             </Col>
-  //     </Row>
-      
-          
-          
-        
-
-  //   </div>
-  // );
-
-  const navigate = useNavigate();
-  const [selectedProvince, setSelectedProvince] = useState(null);
-    const [selectedDistrict, setSelectedDistrict] = useState(null);
-    const [selectedSubdisistrict, setSelectedSubdisistrict] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);;
+  const [selectedSubdisistrict, setSelectedSubdisistrict] = useState(null);
   
-    const handleProvinceChange = (value: React.SetStateAction<null>) => {
+    const handleProvinceChange = (value: React.SetStateAction<number | null>) => {
       setSelectedProvince(value);
       setSelectedDistrict(null); // reset อำเภอ
     };
   
-    const handleDistrictChange = (value: React.SetStateAction<null>) => {
+    const handleDistrictChange = (value: React.SetStateAction<number |null>) => {
       setSelectedDistrict(value);
     };
   
-    const handleSubdistrictChange = (value: React.SetStateAction<null>) => {
-      setSelectedSubdisistrict(value);
-    };
+    // const handleSubdistrictChange = (value: React.SetStateAction<null>) => {
+    //   setSelectedSubdisistrict(value);
+    // };
   
-    const getDistricts = () => {
-      const province = provinces.find((p) => p.name === selectedProvince);
-      return province ? province.districts : [];
-    };
+    // const getDistricts = () => {
+    //   const province = provinces.find((p) => p.name === selectedProvince);
+    //   return province ? province.districts : [];
+    // };
   
-    const getSubdistricts = () => {
-      const district = getDistricts().find((d) => d.name === selectedDistrict);
-      return district ? district.subdistricts : [];
-    };
+    // const getSubdistricts = () => {
+    //   const district = getDistricts().find((d) => d.name === selectedDistrict);
+    //   return district ? district.subdistricts : [];
+    // };
   
-    const getPostcode = () => {
-    const subdistrict = getSubdistricts().find((s) => s.name === selectedSubdisistrict);
-    return subdistrict ? subdistrict.postcode : [];
-  };
+    // const getPostcode = () => {
+    // const subdistrict = getSubdistricts().find((s) => s.name === selectedSubdisistrict);
+    // return subdistrict ? subdistrict.postcode : [];
+  
   return (
     <div >
-      <BackButton />
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '24px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '75%' ,borderRadius: "32px" ,marginLeft : "13%"}} >
+      
+      
+        <div style={{justifyContent: "center", padding: '48px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '100%' ,borderRadius: "16px"}} >
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -166,14 +123,14 @@ const ManageTeacher = () => {
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>จบการศึกษา (สาขา)</label>
+            <p></p>
             <Input placeholder="Ex. วิทยาการคอมพิวเตอร์" />
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>แนบไฟล์วุฒิ</label>
-            <Select placeholder="เลือก" style={{ width: "100%" }}>
-              <Option value="PDF">PDF</Option>
-              <Option value="JPG">JPG</Option>
-            </Select>
+            <p></p>
+            <Upload />
+            
           </Col>
         </Row>
         <Row gutter={[16, 12]}>
@@ -196,6 +153,13 @@ const ManageTeacher = () => {
             <Input />
           </Col>
         </Row>
+        <Row gutter={[16, 12]}>
+          <Col xs={24} md={12}>
+             <label style= {{lineHeight: "2"}}>Upload รูปภาพ</label>
+            <UploadImages />
+          </Col>
+          
+        </Row>
         <h1>ที่อยู่ปัจจุบัน</h1>
         <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -210,15 +174,23 @@ const ManageTeacher = () => {
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
               <label style= {{lineHeight: "2"}}>จังหวัด</label>
-              <Select style={{ width: "100%" }} placeholder="เลือกจังหวัด" onChange={handleProvinceChange} value={selectedProvince}>
-                {provinces.map((province) => (<Option key={province.name} value={province.name}>
-                  {province.name}
-            </Option>
-          ))}
-        </Select>
+              <div></div>
+              <SelectProvince value={selectedProvince} onChange={handleProvinceChange} />
           
             </Col>
             <Col xs={24} md={12}>
+              <label style= {{lineHeight: "2"}}>อำเภอ</label>
+              <div></div>
+              <SelectDistrict 
+                provinceId={selectedProvince}
+                value={selectedDistrict}
+                onChange={setSelectedDistrict}
+                disabled={!selectedProvince}
+              
+               />
+          
+            </Col>
+            {/* <Col xs={24} md={12}>
               <label style= {{lineHeight: "2"}}>อำเภอ</label>
         <Select
           style={{ width: "100%" }}
@@ -265,22 +237,26 @@ const ManageTeacher = () => {
             </Option>
           ))}
         </Select>
-            </Col>
+            </Col> */}
           </Row>
+          <div style={{display:"flex", justifyContent:"end",marginTop:"16px"}}>
+          <Space>
+            <ModalSave />
+            <MadalCancel />
+          </Space>
+      
+    </div>
     </div>
     
 
   
-<div style={{marginLeft : "calc(44% + 24px)"}}>
-      <Button type="primary" style={{ marginTop: '16px' }} onClick={() => navigate(-1)}>บันทึก</Button>
-      <Button type="default" style={{ marginLeft: '8px', marginTop: '16px' }} onClick={() => navigate(-1)}>ยกเลิก</Button>
-    </div>
+
 
     
     
     
-</div>
+  </div>
   );
-};
 
+};
 export default ManageTeacher;
