@@ -6,11 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { Button, Space, Typography, Input, Card,Form,message} from "antd";
 import School from "../../../assets/School.jpg"
 import { authAPI ,studentAPI,teacherAPI ,adminAPI,userTypeAPI} from "../../../services/https";
+import type { SignInInterface } from "../../../interfaces/SignIn";
 
-type SignInForm = {
-  username: string;
-  password: string;
-};
 const COOKIE_NAME = "0195f494-feaa-734a-92a6-05739101ede9"; // ให้ตรงกับ axios.getCookie
 
 const { Title } = Typography;
@@ -21,7 +18,7 @@ const SignInPages = () => {
   // const [user, setUser] = useState("");
   // const [password, setPassword] = useState("");
 
-  const onFinish = async (values: SignInForm) => {
+  const onFinish = async (values: SignInInterface) => {
   try {
     const payload = {
       ...values,
@@ -32,17 +29,22 @@ const SignInPages = () => {
     const { token, id } = res?.data?.data ?? {};
 
     if (token && id) {
+      // เก็บ token และข้อมูลลง localStorage (ยกเว้น isLogin ไว้หลังยืนยัน role)
+        localStorage.setItem("token", token);
+        localStorage.setItem("id", String(id));
+        document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=86400; SameSite=Lax`;
+
       const userType = await userTypeAPI.getUserTypes(id);
       let role: "student" | "teacher" | "admin" | undefined;
       
       if (userType.prefix === "S") {
-        const student = await studentAPI.getNameStudentById(id);
+        const student = await studentAPI.getStudent(id);
         if (student?.student_id === payload.username) {
           role = "student";
         }
       } 
       else if (userType.prefix === "T") {
-        const teacher = await teacherAPI.getNameTeacherById(id);//ค้นหาด้วย id users
+        const teacher = await teacherAPI.getTeachar(id);//ค้นหาด้วย id users
         if (teacher?.teacher_id === payload.username) {
           role = "teacher";
         }
@@ -55,14 +57,8 @@ const SignInPages = () => {
       }
 
       if (role) {
-        // เก็บ token และข้อมูลลง localStorage
         localStorage.setItem("isLogin", "true");
-        localStorage.setItem("token", token);
-        localStorage.setItem("id", String(id));
         localStorage.setItem("role", role);
-        document.cookie = `${COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; Max-Age=86400; SameSite=Lax`;
-
-        
         // Navigate ไปตาม role
         const nextPath =
         role === "student" ? "/student" :
@@ -220,34 +216,6 @@ const SignInPages = () => {
             </Button>
           </Form>
           <Space direction="vertical" style={{ width: "100%" }}>
-            <Button
-              block
-              onClick={() => {
-                navigate("/admin");
-                localStorage.setItem("role", "admin");
-              }}
-            >
-              เข้าสู่ระบบแอดมิน
-            </Button>
-            <Button
-              block
-              onClick={() => {
-                navigate("/student");
-                localStorage.setItem("role", "student");
-              }}
-            >
-              เข้าสู่ระบบนักเรียน
-            </Button>
-            <Button
-              block
-              onClick={() => {
-                navigate("/teacher");
-                localStorage.setItem("role", "teacher");
-              }}
-            >
-              เข้าสู่ระบบครู
-            </Button>
-            
           </Space>
         </Card>
       </div>

@@ -36,7 +36,7 @@ export interface ScheduleInterface {
   class_in_week?: number;
   hours_of_term?: number;
   subject_group?: string;
-  teacher?:       string;
+  teacher_name?:  string;
   grade_year?:    string;
   grade_class?:   number;
 }

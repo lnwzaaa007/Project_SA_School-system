@@ -138,20 +138,8 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
       //ดึงข้อมูลตารางเรียนที่เพิ่มล่าสุด 
       fetchSchedule(); 
 
-      // ส่งข้อมูลย่อกลับให้ parent อัปเดต UI (ถ้าต้องการส่ง payload จริง ก็เปลี่ยน onOk type)
-      // onOk({
-      //   course_code:   selectedCourse.course_code ?? "",
-      //   course_name:   selectedCourse.course_name ?? "",
-      //   credit_num:    selectedCourse.credit_num,
-      //   class_in_week: selectedCourse.class_in_week,
-      //   hours_of_term: selectedCourse.hours_of_term,
-      //   subject_group: selectedCourse.subject_group,
-      //   teacher_name:  selectedCourse.teacher_name,
-      //   teacher_id:    selectedCourse.teacher_id,
-      // });
-
       // ปิด/รีเซ็ต
-      onCancel();
+      // onCancel();
     } catch (err: any) {
       message.error(err?.response?.data?.error || err?.message || "บันทึกไม่สำเร็จ");
     } finally {
