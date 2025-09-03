@@ -18,6 +18,7 @@ import Studentimg from "../../assets/student.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
+import { Outlet } from 'react-router-dom';
 import ScheduleStudent from "../../pages/student/ScheduleStudent";
 import Home from "../../pages/student/Home";
 import Payment from "../../pages/student/Payment";
@@ -26,7 +27,7 @@ import Profile from "../../pages/student/StudentProfile";
 import Attendance from "../../pages/student/Attendance";
 import AcademicResult from "../../pages/student/AcademicResult";
 import SlipPayment from "../../pages/student/Payment/Slippayment";
-import FileUpload from "../../pages/student/Upload/uploadfile";
+import AssignmentForm from "../../pages/student/Upload/uploadfile";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -368,18 +369,8 @@ const StudentFullLayout: React.FC = () => {
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
             >
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/schedule" element={<ScheduleStudent />} />
-                <Route path="/payment" element={<Payment />} />
-                <Route path="/payment/slip" element={<SlipPayment />} />
-                <Route path="/Upload" element={<Upload />} />
-                <Route path="/Upload/fileupload" element={<FileUpload />} />
-                <Route path="/result" element={<AcademicResult />} />
-                <Route path="/checkin" element={<Attendance />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+              {/* แก้routeที่ทับกัน */}
+               <Outlet /> 
             </div>
           </Content>
         </Layout>

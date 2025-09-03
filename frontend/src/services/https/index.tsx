@@ -8,6 +8,7 @@ import type {
     // LoginTeacherRequest,
 } from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
+import { useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
@@ -184,3 +185,12 @@ export const ProvinceAPI ={
 export const DistrictAPI ={
   getDistrict: (id: number) => Get(`/district/${id}`)
 }
+export const AssignmentAPI = {
+  getCourses: () => Get(`/courses`),
+  getAssignments: (id:number) => Get(`/assignments/${id}`),
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
+  
+
+}
+
+
