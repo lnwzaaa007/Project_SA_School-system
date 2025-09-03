@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/controllers"
+	// "github.com/lnwzaaa007/Project_SA_School-system/backend/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,7 @@ func main() {
 
 	r := gin.Default()
 	r.Use(CORSMiddleware())
+	// r.Use(middlewares.Authorizes())
 
 	router := r.Group("/")
 	{
@@ -58,13 +60,11 @@ func main() {
 
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
+		router.GET("/assignments/:id", controllers.GetAllAssignment)
 
-		// AssignmentSubmit routes
-		router.POST("/submit-assignment", controllers.AssignmentSubmit)
-
-		// Course routes
 		r.GET("/courses", controllers.GetCourses)
-		
+		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+	
 
 	}
 

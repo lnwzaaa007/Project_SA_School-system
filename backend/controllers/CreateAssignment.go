@@ -10,6 +10,7 @@ import (
 )
 
 type CreateAssignmentInput struct {
+	CourseID        uint      `json:"course_id"`
 	Assignment_title string  `json:"assignment_title"`
 	Description      string  `json:"description"`
 	TimeStart        time.Time  `json:"time_start"`
@@ -35,6 +36,7 @@ func CreateHomeWork(c *gin.Context) {
 	}
 
 	assignment := entity.AssignmentSubmit{
+		CourseID: 	  input.CourseID,
 		Assignment_title: input.Assignment_title,
 		Description:      input.Description,
 		TimeStart:        input.TimeStart,

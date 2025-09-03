@@ -20,6 +20,21 @@ func GetCourses(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"data": courses})
 }
 
+func GetAllAssignment(c *gin.Context) {
+    var assignments []entity.AssignmentSubmit
+    courseID := c.Param("id") // ดึงค่า id จาก URL เช่น /assignments/:id
+
+    if err := config.DB().
+        Where("id = ?", courseID).
+        Find(&assignments).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูล assignment ได้"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": assignments})
+}
+
+
 func AssignmentSubmit(c *gin.Context) {
 	// รับค่าจาก form-data
 	assignmentTitle := c.PostForm("assignment_title")

@@ -15,7 +15,7 @@ const Schedule = Loadable(
 const Upload = Loadable(lazy(() => import("../pages/student/Upload")));
 const Payment = Loadable(lazy(() => import("../pages/student/Payment")));
 const SlipPayment = Loadable(lazy(() => import("../pages/student/Payment/Slippayment")));
-const FileUpload = Loadable(lazy(() => import("../pages/student/Upload/uploadfile")));
+const AssignmentForm = Loadable(lazy(() => import("../pages/student/Upload/uploadfile")));
 
 const StudentRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -29,7 +29,7 @@ const StudentRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "checkin", element: <Attendance /> },
       { path: "upload", element: <Upload />, 
         children: [
-          { path: "fileupload", element: <FileUpload /> },
+          { path: "fileupload/:id", element: <AssignmentForm /> },
         ]
       },
       { path: "payment", element: <Payment />,
