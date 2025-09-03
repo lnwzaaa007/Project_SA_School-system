@@ -36,7 +36,9 @@ import AddressTeacher from "../../pages/admin/ManageTeacher/CreateTeacher/Addres
 import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDataTeacher";
 import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
 import MoveAddStudent from "../../pages/admin/ApplyForStudy/MoveAddStudent";
-import AddStudent from "../../pages/admin/ManageStudent/AddStudent/AddStudent";
+import AddStudent from "../../pages/admin/ManageStudent/AddStudent";
+
+
 import CreateCourse from "../../pages/admin/Course/CreateCourse";  //pangเพิ่มมา
 import DeleteCourse from "../../pages/admin/Course/Delete"; //pangเพิ่มมา
 import EditCourse from "../../pages/admin/Course/edit"; //pangเพิ่มมา
@@ -360,7 +362,9 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/announce/CreateAnnouncement" element={<CreateAnnouncement/>}/>
                 <Route path="/announce/EditAnnouncement" element={<EditAnnouncement/>}/>
                 <Route path="/manageStudent" element={<ManageStudent />} />
+
                 <Route path="/manageStudent/AddStudent" element={<AddStudent />} />
+
                 <Route path="/manageTeacher" element={<ManageTeacher />} />
                 <Route path="/manageTeacher/CreateTeacher" element={<CreateTeacher />} />
                 <Route path="/manageTeacher/DeleteTeacher" element={<DeleteTeacher />} />
