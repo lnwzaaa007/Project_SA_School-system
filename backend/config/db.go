@@ -34,7 +34,7 @@ func SetupDatabase() {
 		&entity.Enrollment{}, &entity.Grade{}, &entity.Guardian{}, &entity.GuardianStudent{}, &entity.Payment{},
 		&entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{}, &entity.Subdistrict{},
 		&entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{}, &entity.Term{}, &entity.Tuition{},
-		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{}, &entity.Title{},
+		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{},&entity.Notifications{}, &entity.Title{},
 	)
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
@@ -52,8 +52,10 @@ func SetupDatabase() {
     seedTerm()
     seedUsers()
 	seedProvince()
-	// seeddistrict()
-	seedCourses()
+	//seeddistrict()
+	// seedCourses()
 	seedSubjectGroup()
+	seedTargetGroup(db)
+	
 
 }
