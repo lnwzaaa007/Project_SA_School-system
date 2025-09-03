@@ -1,10 +1,39 @@
 import { useNavigate } from "react-router-dom";
-import { Col, Row, Card, Form, Input, Button, DatePicker, Select, TimePicker} from "antd";
+import React, { useEffect, useState } from "react";
+import { Col, Row, Card, Form, Input, Button, DatePicker, Select, TimePicker, message} from "antd";
 import {EyeOutlined} from '@ant-design/icons';
+// import { annoncementAPI} from '../../../../services/https'
+import { targetGroupAPI } from "../../../../services/https";
+import type { TargetGroupInterface } from "../../../../interfaces/targetgroup";
 const { Option } = Select;
+interface SelectTargetGroup {
+    value: string | null;
+    onChange: (value: string) => void;
+  }
 const format = 'HH:mm';
-const CreateAnnouncement = () => {
-    
+const CreateAnnouncement:React.FC = () => {
+    // const [SelectTargetGroup] = useState<string | null>(null);
+    const [targetGroups, setTargetGroups] = useState<TargetGroupInterface[]>([]);
+    const [messageApi, contextHolder] = message.useMessage();
+    const fetchTargetGroups = async () => {
+        try {
+            const res = await targetGroupAPI.getTargetGroupAll();
+            console.log("📌 TargetGroup API response:", res);
+
+            if (Array.isArray(res)) {
+                setTargetGroups(res);
+            }else{
+                messageApi.error('ไม่พบข้อมูลกลุ่มเป้าหมาย');
+            }
+        } catch (err) {
+            console.error('❌ โหลด Target Groups ผิดพลาด:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchTargetGroups();
+    }, []);
+
     const navigate = useNavigate();
     
     const onFinish = (values: any) => {
@@ -14,7 +43,9 @@ const CreateAnnouncement = () => {
         navigate('/admin/announce');
     };
     return(
-    <> 
+        
+    <>
+        {contextHolder} 
         <div>
             
         <h2 style={{ fontSize:'26px', fontWeight: 'normal',color: '#015c91',padding:'16px',marginLeft:'-16px',}}>
@@ -54,6 +85,7 @@ const CreateAnnouncement = () => {
             name="category"
             rules={[{ required: true, message: "กรุณาเลือกหมวดหมู่" }]}>
                 <Select placeholder="เลือก" style={{ width: "100%" ,height:'48px' }}>
+                   
                     <Option value="ข่าวสาร">ข่าวสาร</Option>
                     <Option value="กิจกรรม">กิจกรรม</Option>
                     <Option value="ประชาสัมพันธ์">ประชาสัมพันธ์</Option>
@@ -90,11 +122,19 @@ const CreateAnnouncement = () => {
             rules={[{ required: true, message: "กรุณาเลือกกลุ่มเป้าหมาย" }]}
             >
             {/* <Input placeholder="เช่น 3" style={{height:'48px'}}/> */}
-            <Select placeholder="เลือก" style={{ width: "100%" ,height:'48px' }}>
-                <Option value="นักเรียน">นักเรียน</Option>
+            <Select placeholder="เลือกกลุ่มเป้าหมาย" style={{ width: "100%" ,height:'48px' }} 
+                    onChange={(value) => {
+                      console.log("เลือก:", value);
+                    }}>
+                {targetGroups.map((tg,) => (
+                    <Option key={tg.ID ?? tg.group_name} value={tg.group_name}>
+                        {tg.group_name}
+                    </Option>
+                ))}
+                {/* <Option value="นักเรียน">นักเรียน</Option>
                 <Option value="คุณครู">ครูและบุคลากร</Option>
                 <Option value="ผู้ปกครอง">ผู้ปกครอง</Option>
-                <Option value="ทุกคน">ทุกคน</Option>
+                <Option value="ทุกคน">ทุกคน</Option> */}
             </Select>
             </Form.Item>
             </Col>

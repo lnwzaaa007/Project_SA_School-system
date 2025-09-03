@@ -54,6 +54,21 @@ func main() {
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
 
+		//Announcement routes
+		router.POST("/new-announcement", controllers.CreateAnnouncement)
+		// router.GET("/announcements", controllers.ListAnnouncements)
+		// router.GET("/announcements/:id", controllers.GetAnnouncementByID)
+
+		//Target Group routes
+		router.GET("/targetgroup", controllers.GetTargetGroupAll)
+
+		
+		
+		// Course routes
+		router.GET("/subjectgroup", controllers.GetSubjectGroupAll)
+		router.POST("/new-course", controllers.CreateCourse)
+		// router.GET("/courses", controllers.ListCourses)
+		// router.GET("/courses/:id", controllers.GetCourseByID)	
 	}
 
 

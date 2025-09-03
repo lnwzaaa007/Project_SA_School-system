@@ -155,3 +155,21 @@ export const ScheduleAPI = {
 export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),
 };
+
+export const annoncementAPI = {
+  getAnnouncements: () => Get("/new-announcements"),
+};
+
+export const targetGroupAPI = {
+  getTargetGroupAll: () => Get("/targetgroup"),
+};
+
+export const subjectGroupAPI = {
+  getSubjectGroupAll: () => Get("/subjectgroup"),
+};
+
+export const courseAPI = {
+  CreateCourseAll: (course:{course_code: string; course_name:string; subject_group_id: number; credit_num: number;
+    class_in_week: number; grade_year: string; grade_class: number; teacher: string;
+   }) => Post("/new-course", course),
+};

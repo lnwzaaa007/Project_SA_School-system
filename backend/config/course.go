@@ -59,7 +59,13 @@ func seedCourses() {
 
 func seedSubjectGroup() {
 	db.Model(&entity.Subject_Group{}).Create([]entity.Subject_Group{
-		{SubjectGroup_Name: "คณิตศาสตร์"},
-		{SubjectGroup_Name: "วิทยาศาสตร์"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้ภาษาไทย"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้คณิตศาสตร์"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้สังคมศึกษา ศาสนา และวัฒนธรรม"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้สุขศึกษาและพลศึกษา"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้ศิลปะ"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้การงานอาชีพ"},
+		{SubjectGroup_Name: "กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ"},
 	})
 }
