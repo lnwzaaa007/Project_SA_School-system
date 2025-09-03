@@ -63,7 +63,12 @@ func main() {
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
 		router.GET("/assignment/:id", controllers.GetAllAssignment)
 		r.GET("/courses", controllers.GetCourses)
+
+		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+
+		// ✅ ดาวน์โหลดตาม id
+		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
 	
 
 	}

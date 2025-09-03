@@ -12,6 +12,7 @@
 export interface AssignmentInterface {
     ID: number;
     course_id: number;
+    
     assignment_title: string;
     description: string;
     time_start: string;
@@ -20,6 +21,16 @@ export interface AssignmentInterface {
     submit_point_all: number;
     student_comment: string;
     submit_status: string;
+}
+
+export interface AssignmentFormData {
+    title?: string;
+  status: string;
+  description: string;
+  openDate: string;
+  closeDate: string;
+  file: File | null;
+  feedback: string;
 }
 
 // export interface CreateAssignment {

@@ -173,7 +173,7 @@ export const AssignmentAPI = {
   getAssignments: (id:number) => Get(`/assignments/${id}`),
   getAssignmentById: (id:number) => Get(`/assignment/${id}`),
   
-  // postAddsignment: (data: ) => Post(`/assignments`,data,true),
+
 }
 
 

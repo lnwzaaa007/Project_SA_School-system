@@ -369,6 +369,7 @@ const StudentFullLayout: React.FC = () => {
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
             >
+              {/* แก้routeที่ทับกัน */}
                <Outlet /> 
             </div>
           </Content>
