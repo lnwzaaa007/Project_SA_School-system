@@ -61,7 +61,7 @@ func main() {
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
-
+		router.GET("/assignment/:id", controllers.GetAllAssignment)
 		r.GET("/courses", controllers.GetCourses)
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 	

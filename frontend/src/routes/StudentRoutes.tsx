@@ -15,7 +15,8 @@ const Schedule = Loadable(
 const Upload = Loadable(lazy(() => import("../pages/student/Upload")));
 const Payment = Loadable(lazy(() => import("../pages/student/Payment")));
 const SlipPayment = Loadable(lazy(() => import("../pages/student/Payment/Slippayment")));
-const AssignmentForm = Loadable(lazy(() => import("../pages/student/Upload/uploadfile")));
+// const AssignmentForm = Loadable(lazy(() => import("../pages/student/Upload/uploadfile")));
+import AssignmentForm from "../pages/student/Upload/uploadfile";
 
 const StudentRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -28,10 +29,11 @@ const StudentRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "result", element: <AcademicResult /> },
       { path: "checkin", element: <Attendance /> },
       { path: "upload", element: <Upload />, 
-        children: [
-          { path: "fileupload/:id", element: <AssignmentForm /> },
-        ]
+        // children: [
+        //   { path: "fileupload/:id", element: <AssignmentForm /> },
+        // ]
       },
+      { path: "upload/fileupload/:id", element: <AssignmentForm /> }, // หน้า upload แยก
       { path: "payment", element: <Payment />,
         children: [
           { path: "slip", element: <SlipPayment /> },

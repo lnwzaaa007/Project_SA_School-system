@@ -197,38 +197,84 @@ interface AssignmentFormData {
 const AssignmentForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [formData, setFormData] = useState<AssignmentFormData>({
-    status: '', openDate: '', closeDate: '', file: null, feedback: ''
+    status: '',
+    openDate: '',
+    closeDate: '',
+    file: null,
+    feedback: ''
   });
   const [form] = Form.useForm();
 
-  useEffect(() => { console.log("AssignmentForm mounted with ID:", id); }, [id]);
-
   useEffect(() => {
-    const fetchDetail = async () => {
-      if (!id) return;
-      try {
-        const res = await AssignmentAPI.getAssignmentById(parseInt(id));
-        if (res.data) setFormData(prev => ({
-          ...prev,
-          openDate: res.data.time_start || '',
-          closeDate: res.data.time_end || ''
-        }));
-      } catch (err) {
-        console.error("❌ โหลดรายละเอียดการบ้านผิดพลาด:", err);
-        message.error("ไม่สามารถโหลดรายละเอียดการบ้านได้");
-      }
-    };
-    fetchDetail();
+    console.log("📌 AssignmentForm mounted with ID:", id);
   }, [id]);
 
+ useEffect(() => {
+  const fetchDetail = async () => {
+    if (!id) return;
+    try {
+      console.log("🔍 กำลังโหลด Assignment ID:", id);
+      const res = await AssignmentAPI.getAssignmentById(parseInt(id));
+      console.log("✅ Assignment API Response:", res);
+
+      if (res.data && res.data.length > 0) {
+        const detail = res.data[0];
+
+        // 📌 ฟังก์ชันตัดเวลาออก ให้เหลือแค่วันที่
+        const formatDate = (dateStr: string) => {
+          if (!dateStr) return '';
+          return dateStr.split("T")[0]; // ตัดหลัง T
+        };
+
+        setFormData(prev => ({
+          ...prev,
+          openDate: formatDate(detail.time_start),
+          closeDate: formatDate(detail.time_end)
+        }));
+
+        console.log("📌 FormData หลังโหลด:", {
+          openDate: formatDate(detail.time_start),
+          closeDate: formatDate(detail.time_end)
+        });
+      } else {
+        console.warn("⚠️ ไม่มีข้อมูล assignment ใน response");
+      }
+    } catch (err) {
+      console.error("❌ โหลดรายละเอียดการบ้านผิดพลาด:", err);
+      message.error("ไม่สามารถโหลดรายละเอียดการบ้านได้");
+    }
+  };
+  fetchDetail();
+}, [id]);
+
+
   const handleFileChange: UploadProps['onChange'] = info => {
-    if (info.file.status !== 'removed') setFormData(prev => ({ ...prev, file: info.file.originFileObj! }));
-    else setFormData(prev => ({ ...prev, file: null }));
+    console.log("📂 FileChange Event:", info);
+    if (info.file.status !== 'removed') {
+      setFormData(prev => {
+        const newData = { ...prev, file: info.file.originFileObj! };
+        console.log("📌 FormData หลังเลือกไฟล์:", newData);
+        return newData;
+      });
+    } else {
+      setFormData(prev => {
+        const newData = { ...prev, file: null };
+        console.log("📌 FormData หลังลบไฟล์:", newData);
+        return newData;
+      });
+    }
   };
 
   const onFinish = (values: any) => {
-    if (!formData.file) { message.error("กรุณาแนบไฟล์ก่อนส่ง"); return; }
-    console.log("ส่งงาน:", { ...formData, feedback: values.feedback });
+    console.log("📝 onFinish values:", values);
+    if (!formData.file) {
+      message.error("กรุณาแนบไฟล์ก่อนส่ง");
+      console.warn("⚠️ ไม่มีไฟล์แนบตอน submit");
+      return;
+    }
+
+    const finalData = { ...formData, feedback: values.feedback };
+    console.log("📤 Data ที่จะส่งไป backend:", finalData);
 
     Modal.success({
       title: 'ส่งงานสำเร็จ',
@@ -239,6 +285,8 @@ const AssignmentForm: React.FC = () => {
 
     setTimeout(() => Modal.destroyAll(), 1000);
   };
+
+  
 
   return (
     <div style={{ padding: 20, background: '#d1eaff', borderRadius: 10, width: 500, marginTop: 20 }}>
@@ -263,3 +311,6 @@ const AssignmentForm: React.FC = () => {
 };
 
 export default AssignmentForm;
+
+
+
