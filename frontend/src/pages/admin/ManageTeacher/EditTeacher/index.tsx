@@ -10,60 +10,40 @@ import React, { useState } from "react";
 import ModalSave from "../../../../components/ModalSeve";
 import MadalCancel from "../../../../components/ModalCancel";
 import UploadImages from "../../../../components/UploadImages";
- const provinces = [
-  {
-    name: "กรุงเทพมหานคร",
-    districts: [{ name: "เขตพระนคร", subdistricts: [{name : "พระบรมมหาราชวัง" ,postcode: ["10100"]},{ name : "วังบูรพาภิรมย์", postcode: ["10200", "10300"] },]},
-                { name: "เขตดุสิต", subdistricts: [{name :"สวนจิตรลดา", postcode: [10300]},{name : "ดุสิต",postcode: [10400]}],
-      }
-    ]
-  },
-  {
-    name: "เชียงใหม่",
-    districts: [
-      {
-        name: "เมืองเชียงใหม่",
-        subdistricts: [{name :"ศรีภูมิ", postcode: [50200]}, {name:"ช้างเผือก",postcode: [50200]}],
-      }
-    ]
-  }
-];
+import SelectProvince from "../../../../components/SelectProvince";
+import SelectDistrict from "../../../../components/SelectDistrict";
+import SelectSubdistrict from "../../../../components/SelectSubdistrict";
+import SelectZipcode from "../../../../components/SelectZipcode";
+
 
 const ManageTeacher = () => {
 
-    const navigate = useNavigate();
-    const navigate1 = useNavigate();
-    const [selectedProvince, setSelectedProvince] = useState(null);
-    const [selectedDistrict, setSelectedDistrict] = useState(null);
-    const [selectedSubdisistrict, setSelectedSubdisistrict] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);;
+  const [selectedSubdistrict, setSelectedSubdistrict] = useState<number | null>(null);
+  const [selectedZipcode, setSelectedZipcode] = useState<number | null>(null);
   
-    const handleProvinceChange = (value: React.SetStateAction<null>) => {
+    const handleProvinceChange = (value: React.SetStateAction<number | null>) => {
       setSelectedProvince(value);
       setSelectedDistrict(null); // reset อำเภอ
+       setSelectedSubdistrict(null);
+       setSelectedZipcode(null);
     };
   
-    const handleDistrictChange = (value: React.SetStateAction<null>) => {
+    const handleDistrictChange = (value: React.SetStateAction<number |null>) => {
       setSelectedDistrict(value);
+      setSelectedSubdistrict(null);
+      setSelectedZipcode(null);
     };
+
   
-    const handleSubdistrictChange = (value: React.SetStateAction<null>) => {
-      setSelectedSubdisistrict(value);
+    const handleSubdistrictChange = (value: React.SetStateAction<number |null>) => {
+      setSelectedSubdistrict(value);
+      setSelectedZipcode(null);
     };
-  
-    const getDistricts = () => {
-      const province = provinces.find((p) => p.name === selectedProvince);
-      return province ? province.districts : [];
-    };
-  
-    const getSubdistricts = () => {
-      const district = getDistricts().find((d) => d.name === selectedDistrict);
-      return district ? district.subdistricts : [];
-    };
-  
-    const getPostcode = () => {
-    const subdistrict = getSubdistricts().find((s) => s.name === selectedSubdisistrict);
-    return subdistrict ? subdistrict.postcode : [];
-  };
+    
+    const handleZipcodeChange = (value: React.SetStateAction<number |null>) => {
+      setSelectedZipcode(value);};
   return (
     <div >
       
@@ -191,63 +171,44 @@ const ManageTeacher = () => {
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
               <label style= {{lineHeight: "2"}}>จังหวัด</label>
-              <Select style={{ width: "100%" }} placeholder="เลือกจังหวัด" onChange={handleProvinceChange} value={selectedProvince}>
-                {provinces.map((province) => (<Option key={province.name} value={province.name}>
-                  {province.name}
-            </Option>
-          ))}
-        </Select>
+              <div></div>
+              <SelectProvince value={selectedProvince} onChange={handleProvinceChange} />
           
             </Col>
             <Col xs={24} md={12}>
-              <label style= {{lineHeight: "2"}}>อำเภอ</label>
-        <Select
-          style={{ width: "100%" }}
-          placeholder="เลือกอำเภอ"
-          onChange={handleDistrictChange}
-          value={selectedDistrict}
-          disabled={!selectedProvince}
-        >
-          {getDistricts().map((district) => (
-            <Option key={district.name} value={district.name}>
-              {district.name}
-            </Option>
-          ))}
-        </Select>
+              <label style= {{lineHeight: "2"}}>อำเภอ/เขต</label>
+              <div></div>
+              <SelectDistrict 
+                provinceId={selectedProvince}
+                value={selectedDistrict}
+                onChange={handleDistrictChange}
+                disabled={!selectedProvince}
+              
+               />
+          
             </Col>
-          </Row>
-          <Row gutter={[16, 12]}>
+             </Row>
+             <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
               <label style= {{lineHeight: "2"}}>ตำบล</label>
-        <Select
-          style={{ width: "100%" }}
-          placeholder="เลือกตำบล"
+        <SelectSubdistrict
+          
+          districtId={selectedDistrict}
           onChange={handleSubdistrictChange}
-          value={selectedSubdisistrict}
+          value={selectedSubdistrict}
           disabled={!selectedDistrict}
-        >
-          {getSubdistricts().map((subdistrict) => (
-            <Option key={subdistrict.name} value={subdistrict.name}>
-              {subdistrict.name}
-            </Option>
-          ))}
-        </Select>
-            </Col>
-            <Col xs={24} md={12}>
+        />
+        </Col>
+
+        <Col xs={24} md={12}>
               <label style= {{lineHeight: "2"}}>รหัสไปรษณีย์</label>
-              <Select
-          style={{ width: "100%" }}
-          placeholder="เลือกรหัสไปรษณีย์"
-          disabled={!selectedSubdisistrict}
-        >
-          {getPostcode().map((postcode) => (
-            <Option key={postcode} value={postcode}>
-              {postcode}
-            </Option>
-          ))}
-        </Select>
-            </Col>
-          </Row>
+              <SelectZipcode
+          subdistrictId={selectedSubdistrict}
+          onChange={handleZipcodeChange}
+          value={selectedZipcode}
+          disabled={!selectedSubdistrict}
+        /></Col>
+        </Row>
           <div style={{display:"flex", justifyContent:"end",marginTop:"16px"}}>
           <Space>
             <ModalSave />

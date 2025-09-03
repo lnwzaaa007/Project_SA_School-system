@@ -160,10 +160,17 @@ export const userTypeAPI = {
   getUserTypes: (id: number) => Get(`/users/${id}`),
 };
 
-export const ProvinceAPI ={
-  getProvince: () => Get("/province"),
-}
+// export const ProvinceAPI ={
+//   getProvince: () => Get("/province"),
+// }
 
-export const DistrictAPI ={
-  getDistrict: (id: number) => Get(`/district/${id}`)
+// export const DistrictAPI ={
+//   getDistrict: (id: number) => Get(`/district/${id}`)
+// }
+
+export const AddressAPI ={
+    getProvince: () => Get("/thaiprovince"),
+    getDistrict: (id: number) => Get(`/thaidistrict/${id}`),
+    getSubdistrict: (id: number) => Get(`/thaisubdistrict/${id}`),
+    getZipcode: (id: number) => Get(`/thaizipcode/${id}`),
 }

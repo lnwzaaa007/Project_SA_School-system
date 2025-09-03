@@ -52,9 +52,22 @@ func main() {
 		router.GET("/province", controllers.GetProvince)
 		router.GET("/province/:id", controllers.GetProvinceById)
 
+		// Thai_Province routes
+		router.GET("/thaiprovince", controllers.GetThaiProvince)
+		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
+
 		// District routes
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
+
+		// Thai_District routes
+		router.GET("/thaidistrict", controllers.GetThaiDistrict)
+		router.GET("/thaidistrict/:id", controllers.GetThaiDistrictById)
+
+		// Thai_Subdistrict routes
+		router.GET("/thaisubdistrict", controllers.GetThaiSubdistrict)
+		router.GET("/thaisubdistrict/:id", controllers.GetThaiSubdistrictById)
+		router.GET("/thaizipcode/:id", controllers.GetThaiZipcodeById)
 
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
