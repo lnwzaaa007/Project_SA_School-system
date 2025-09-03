@@ -374,7 +374,7 @@ const StudentFullLayout: React.FC = () => {
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment/slip" element={<SlipPayment />} />
                 <Route path="/Upload" element={<Upload />} />
-                <Route path="/Upload/fileupload" element={<FileUpload />} />
+                <Route path="/upload/fileupload/:id" element={<FileUpload />} />
                 <Route path="/result" element={<AcademicResult />} />
                 <Route path="/checkin" element={<Attendance />} />
                 <Route path="/profile" element={<Profile />} />

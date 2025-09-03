@@ -1,93 +1,166 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Select } from 'antd';
+import { Form, Select, message } from 'antd';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import type { AssignmentInterface } from '../../../interfaces/Assignment';
+import { AssignmentAPI } from '../../../services/https';
 
 const { Option } = Select;
 
 function Index() {
   const [courses, setCourses] = useState<{ id: number; name: string }[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [detailAssign, setDetailAssign] = useState<AssignmentInterface[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
+  // ✅ โหลดรายวิชา
+  const fetchCourse = async () => {
+    try {
+      const res = await AssignmentAPI.getCourses();
+      if (Array.isArray(res.data)) {
+        setCourses(
+          res.data.map((c: any) => ({
+            id: c.ID,
+            name: `${c.course_name}`, // ชื่อวิชา
+          }))
+        );
+      } else {
+        console.error("ไม่พบข้อมูลรายวิชา:", res.data);
+      }
+    } catch (err) {
+      console.error("❌ โหลดรายวิชาผิดพลาด:", err);
+      messageApi.error("เกิดข้อผิดพลาดในการโหลดรายวิชา");
+    }
+  };
+
+  // ✅ โหลด assignment ตาม course_id
+  const loadDetailAssign = async (courseId: number) => {
+    try {
+      const ress = await AssignmentAPI.getAssignments(courseId);
+      console.log(ress);
+      if (ress.data && Array.isArray(ress.data)) {
+        setDetailAssign(ress.data);
+      } else {
+        setDetailAssign([]);
+      }
+    } catch (err) {
+      console.error("❌ โหลดการบ้านผิดพลาด:", err);
+      setDetailAssign([]);
+      messageApi.error("เกิดข้อผิดพลาดในการโหลดการบ้าน");
+    }
+  };
+
+  // โหลดรายวิชาตอนเปิดหน้า
   useEffect(() => {
-    axios.get('http://localhost:8088/courses')
-      .then(res => setCourses(res.data.data))
-      .catch(() => setCourses([]));
+    fetchCourse();
   }, []);
+
+  // โหลดการบ้านเมื่อเลือกวิชา
+  useEffect(() => {
+    if (selectedCourse !== null) {
+      loadDetailAssign(selectedCourse);
+    }
+  }, [selectedCourse]);
 
   return (
     <div>
+      {contextHolder}
       <span style={{ color: "black", fontSize: "16px", fontWeight: "bold" }}>รายวิชา</span>
       <Form layout="vertical" style={{ width: '30%', marginTop: '10px' }}>
-        <Form.Item label="เลือกวิชา" name="course_id" rules={[{ required: true, message: 'กรุณาเลือกวิชา' }]}>
+        <Form.Item
+          label="เลือกวิชา"
+          name="course_id"
+          rules={[{ required: true, message: 'กรุณาเลือกวิชา' }]}
+        >
           <Select
             placeholder="เลือกวิชา"
             value={selectedCourse}
             onChange={setSelectedCourse}
           >
-            {courses.map(course => (
-              <Option key={course.id} value={course.id}>{course.name}</Option>
+            {courses.map((c) => (
+              <Option key={c.id} value={c.id}>
+                {c.name}
+              </Option>
             ))}
           </Select>
         </Form.Item>
       </Form>
+
+      
       <div style={{ marginTop: "30px" }}>
-        {[1, 2, 3, 4].map((_, index) => (
-          <div
-            key={index}
-            style={{
-              backgroundColor: "#B3E0FF",
-              padding: "15px 20px",
-              borderRadius: "15px",
-              marginBottom: "15px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ fontSize: "20px" }}>📎 แนบไฟล์การบ้าน</div>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <Link
-                to="/student/upload/fileupload"
-                state={{ course_id: selectedCourse }}
-              >
-                <button
+        {detailAssign.length > 0 ? (
+          detailAssign.map((assign, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: "#B3E0FF",
+                padding: "15px 20px",
+                borderRadius: "15px",
+                marginBottom: "15px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ fontSize: "20px" }}>
+                <div
                   style={{
-                    backgroundColor: "#278FDB",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "8px",
-                    padding: "8px 20px",
-                    fontWeight: "bold",
-                    cursor: "pointer",
+                    background: "white",
+                    height: "auto",
+                    padding: "30px",
+                    display: "inline-block",
                   }}
-                  disabled={!selectedCourse}
                 >
-                  ส่งงาน
-                </button>
-              </Link>
-              <Link
-                to="/student/upload/fileupload"
-                state={ { course_id: selectedCourse }}
-              >
-                <button
-                  style={{
-                    backgroundColor: "#F06464",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "8px",
-                    padding: "8px 20px",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                  disabled={!selectedCourse}
+                  <div>{assign.assignment_title}</div>
+                  <div>{assign.description}</div>
+                  <div>เริ่ม: {assign.time_start}</div>
+                  <div>สิ้นสุด: {assign.time_end}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <Link
+                  to="/student/upload/fileupload"
+                  state={{ course_id: selectedCourse }}
                 >
-                  แก้ไข
-                </button>
-              </Link>
+                  <button
+                    style={{
+                      backgroundColor: "#278FDB",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "8px 20px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                    disabled={!selectedCourse}
+                  >
+                    ส่งงาน
+                  </button>
+                </Link>
+                <Link
+                  to="/student/upload/fileupload"
+                  state={{ course_id: selectedCourse }}
+                >
+                  <button
+                    style={{
+                      backgroundColor: "#F06464",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "8px 20px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                    }}
+                    disabled={!selectedCourse}
+                  >
+                    แก้ไข
+                  </button>
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          selectedCourse && <p>ไม่มีการบ้านในรายวิชานี้</p>
+        )}
       </div>
     </div>
   );

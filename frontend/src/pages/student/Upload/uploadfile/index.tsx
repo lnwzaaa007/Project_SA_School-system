@@ -3,6 +3,8 @@ import { Form, Input, Button, Upload, Modal, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd/es/upload';
 import '@ant-design/v5-patch-for-react-19';
+import { useLocation, useParams } from 'react-router-dom';
+import { AssignmentAPI } from '../../../../services/https';
 
 interface AssignmentFormData {
   status: string;
@@ -14,26 +16,41 @@ interface AssignmentFormData {
 
 const AssignmentForm: React.FC = () => {
   const [form] = Form.useForm();
-
-  const predefined = {
-    status: 'รอตรวจ',
-    openDate: '2025-08-05',
-    closeDate: '2025-08-10',
-  };
+  const location = useLocation();
+  const { assignment_id } = useParams();
 
   const [formData, setFormData] = useState<AssignmentFormData>({
-    status: predefined.status,
-    openDate: predefined.openDate,
-    closeDate: predefined.closeDate,
+    status: '',
+    openDate: '',
+    closeDate: '',
     file: null,
     feedback: '',
   });
 
+  console.log("📌 Assignment Detail ID:", assignment_id);
   useEffect(() => {
-    form.setFieldsValue({
-      feedback: '',
-    });
-  }, []);
+    const fetchAssignmentDetail = async () => {
+      try {
+        if (!assignment_id) return;
+
+        const res = await AssignmentAPI.getAssignmentById(parseInt(assignment_id));
+        console.log("📌 Assignment Detail:", res.data);
+
+        if (res.data) {
+          setFormData((prev) => ({
+            ...prev,
+            openDate: res.data.time_start || '',
+            closeDate: res.data.time_end || '',
+          }));
+        }
+      } catch (err) {
+        console.error("❌ โหลดรายละเอียดการบ้านผิดพลาด:", err);
+        message.error("ไม่สามารถโหลดรายละเอียดการบ้านได้");
+      }
+    };
+
+    fetchAssignmentDetail();
+  }, [assignment_id]);
 
   const handleFileChange: UploadProps['onChange'] = (info) => {
     if (info.file.status !== 'removed') {
@@ -45,20 +62,20 @@ const AssignmentForm: React.FC = () => {
   };
 
   const onFinish = (values: any) => {
-    if (formData.file) {
+    if (!formData.file) {
       message.error('กรุณาแนบไฟล์ก่อนกดบันทึก');
-      form.resetFields();
       return;
-      
     }
 
     const data: AssignmentFormData = {
-      status: predefined.status,
-      openDate: predefined.openDate,
-      closeDate: predefined.closeDate,
+      status: formData.status,
+      openDate: formData.openDate,
+      closeDate: formData.closeDate,
       file: formData.file,
       feedback: values.feedback,
     };
+
+    console.log("📤 Data ที่จะส่ง:", data);
 
     Modal.success({
       title: 'ส่งงานสำเร็จ',
@@ -94,24 +111,24 @@ const AssignmentForm: React.FC = () => {
           width: '500px',
         }}
       >
-        <h2>ส่งงานวิชา ภาษาไทย</h2>
+        <h2>ส่งงาน</h2>
 
         <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
           <strong style={{ width: '100px' }}>สถานะ</strong>
           <span>:</span>
-          <span>{predefined.status}</span>
+          <span>{formData.status}</span>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
           <strong style={{ width: '100px' }}>วันที่เปิด</strong>
           <span>:</span>
-          <span>{predefined.openDate}</span>
+          <span>{formData.openDate || '-'}</span>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
           <strong style={{ width: '100px' }}>วันที่ปิด</strong>
           <span>:</span>
-          <span>{predefined.closeDate}</span>
+          <span>{formData.closeDate || '-'}</span>
         </div>
 
         <Form.Item label="ส่งไฟล์" required>
