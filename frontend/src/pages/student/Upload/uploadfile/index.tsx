@@ -102,6 +102,7 @@ const AssignmentForm: React.FC = () => {
       <div>คําอธิบาย: {formData.description || '-'}</div>
       <div>วันที่เปิด: {formData.openDate || '-'}</div>
       <div>วันที่ปิด: {formData.closeDate || '-'}</div>
+      <div>สถานะ: {formData.status || '-'}</div>
 
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="ไฟล์" required>

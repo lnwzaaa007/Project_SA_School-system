@@ -11,6 +11,8 @@ type Submit_status string
 const (
 	Success Submit_status = "ตรวจแล้ว"
 	Waiting Submit_status = "รอตรวจ"
+	NotSubmitted Submit_status = "ยังไม่ส่งงาน"
+	Submitted Submit_status = "ส่งงานแล้ว"
 )
 
 type AssignmentSubmit struct {

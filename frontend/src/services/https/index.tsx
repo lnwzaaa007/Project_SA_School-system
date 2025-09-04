@@ -199,10 +199,7 @@ export const DistrictAPI ={
 export const AssignmentAPI = {
   getCourses: () => Get(`/courses`),
   getAssignments: (id:number) => Get(`/assignments/${id}`),
-  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
-
-  
-  
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`), 
 
 }
 

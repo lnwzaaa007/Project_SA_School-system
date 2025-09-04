@@ -121,6 +121,7 @@ function Index() {
                     <div>{assign.description}</div>
                     <div>เริ่ม: {assign.time_start}</div>
                     <div>สิ้นสุด: {assign.time_end}</div>
+                    <div>สถานะ: {assign.submit_status}</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
