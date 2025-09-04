@@ -13,4 +13,5 @@ type Users struct {
 
 	UserTypeID uint
 	UserType   *UserType `gorm:"foreignKey:UserTypeID"`
+	Announcements []Announcement `gorm:"many2many:notifications" json:"announcements"` // many to many กับ Announcement ผ่านตาราง Notifications
 }

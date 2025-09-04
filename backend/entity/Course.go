@@ -12,17 +12,17 @@ type Course struct {
 	Class_in_week int `json:"class_in_week"`
 	Hours_of_term int `json:"hours_of_term"`
 
-	SubjectGroupID uint           `json:"subjectGroupID"`
-	Subject_Group  *Subject_Group `gorm:"foreignKey:SubjectGroupID"`
+	SubjectGroupID uint `json:"subjectGroupID"`
+	Subject_Group  *Subject_Group `gorm:"foreignKey:SubjectGroupID; references:ID"`
 
 	GradeID uint
-	Grade   *Grade
+	Grade   *Grade `gorm:"foreignKey:GradeID" json:"grade"`
 
 	TermID uint
 	Term   *Term
 
-	TeacherID uint
-	Teacher   *Teacher
+	TeacherID uint 		`json:teacher_id`
+	Teacher   *Teacher	`gorm:"foreignKey:TeacherID" json:"teacher"`
 
 	Schedules []Schedules `gorm:"foreignKey:CourseID"`
 

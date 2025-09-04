@@ -12,14 +12,16 @@ const (
 )
 type Announcement struct {
 	gorm.Model
-	Title  			string
-	Create_Date 	time.Time
-	Create_Time  	time.Time
-	Content 		string
-	Status 			StatusAnnouncement
+	Title  			string 				`json:"title"`
+	Create_Date 	time.Time			`json:"create_date"`
+	End_Date 		time.Time			`json:"end_date"`
+	TimeCreate		time.Time			`json:"time_create"`
+	Content 		string				`json:"content"`
+	Category        string				`json:"category"`
+	Status 			StatusAnnouncement	`gorm:"default:'ฉบับร่าง'" json:"status"`
 	
 	TargetGroupID uint
-	Target_Group *Target_Group `gorm:"foreignKey:TargetGroupID"`
+	Target_Group *Target_Group `gorm:"foreignKey:TargetGroupID" json:"target_group"`
 
 	AdminID uint
 	Admin_User *Admin_User `gorm:"foreignKey:AdminID"`
@@ -28,5 +30,17 @@ type Announcement struct {
 	Term *Term `gorm:"foreignKey:TermID"`
 
 	EnrollmentID uint
-	Enrollment *Enrollment `gorm:"foreignKey:EnrollmentID"`
+	Enrollment *Enrollment `gorm:"foreignKey:EnrollmentID" json:"enrollment"`
+	Users []Users `gorm:"many2many:notifications" json:"users"` // many to many กับ Users ผ่านตาราง Notifications
+}
+func GetCurrentTime() time.Time {
+	return time.Now()
+}
+func ParseDate(dateStr string) time.Time {
+	layout := "2006-01-02"
+	parsedDate, err := time.Parse(layout, dateStr)
+	if err != nil {
+		return time.Time{}
+	}
+	return parsedDate
 }

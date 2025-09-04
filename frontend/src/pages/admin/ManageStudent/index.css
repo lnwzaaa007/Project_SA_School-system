@@ -5,43 +5,65 @@
 }
 
 .content1{
-    height: 150px;
+    height: 100px;
     margin: 10px 30px;
-    background-color:#d3ecff ;
+    background-color:#ffffff ;
     padding: 16px;
     border-radius: 20px;
     display: flex;
     align-items: center;
 }
 
-/* .miniIcon{
+/* d3ecff */
+
+.miniIcon{
     height: 30px;
     width: 30px;
     background-color:#ffffff ;
     border-radius: 14.5px;
     justify-content: center;
     align-items: center;
-} */
+}
 
 .miniIcon {
   cursor: pointer;
   padding: 6px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
+
 }
 
 .miniIcon:hover {
-  background-color: #f0f0f0;
+  background-color: #e6f4ff; /* สีฟ้าอ่อน */
+  color: #1677ff;            /* เปลี่ยนสี icon */
 }
 
 .content2{
     height: 100vh;
     margin: 10px 30px;
-    background-color:#d3ecff ;
+    background-color:#8d8585 ;
     padding: 16px;
     border-radius: 20px;
     /* display: flex; */
     /* justify-content: flex-end; */
     align-items: start;
     
+}
+
+.myButton {
+  background-color: #fff !important;
+  border-color: #ccc !important;
+  color: #000 !important;
+  font-weight: 400;
+  border-radius: 8px !important;
+  padding: 0 16px !important;
+  height: 40px !important;
+  margin: 10px 30px 5px 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.myButton:hover {
+  background-color: #ffffff !important;
+  border-color: #1677ff !important;
+  color: #1677ff !important;
 }
