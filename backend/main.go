@@ -59,9 +59,22 @@ func main() {
 		router.GET("/province", controllers.GetProvince)
 		router.GET("/province/:id", controllers.GetProvinceById)
 
+		// Thai_Province routes
+		router.GET("/thaiprovince", controllers.GetThaiProvince)
+		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
+
 		// District routes
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
+
+		// Thai_District routes
+		router.GET("/thaidistrict", controllers.GetThaiDistrict)
+		router.GET("/thaidistrict/:id", controllers.GetThaiDistrictById)
+
+		// Thai_Subdistrict routes
+		router.GET("/thaisubdistrict", controllers.GetThaiSubdistrict)
+		router.GET("/thaisubdistrict/:id", controllers.GetThaiSubdistrictById)
+		router.GET("/thaizipcode/:id", controllers.GetThaiZipcodeById)
 
 		//Announcement routes
 		router.POST("/new-announcement", controllers.CreateAnnouncement)
@@ -78,16 +91,16 @@ func main() {
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
 		// router.GET("/courses/:id", controllers.GetCourseByID)	
-        // CreateAssignments routes
-        router.POST("/assignments", controllers.CreateHomeWork)
-        router.GET("/assignments/:id", controllers.GetAllAssignment)
-        router.GET("/assignment/:id", controllers.GetAllAssignment)
+		// CreateAssignments routes
+		router.POST("/assignments", controllers.CreateHomeWork)
+		router.GET("/assignments/:id", controllers.GetAllAssignment)
+		router.GET("/assignment/:id", controllers.GetAllAssignment)
 
 		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 
-        // Course routes (list all courses)
-        router.GET("/courses", controllers.GetCourses)
+		// Course routes
+		router.GET("/courses", controllers.GetCourses)
 		
 		// ✅ ดาวน์โหลดตาม id
 		router.GET("/submissions/:id/download", controllers.DownloadSubmission)

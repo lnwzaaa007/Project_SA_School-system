@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Select, message } from 'antd';
-import { ProvinceAPI } from '../../services/https';
+import { AddressAPI } from '../../services/https';
 import type { ProvinceInterface } from '../../interfaces/Province';
 import './index.css';
 
@@ -17,7 +17,7 @@ const SelectProvince: React.FC<SelectProvinceP> = ({value, onChange }) => {
 
         const fetchProvince = async () => {
                 try {
-                  const res = await ProvinceAPI.getProvince();
+                  const res = await AddressAPI.getProvince();
                   console.log(" Province Response:", res);
                   
                   if (Array.isArray(res)) {
@@ -49,7 +49,7 @@ const SelectProvince: React.FC<SelectProvinceP> = ({value, onChange }) => {
                   >
                   {ProvinceOptions.map((t) => (
                     <Option key={t.id} value={t.id}>
-                      {t.province_name}
+                      {t.name_th}
                     </Option>
                   ))}
                 </Select>
