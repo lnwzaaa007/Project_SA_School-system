@@ -23,8 +23,15 @@ func main() {
 	{
 		// student
 		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
+		
+
 		// router.GET("/student/:id", controllers.GetNameStudentById)
 		router.GET("/students/schedule",controllers.GetStudentSchedule) 
+
+		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
+		router.PUT("/student/:id", controllers.UpdateStudent)          // แก้ไขนักเรียนตาม PK id
+		router.GET("/student/:id/image", controllers.GetStudentImage)  // ดึงรูปนักเรียน (ไบต์จาก BLOB)
+		// router.DELETE("/students/:id", control..lers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
 
 		// Teacher routes
 		// router.GET("/teacher", controllers.GetNameTeacher)
