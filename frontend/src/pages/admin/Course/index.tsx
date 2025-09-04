@@ -7,6 +7,7 @@ import CourseTable from '../../../components/CourseTable';
 import CreateCourse from './CreateCourse';
 import DeleteCourse from './Delete';
 import EditCourse from './edit';
+import  {courseAPI} from '../../../services/https'
 import {
     SearchOutlined,
     PlusOutlined,
@@ -15,6 +16,7 @@ import {
 } from '@ant-design/icons';
 //import { Margin, Spa } from '@mui/icons-material';
 const Course:React.FC = () => {
+  const [SelectedTerm, setSelectedTerm] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -60,14 +62,20 @@ const Course:React.FC = () => {
           padding:'16px',
 
           }}>
-          <SelectYear/>
-          <SelectTerm/>
+          {/* <SelectYear/> */}
+          <SelectTerm value = {SelectedTerm} onChange={setSelectedTerm}/>
           {/* ปุ่มเพิ่มแก้ไขลบ */}
           <div style={{
             marginLeft:'auto',
             display:'flex',
             
             }}>
+            {/* <Input
+              placeholder="ค้นหา..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              style={{ width: 300, marginRight: 10 }}
+            /> */}
            <Button
               icon={<SearchOutlined/>}
               type='text'
@@ -75,7 +83,7 @@ const Course:React.FC = () => {
               style = {{background:"#f0f7ff",marginRight:"10px"}}>
                 ค้นหา
             </Button>
-            <Modal  title="Basic Modal"
+            {/* <Modal  title="Basic Modal"
               closable={{ 'aria-label': 'Custom Close Button' }}
               open={isModalOpen}
               onOk={handleOk}
@@ -84,7 +92,7 @@ const Course:React.FC = () => {
                 <p>Some contents...</p>
                 <p>Some contents...</p>
                 <p>Some contents...</p>
-            </Modal>
+            </Modal> */}
 
             <Link to='CreateCourse'>
             <Button 

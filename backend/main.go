@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/controllers"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,16 +15,22 @@ func main() {
 
 	r := gin.Default()
 	r.Use(CORSMiddleware())
+	// r.Use(middlewares.Authorizes())
 
 	router := r.Group("/")
+	router.Use(middlewares.Authorizes())
+	
 	{
-		// User routes
-		router.GET("/student", controllers.GetNameStudent)
-		router.GET("/student/:id", controllers.GetNameStudentById)
+		// student
+		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
+		// router.GET("/student/:id", controllers.GetNameStudentById)
+		router.GET("/students/schedule",controllers.GetStudentSchedule) 
 
 		// Teacher routes
-		router.GET("/teacher", controllers.GetNameTeacher)
-		router.GET("/teacher/:id", controllers.GetNameTeacherById)
+		// router.GET("/teacher", controllers.GetNameTeacher)
+		router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
+		router.GET("/teachers/schedule",controllers.GetTeacherschedule)
+		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
@@ -69,15 +76,35 @@ func main() {
 		router.GET("/thaisubdistrict/:id", controllers.GetThaiSubdistrictById)
 		router.GET("/thaizipcode/:id", controllers.GetThaiZipcodeById)
 
+		//Announcement routes
+		router.POST("/new-announcement", controllers.CreateAnnouncement)
+		// router.GET("/announcements", controllers.ListAnnouncements)
+		// router.GET("/announcements/:id", controllers.GetAnnouncementByID)
+
+		//Target Group routes
+		router.GET("/targetgroup", controllers.GetTargetGroupAll)
+
+		
+		
+		// Course routes
+		router.GET("/subjectgroup", controllers.GetSubjectGroupAll)
+		router.POST("/new-course", controllers.CreateCourse)
+		// router.GET("/courses", controllers.ListCourses)
+		// router.GET("/courses/:id", controllers.GetCourseByID)	
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
+		router.GET("/assignments/:id", controllers.GetAllAssignment)
+		router.GET("/assignment/:id", controllers.GetAllAssignment)
 
-		// AssignmentSubmit routes
+		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 
 		// Course routes
-		r.GET("/courses", controllers.GetCourses)
+		router.GET("/courses", controllers.GetCourses)
 		
+		// ✅ ดาวน์โหลดตาม id
+		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
+	
 
 	}
 

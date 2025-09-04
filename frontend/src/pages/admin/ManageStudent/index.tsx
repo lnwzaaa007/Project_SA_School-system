@@ -2,21 +2,20 @@ import './index.css';
 import React, { useState } from 'react';
 import SelectGrade from '../../../components/SelectGrade';
 import SelectClass from '../../../components/SelectClass';
-import { SearchOutlined, DownOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import { Form, Radio, Space, Switch, Table, Tag, Button } from 'antd';
+import { SearchOutlined, PlusCircleOutlined, DeleteOutlined,EditOutlined } from '@ant-design/icons';
+import { Space, Table, Button } from 'antd';
 import type {
-  GetProp,
-  RadioChangeEvent,
   TableProps,
 } from 'antd';
 
-import { Link, Route, useNavigate,Outlet } from "react-router-dom";
+import { Link, Route, useNavigate,Outlet, Routes } from "react-router-dom";
+import AddStudent from './AddStudent';
 
-
-const { Column, ColumnGroup } = Table;
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const { Column } = Table;
 
 type SizeType = TableProps['size'];
-// type TablePagination<T extends object> = NonNullable<Exclude<TableProps<T>['pagination'], boolean>>;
+type TablePagination<T extends object> = NonNullable<Exclude<TableProps<T>['pagination'], boolean>>;
 type TablePaginationPosition = NonNullable<TablePagination<any>['position']>[number];
 
 type DataType = {
@@ -64,18 +63,21 @@ const ManageStudent: React.FC = () => {
           style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: '5px',
+            gap: '10px',
             alignItems: 'center',
           }}
         >
-          <SelectGrade />
-          <SelectClass />
+          <SelectGrade value={null} onChange={function (value: string): void {
+            throw new Error('Function not implemented.');
+          } }/>
+          <SelectClass value={null} onChange={function (value: string): void {
+            throw new Error('Function not implemented.');
+          } }/>
           <div
             className="miniIcon"
             onClick={() => console.log('ค้นหา...')}
             style={{
               cursor: 'pointer',
-              marginLeft: '8px',
               padding: '6px',
               borderRadius: '14px',
               transition: 'background-color 0.2s ease',
@@ -85,51 +87,60 @@ const ManageStudent: React.FC = () => {
           </div>
         </div>
       </div>
-
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+          <Link to ="AddStudent">
+            <Button
+            type="primary"
+            icon={<PlusCircleOutlined />}
+            className="myButton"
+            >
+              เพิ่มข้อมูล
+            </Button>
+          </Link>
+        </div>
       <div className="content2" style={{ width: '%'}}>
         <Table<DataType>
           dataSource={data}
           pagination={false}
           style={{ width: '100%',height:'100%' }}
         >
-          <Column title="No." dataIndex="key" key="key" />
-          <Column title="StudentID" dataIndex="StudentID" key="StudentID" />
-          <Column title="TitleTH" dataIndex="TitleTH" key="TitleTH" />
-          <ColumnGroup title="Name">
-            <Column title="First Name" dataIndex="firstName" key="firstName" />
-            <Column title="Last Name" dataIndex="lastName" key="lastName" />
-          </ColumnGroup>
+          <Column title="เลขที่" dataIndex="ID" key="id" />
+          <Column title="รหัสนักเรียน" dataIndex="StudentID" key="StudentID" />
+          <Column title="คำนำหน้า" dataIndex="TitleTH" key="title_id" />
+          <Column title="ชื่อ" dataIndex="firstName" key="t_first_name" />
+          <Column title="นามสกุล" dataIndex="lastName" key="t_last_name" />
+          <Column title="ชั้นปี" dataIndex="year" key="glade_year" />
+          <Column title="ห้อง" dataIndex="class" key="grade_class" />
           <Column
-            title="Action"
+            title=""
             key="action"
-            render={(_: any, record: DataType) => (
+            render={(record) => (
               <Space size="middle">
-                <a>See</a>
-                <a>Edit</a>
-                <a>Delete</a>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined/>}
+                  onClick={() => navigate(`/ManageStudent/EditStudent/${record.ID}`)}
+                  style={{ marginRight: "20px", backgroundColor: '#ffffffff', color:'#005e98ff', border:'1px solid #ccc' }}
+                >
+                  แก้ไขข้อมูล
+                </Button>
+                  {/* {myId == record?.ID ? (
+                    <></>
+                  ) : ( */}
+                    <Button
+                      type="dashed"
+                      danger
+                      icon={<DeleteOutlined />}
+                      // onClick={() => deleteUserById(record.ID)}
+                    ></Button>
+                  {/* )} */}
               </Space>
             )}
           />
         </Table>
-                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          <Link to ="AddStudent">
-          <Button
-            type="primary"
-            icon={<PlusCircleOutlined />}
-            style={{
-              backgroundColor: '#9cc3ffff', // สีเขียว
-              borderColor: '#9cc3ffff',
-              fontWeight: 'bold',
-              borderRadius: '8px',
-              padding: '0 16px',
-              height: '40px',
-            }}
-          >
-            เพิ่มข้อมูล
-          </Button>
-          </Link>
-        </div>
+
       </div>
+
     </div>
   );
 };

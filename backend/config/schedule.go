@@ -87,6 +87,18 @@ func seedTerm() {
 			Start_date:    time.Date(2024, 11, 1, 0, 0, 0, 0, time.Local),
 			End_date:      time.Date(2025, 3, 31, 0, 0, 0, 0, time.Local),
 		},
+		{
+			Academic_year: 2568,
+			Semester:      1,
+			Start_date:    time.Date(2025, 5, 15, 0, 0, 0, 0, time.Local),
+			End_date:      time.Date(2025, 9, 30, 0, 0, 0, 0, time.Local),
+		},
+		{
+			Academic_year: 2568,
+			Semester:      2,
+			Start_date:    time.Date(2025, 11, 1, 0, 0, 0, 0, time.Local),
+			End_date:      time.Date(2026, 3, 31, 0, 0, 0, 0, time.Local),
+		},
 	})
 }
 

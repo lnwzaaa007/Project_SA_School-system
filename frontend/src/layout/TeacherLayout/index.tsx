@@ -33,42 +33,51 @@ const { Header, Content, Footer, Sider } = Layout;
 const TeacherFullLayout: React.FC = () => {
   const [teacher, setTeacher] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-    // useEffect(() => {
-    //   (async () => {
-    //     try {
-    //       const userIdStr = localStorage.getItem("id");
-    //       if (!userIdStr) {
-    //         throw new Error("ไม่พบ userId ใน localStorage");
-    //       }
-  
-    //       const userId = Number(userIdStr); // ✅ แปลงเป็น number
-    //       console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
-  
-    //       const res = await studentAPI.getNameStudentById(userId);
-    //       console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
-  
-    //       setStudent(res ?? null);
-    //     } catch (e) {
-    //       console.error(e);
-    //       setStudent(null);
-    //       messageApi.error("ไม่สามารถโหลดข้อมูลนักเรียนได้");
-    //     } finally {
-    //       setIsLoading(false);
-    //     }
-    //   })();
-    // }, []);
     useEffect(() => {
       (async () => {
-      
-          const userId = Number(localStorage.getItem("id"));
+        try {
+          const userIdStr = localStorage.getItem("id");
+          if (!userIdStr) {
+            throw new Error("ไม่พบ userId ใน localStorage");
+          }
   
-          const res = await teacherAPI.getNameTeacherById(userId);
-          console.log("📌  result:", res);
-          setTeacher(res);
+          const userId = Number(userIdStr); // ✅ แปลงเป็น number
+          console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+  
+          const res = await teacherAPI.getTeachar(userId);
+          console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+  
+          setTeacher(res ?? null);
+
+        //เก็บข้อมูลนักเรียน ลง localstirage
+        if (res && res.teacher_id) {
+          localStorage.setItem("ID", String(res.ID));
+          localStorage.setItem("teacher_id", String(res.teacher_id))
+        }
+
+        // console.log("res teacher id",localStorage.getItem("teacher_id"))
+
+        } catch (e) {
+          console.error(e);
+          setTeacher(null);
+          messageApi.error("ไม่สามารถโหลดข้อมูลครูได้");
+        } finally {
           setIsLoading(false);
-    
+        }
       })();
     }, []);
+    // useEffect(() => {
+    //   (async () => {
+      
+    //       const userId = Number(localStorage.getItem("id"));
+  
+    //       const res = await teacherAPI.getTeachar(userId);
+    //       console.log("📌  result:", res);
+    //       setTeacher(res);
+    //       setIsLoading(false);
+    
+    //   })();
+    // }, []);
 
   const [currentPage, setCurrentPage] = useState(
     localStorage.getItem("page") || "หน้าหลัก",

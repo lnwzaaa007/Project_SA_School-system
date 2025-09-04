@@ -31,7 +31,7 @@ func seedStudent(){
 			Religious:    "Buddhist",
 			Student_image: nil,
 			AddressID:    0,
-			GradeID:      0,
+			GradeID:      1,
 			UsersID: 1,
 		},
 		{
@@ -50,7 +50,7 @@ func seedStudent(){
 			Religious:    "Buddhist",
 			Student_image: nil,
 			AddressID:    0,
-			GradeID:      0,
+			GradeID:      2,
 			UsersID: 2,
 		},
 	})

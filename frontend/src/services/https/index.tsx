@@ -1,13 +1,8 @@
 import axios from "axios";
 import type { AxiosResponse, AxiosError } from "axios";
-import type {
-    Student,
-    //  Teacher,
-    SignInInterface,
-    LoginStudentRequest,
-    // LoginTeacherRequest,
-} from "../../interfaces";
+import type {SignInInterface,} from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
+import { useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
@@ -22,7 +17,6 @@ const getCookie = (name: string): string | null => {
   }
   return null;
 };
-
 
 const getConfig = () => ({
   headers: {
@@ -122,13 +116,16 @@ export const authAPI = {
 // };
 
 export const studentAPI = {
-  getNameStudent: () => Get("/student"),
-  getNameStudentById: (id: number | string) => Get(`/student/${id}`),
+  getStudent: (user_id :number) => Get(`/students/${user_id}`),
+  // getNameStudentById: (user_id: number | string) => Get(`/student/${user_id}`),
+  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
 };
 
 export const teacherAPI = {
-  getNameTeacher: () => Get("/teacher"),
-  getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  // getNameTeacher: () => Get("/teacher"),
+  getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
+  // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`),
 };
 
 export const adminAPI = {
@@ -151,7 +148,8 @@ export const ScheduleAPI = {
   getTimeEnd: () => Get("/schedule-times-end"),
   getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
-  postSchedule: (data: PostSchedule) => Post(`/schedules`,data,false),
+  // requires auth to pass middleware
+  postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
 
 };
@@ -174,3 +172,36 @@ export const AddressAPI ={
     getSubdistrict: (id: number) => Get(`/thaisubdistrict/${id}`),
     getZipcode: (id: number) => Get(`/thaizipcode/${id}`),
 }
+export const annoncementAPI = {
+  getAnnouncements: () => Get("/new-announcements"),
+};
+
+export const targetGroupAPI = {
+  getTargetGroupAll: () => Get("/targetgroup"),
+};
+
+export const subjectGroupAPI = {
+  getSubjectGroupAll: () => Get("/subjectgroup"),
+};
+
+export const courseAPI = {
+  CreateCourseAll: (course:{course_code: string; course_name:string; subject_group_id: number; credit_num: number;
+    class_in_week: number; grade_year: string; grade_class: number; teacher: string;
+   }) => Post("/new-course", course),
+};
+export const ProvinceAPI ={
+  getProvince: () => Get("/province"),
+}
+
+export const DistrictAPI ={
+  getDistrict: (id: number) => Get(`/district/${id}`)
+}
+export const AssignmentAPI = {
+  getCourses: () => Get(`/courses`),
+  getAssignments: (id:number) => Get(`/assignments/${id}`),
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
+  
+
+}
+
+

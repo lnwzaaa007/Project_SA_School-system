@@ -1,145 +1,131 @@
+
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Upload, Modal, message } from 'antd';
+import { Form, Input, Button, Upload, message, Modal } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd/es/upload';
-import '@ant-design/v5-patch-for-react-19';
+import { useParams } from 'react-router-dom';
+import { AssignmentAPI } from '../../../../services/https';
+import type { AssignmentFormData } from '../../../../interfaces/Assignment';
 
-interface AssignmentFormData {
-  status: string;
-  openDate: string;
-  closeDate: string;
-  file: File | null;
-  feedback: string;
-}
+
 
 const AssignmentForm: React.FC = () => {
-  const [form] = Form.useForm();
-
-  const predefined = {
-    status: 'รอตรวจ',
-    openDate: '2025-08-05',
-    closeDate: '2025-08-10',
-  };
-
+  const { id } = useParams<{ id: string }>();
   const [formData, setFormData] = useState<AssignmentFormData>({
-    status: predefined.status,
-    openDate: predefined.openDate,
-    closeDate: predefined.closeDate,
+    status: '',
+    description: '',
+    openDate: '',
+    closeDate: '',
     file: null,
-    feedback: '',
+    feedback: ''
   });
 
-  useEffect(() => {
-    form.setFieldsValue({
-      feedback: '',
-    });
-  }, []);
+  const [form] = Form.useForm();
 
-  const handleFileChange: UploadProps['onChange'] = (info) => {
+  useEffect(() => {
+    console.log("📌 AssignmentForm mounted with ID:", id);
+  }, [id]);
+
+ useEffect(() => {
+  const fetchDetail = async () => {
+    if (!id) return;
+    try {
+      console.log("🔍 กำลังโหลด Assignment ID:", id);
+      const res = await AssignmentAPI.getAssignmentById(parseInt(id));
+      console.log("✅ Assignment API Response:", res);
+
+      if (res.data && res.data.length > 0) {
+        const detail = res.data[0];
+
+        // 📌 ฟังก์ชันตัดเวลาออก ให้เหลือแค่วันที่
+        const formatDate = (dateStr: string) => {
+          if (!dateStr) return '';
+          return dateStr.split("T")[0]; // ตัดหลัง T
+        };
+
+        setFormData(prev => ({
+          ...prev,
+          title: detail.assignment_title,
+          description: detail.description,
+          openDate: formatDate(detail.time_start),
+          closeDate: formatDate(detail.time_end)
+        }));
+
+        console.log("📌 FormData หลังโหลด:", {
+          openDate: formatDate(detail.time_start),
+          closeDate: formatDate(detail.time_end)
+        });
+      } else {
+        console.warn("⚠️ ไม่มีข้อมูล assignment ใน response");
+      }
+    } catch (err) {
+      console.error("❌ โหลดรายละเอียดการบ้านผิดพลาด:", err);
+      message.error("ไม่สามารถโหลดรายละเอียดการบ้านได้");
+    }
+  };
+  fetchDetail();
+}, [id]);
+
+
+  const handleFileChange: UploadProps['onChange'] = info => {
+    console.log("📂 FileChange Event:", info);
     if (info.file.status !== 'removed') {
-      const file = info.file.originFileObj as File;
-      setFormData((prev) => ({ ...prev, file }));
+      setFormData(prev => {
+        const newData = { ...prev, file: info.file.originFileObj! };
+        console.log("📌 FormData หลังเลือกไฟล์:", newData);
+        return newData;
+      });
     } else {
-      setFormData((prev) => ({ ...prev, file: null }));
+      setFormData(prev => {
+        const newData = { ...prev, file: null };
+        console.log("📌 FormData หลังลบไฟล์:", newData);
+        return newData;
+      });
     }
   };
 
   const onFinish = (values: any) => {
-    if (formData.file) {
-      message.error('กรุณาแนบไฟล์ก่อนกดบันทึก');
-      form.resetFields();
+    console.log("📝 onFinish values:", values);
+    if (!formData.file) {
+      message.error("กรุณาแนบไฟล์ก่อนส่ง");
+      console.warn("⚠️ ไม่มีไฟล์แนบตอน submit");
       return;
-      
     }
 
-    const data: AssignmentFormData = {
-      status: predefined.status,
-      openDate: predefined.openDate,
-      closeDate: predefined.closeDate,
-      file: formData.file,
-      feedback: values.feedback,
-    };
+    const feedback = values.feedback ?? ""; // ถ้าไม่ได้กรอก = ""
+    const finalData = { ...formData, feedback };
+    console.log("📤 Data ที่จะส่งไป backend:", finalData);
 
     Modal.success({
       title: 'ส่งงานสำเร็จ',
-      content: 'ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว',
+      content: 'ระบบได้บันทึกข้อมูลเรียบร้อยแล้ว',
       centered: true,
-      okButtonProps: { style: { display: 'none' } },
+      okButtonProps: { style: { display: 'none' } }
     });
 
-    setTimeout(() => {
-      Modal.destroyAll();
-    }, 1000);
+    setTimeout(() => Modal.destroyAll(), 1000);
   };
 
+    
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        marginTop: 50,
-      }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        onFinishFailed={() => {
-          message.error("กรุณากรอกข้อมูลให้ครบถ้วน");
-        }}
-        style={{
-          backgroundColor: '#d1eaff',
-          padding: 20,
-          borderRadius: 10,
-          width: '500px',
-        }}
-      >
-        <h2>ส่งงานวิชา ภาษาไทย</h2>
-
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-          <strong style={{ width: '100px' }}>สถานะ</strong>
-          <span>:</span>
-          <span>{predefined.status}</span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-          <strong style={{ width: '100px' }}>วันที่เปิด</strong>
-          <span>:</span>
-          <span>{predefined.openDate}</span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '8px' }}>
-          <strong style={{ width: '100px' }}>วันที่ปิด</strong>
-          <span>:</span>
-          <span>{predefined.closeDate}</span>
-        </div>
-
-        <Form.Item label="ส่งไฟล์" required>
-          <Upload
-            beforeUpload={() => false}
-            onChange={handleFileChange}
-            maxCount={1}
-          >
+    <div style={{ padding: 20, background: '#d1eaff', borderRadius: 10, width: 500, marginTop: 20 }}>
+      <h2>ส่งงาน</h2>
+      <div>หัวข้อการบ้าน: {formData.title || '-'}</div>
+      <div>คําอธิบาย: {formData.description || '-'}</div>
+      <div>วันที่เปิด: {formData.openDate || '-'}</div>
+      <div>วันที่ปิด: {formData.closeDate || '-'}</div>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form.Item label="ไฟล์" required>
+          <Upload beforeUpload={() => false} onChange={handleFileChange} maxCount={1}>
             <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
           </Upload>
-          {!formData.file && (
-            <div style={{ color: 'red', marginTop: 5 }}>
-              * กรุณาแนบไฟล์
-            </div>
-          )}
         </Form.Item>
-
-        <Form.Item
-          label="ความคิดเห็น"
-          name="feedback"
-        >
-          <Input.TextArea rows={4} />
+        <Form.Item label="ความคิดเห็น (ไม่บังคับ)" name="feedback" initialValue="">
+          <Input.TextArea rows={2} placeholder="พิมพ์ข้อความถึงครู (ถ้าต้องการ)" />
         </Form.Item>
-
         <Form.Item>
-          <Button type="primary" htmlType="submit">
-            บันทึก
-          </Button>
+          <Button htmlType="submit" type="primary">ส่งงาน</Button>
         </Form.Item>
       </Form>
     </div>
@@ -147,3 +133,6 @@ const AssignmentForm: React.FC = () => {
 };
 
 export default AssignmentForm;
+
+
+

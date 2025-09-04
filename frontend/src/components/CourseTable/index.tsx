@@ -61,7 +61,7 @@ const CourseTable: React.FC = () => {
       width: 100,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5",
+              background:"#f2f2f2",
               
           }
       }), 
@@ -73,7 +73,7 @@ const CourseTable: React.FC = () => {
       width: 200,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       }),   
     },
@@ -84,7 +84,7 @@ const CourseTable: React.FC = () => {
       width: 150,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
     
@@ -96,7 +96,7 @@ const CourseTable: React.FC = () => {
       width: 180,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
     },
@@ -137,7 +137,7 @@ const CourseTable: React.FC = () => {
       width: 150,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
     },
@@ -148,7 +148,7 @@ const CourseTable: React.FC = () => {
       width: 130,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
     },
@@ -159,7 +159,7 @@ const CourseTable: React.FC = () => {
       width: 100,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
     },
@@ -170,7 +170,7 @@ const CourseTable: React.FC = () => {
       width: 180,
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
       
@@ -181,7 +181,7 @@ const CourseTable: React.FC = () => {
       key: 'groupsubject',
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       })
     },
@@ -190,7 +190,7 @@ const CourseTable: React.FC = () => {
       key: 'action',
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       }),
       render: (_, record) => (
@@ -218,7 +218,7 @@ const CourseTable: React.FC = () => {
       key: 'action',
       onHeaderCell: () => ({
           style: {
-              background:"#42a5f5"
+              background:"#f2f2f2"
           }
       }),
       render: (_, record) => (

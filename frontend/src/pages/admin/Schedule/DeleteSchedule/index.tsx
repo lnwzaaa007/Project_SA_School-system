@@ -139,19 +139,19 @@ const DeleteCoursesModal: React.FC<DeleteCoursesModalProps> = ({
     if (selectedIds.length === 0) {
       messageApi.warning("กรุณาเลือกคาบที่ต้องการลบ");
       return;
+    // }
+    // const selectedRows = rows.filter(r => r.id && selectedIds.includes(r.id));
+    // const uniqByCode = new Map<string, ScheduleInterface>();
+    // for (const r of selectedRows) {
+    //   if (r.course_code && !uniqByCode.has(r.course_code)) uniqByCode.set(r.course_code, r);
     }
-    const selectedRows = rows.filter(r => r.id && selectedIds.includes(r.id));
-    const uniqByCode = new Map<string, ScheduleInterface>();
-    for (const r of selectedRows) {
-      if (r.course_code && !uniqByCode.has(r.course_code)) uniqByCode.set(r.course_code, r);
-    }
-    const payload: Course[] = Array.from(uniqByCode.values()).map(r => ({
-      id: String(r.id), 
-      code: r.course_code!,
-      name: r.course_name ?? "",
-    }));
+    // const payload: Course[] = Array.from(uniqByCode.values()).map(r => ({
+    //   id: String(r.id), 
+    //   code: r.course_code!,
+    //   name: r.course_name ?? "",
+    // }));
     deleteSelected();
-    onDelete(payload);
+    // onDelete(payload);
     
   };
 
@@ -234,7 +234,7 @@ const DeleteCoursesModal: React.FC<DeleteCoursesModalProps> = ({
                       <div>จำนวนคาบ/สัปดาห์: {item.class_in_week ?? "-"}</div>
                       <div>ชั่วโมง/เทอม: {item.hours_of_term ?? "-"}</div>
                       <div>กลุ่มสาระ: {item.subject_group || "-"}</div>
-                      <div style={{ gridColumn: "1 / -1" }}>อาจารย์: {item.teacher || "-"}</div>
+                      <div style={{ gridColumn: "1 / -1" }}>อาจารย์: {item.teacher_name || "-"}</div>
                     </div>
                   </div>
                 </div>
