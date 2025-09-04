@@ -21,7 +21,7 @@ type Course struct {
 	TermID uint
 	Term   *Term
 
-	TeacherID uint 		`json:teacher_id`
+	TeacherID uint 		`json:"teacher_id"`
 	Teacher   *Teacher	`gorm:"foreignKey:TeacherID" json:"teacher"`
 
 	Schedules []Schedules `gorm:"foreignKey:CourseID"`
