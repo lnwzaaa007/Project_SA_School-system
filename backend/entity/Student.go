@@ -10,10 +10,10 @@ import (
 type Student struct {
 	gorm.Model
 	Student_ID 		string			`gorm:"uniqueIndex" json:"student_id"`
-	TitleTH  		TitleNameTH		`json:"title_th"`
+	TitleID uint
+	Title   *Title 					`gorm:"foreignKey:TitleID" json:"title_id"` 
 	TFirst_Name 	string			`json:"t_first_name"`
 	TLast_Name    	string			`json:"t_last_name"`
-	TitleENG 		TitleNameENG	`json:"title_eng"`
 	EFirst_Name 	string			`json:"e_first_name"`
 	ELast_Name    	string			`json:"e_last_name"`
 	Citizen_ID 		string			`json:"citizen_id"`
@@ -36,4 +36,5 @@ type Student struct {
 	AddressID uint	`json:"address_id"`
 	GradeID uint	`json:"grade_id"`
 	Grade *Grade `gorm:"foreignKey:GradeID" json:"grade"`
+	
 }

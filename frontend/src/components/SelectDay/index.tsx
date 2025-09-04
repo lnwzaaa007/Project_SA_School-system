@@ -9,8 +9,8 @@ import './index.css';
 const { Option } = Select;
 
 interface SelectdayProps {
-  value: string | null;
-  onChange: (value: string) => void;
+  value:number | null;
+  onChange: (value: number) => void;
 }
 
 const Selectday: React.FC<SelectdayProps> = ({ value, onChange }) => {
@@ -48,7 +48,7 @@ const Selectday: React.FC<SelectdayProps> = ({ value, onChange }) => {
         }}
       >
         {dayOptions.map((d) => (
-          <Option key={d.ID} value={d.thai_day}>
+          <Option key={d.id} value={d.id}>
           {d.thai_day}
           </Option>
 

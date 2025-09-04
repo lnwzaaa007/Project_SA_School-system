@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect ,useState } from "react";
 import { Button, Modal, Input, Select, Card, Row, Col, DatePicker } from "antd";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import type { Moment } from "moment";
 import moment from "moment";
-
+import axios from "axios";
 
 const subjects = [
   { value: "thai", label: "ภาษาไทย" },
@@ -30,27 +30,41 @@ const CreateWork: React.FC = () => {
   const [description, setDescription] = useState<string>("");
   const [openDate, setOpenDate] = useState<Moment | null>(null);
   const [closeDate, setCloseDate] = useState<Moment | null>(null);
+  const [courses, setCourses] = useState<{ id: number; name: string }[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
 
   const navigate = useNavigate();
 
-  const handleCreate = () => {
-    setHomeworks([
-      ...homeworks,
-      {
-        id: Date.now(),
-        subject,
-        title,
-        description,
-        openDate: openDate ? openDate.format("YYYY-MM-DD") : "",
-        closeDate: closeDate ? closeDate.format("YYYY-MM-DD") : "",
-      },
-    ]);
-    setModalOpen(false);
-    setSubject("");
-    setTitle("");
-    setDescription("");
-    setOpenDate(null);
-    setCloseDate(null);
+  useEffect(() => {
+    axios.get("http://localhost:8088/courses")
+      .then(res => setCourses(res.data.data))
+      .catch(() => setCourses([]));
+  }, []);
+
+  const handleCreate = async () => {
+    if (!selectedCourse || !title || !description || !openDate || !closeDate) {
+      Modal.error({ title: "กรุณากรอกข้อมูลให้ครบถ้วน" });
+      return;
+    }
+    try {
+      await axios.post("http://localhost:8088/homework", {
+        course_id: selectedCourse,
+        assignment_title: title,
+        description: description,
+        time_start: openDate.format("YYYY-MM-DDTHH:mm:ss"),
+        time_end: closeDate.format("YYYY-MM-DDTHH:mm:ss"),
+        submit_Point_all: 10, // กำหนดคะแนนรวมตามต้องการ
+      });
+      Modal.success({ title: "สร้างงานสำเร็จ" });
+      setModalOpen(false);
+      setTitle("");
+      setDescription("");
+      setOpenDate(null);
+      setCloseDate(null);
+      setSelectedCourse(null);
+    } catch (err) {
+      Modal.error({ title: "เกิดข้อผิดพลาดในการบันทึก" });
+    }
   };
 
   return (
@@ -73,9 +87,12 @@ const CreateWork: React.FC = () => {
       >
         <Select
           placeholder="เลือกวิชา"
-          options={subjects}
-          value={subject}
-          onChange={setSubject}
+          options={courses.map(course => ({
+            value: course.id,
+            label: course.name,
+          }))}
+          value={selectedCourse}
+          onChange={setSelectedCourse}
           style={{ width: "100%", marginBottom: 16 }}
         />
         <Input

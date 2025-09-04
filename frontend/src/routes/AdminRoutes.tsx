@@ -3,6 +3,7 @@ import type { RouteObject } from "react-router-dom";
 import Loadable from "../components/third-patry/Loadable";
 import AdminLayout from "../layout/AdminLayout";
 import ApplyForStudy from "../pages/admin/ApplyForStudy";
+import AddStudent from "../components/Tabs/AddStudent";
 const MainPages = Loadable(lazy(() => import("../pages/authentication/Login")));
 const Home = Loadable(lazy(() => import("../pages/admin/Home")));
 const Announce = Loadable(lazy(() => import("../pages/admin/Announce")));
@@ -14,7 +15,11 @@ const Payment = Loadable(lazy(() => import("../pages/admin/Payment")));
 // const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
 // const AddSchedule = Loadable(lazy(() => import("../pages/admin/Schedule/AddSchedule")));
 
-const AddStudent = Loadable(lazy(() => import("../pages/admin/ManageStudent/AddStudent/AddStudent")))
+// const AddStudent = Loadable(lazy(() => import("../pages/admin/ManageStudent/AddStudent/index")))
+// const AddGuardian = Loadable(lazy(() => import("../pages/admin/ManageStudent/AddStudent/AddGuardian")))
+// const AddAddress = Loadable(lazy(() => import("../pages/admin/ManageStudent/AddStudent/AddAddress/AddAddress")))
+
+
 const CreateTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/CreateTeacher")));
 const DeleteTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/DeleteTeacher")));
 const EditTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher")));
@@ -28,6 +33,9 @@ const DeleteCourse = Loadable(lazy(() => import("../pages/admin/Course/Delete"))
 const EditCourse = Loadable(lazy(() => import("../pages/admin/Course/edit"))); //pang edit หน้าแก้ไขรายวิชา
 const CreateAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/CraeteAnnouncement"))); //pang เพิ่มหน้าสร้างประกาศ
 const EditAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/EditAnnouncement"))); //pang เพิ่มหน้าแก้ไขประกาศ
+
+
+
 
 const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -43,7 +51,8 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       },
       { path: "manageStudent", element: <ManageStudent />,
           children:[
-          {path:"AddStudent",element: <AddStudent/>,}
+          {path:"AddStudent",element: <AddStudent/>},
+      
         ]
       },
       { path: "manageTeacher", element: <ManageTeacher />,

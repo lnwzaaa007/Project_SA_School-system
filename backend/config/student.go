@@ -17,10 +17,9 @@ func seedStudent(){
 	db.Model(&entity.Student{}).Create([]entity.Student{
 		{
 			Student_ID:   "S660001",
-			TitleTH:      entity.TitleNameTH("นาย"),
+			TitleID:      1,
 			TFirst_Name:  "นนทชัย",
 			TLast_Name:   "ศิริพัฒน์",
-			TitleENG:     entity.TitleNameENG("Mr."),
 			EFirst_Name:  "Nonthachai",
 			ELast_Name:   "Siriphat",
 			Citizen_ID:   "1101700234567",
@@ -37,10 +36,9 @@ func seedStudent(){
 		},
 		{
 			Student_ID:   "S660002",
-			TitleTH:      entity.TitleNameTH("นาย"),
+			TitleID:      1,
 			TFirst_Name:  "ธนกร",
 			TLast_Name:   "ชินวัตร",
-			TitleENG:     entity.TitleNameENG("Mr."),
 			EFirst_Name:  "Thanakorn",
 			ELast_Name:   "Chinnawat",
 			Citizen_ID:   "1101700234575",

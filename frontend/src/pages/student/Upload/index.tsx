@@ -1,32 +1,36 @@
-import React, { useState } from 'react';
-import { Select } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Select } from 'antd';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-function index() {
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const OPTIONS = [
-    'ภาษาไทย', 'คณิตศาสตร์', 'พละศึกษา', 'วิทยาศาสตร์', 'สังคมศึกษา', 'ศิลปะ', 'ดนตรี',
-    'เทคโนโลยีสารสนเทศ', 'ภาษาอังกฤษ', 'ภาษาจีน', 'ภาษาญี่ปุ่น', 'ประวัติศาสตร์', 'ภูมิศาสตร์', 'เศรษฐศาสตร์'
-  ];
+const { Option } = Select;
 
-  const filteredOptions = OPTIONS.filter((o) => !selectedItems.includes(o));
-  
+function Index() {
+  const [courses, setCourses] = useState<{ id: number; name: string }[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+
+  useEffect(() => {
+    axios.get('http://localhost:8088/courses')
+      .then(res => setCourses(res.data.data))
+      .catch(() => setCourses([]));
+  }, []);
+
   return (
     <div>
       <span style={{ color: "black", fontSize: "16px", fontWeight: "bold" }}>รายวิชา</span>
-      <span>
-        <Select
-          mode="multiple"
-          placeholder="Inserted are removed"
-          value={selectedItems}
-          onChange={setSelectedItems}
-          style={{ marginLeft: '20px', width: '30%' }}
-          options={filteredOptions.map((item) => ({
-            value: item,
-            label: item,
-          }))}
-        />
-      </span>
+      <Form layout="vertical" style={{ width: '30%', marginTop: '10px' }}>
+        <Form.Item label="เลือกวิชา" name="course_id" rules={[{ required: true, message: 'กรุณาเลือกวิชา' }]}>
+          <Select
+            placeholder="เลือกวิชา"
+            value={selectedCourse}
+            onChange={setSelectedCourse}
+          >
+            {courses.map(course => (
+              <Option key={course.id} value={course.id}>{course.name}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+      </Form>
       <div style={{ marginTop: "30px" }}>
         {[1, 2, 3, 4].map((_, index) => (
           <div
@@ -41,41 +45,45 @@ function index() {
               justifyContent: "space-between",
             }}
           >
-            {/* ไอคอน 📎 */}
             <div style={{ fontSize: "20px" }}>📎 แนบไฟล์การบ้าน</div>
-
-            {/* ปุ่ม */}
             <div style={{ display: "flex", gap: "10px" }}>
-              <Link to="/student/upload/fileupload">
-              <button
-                style={{
-                  backgroundColor: "#278FDB",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "8px 20px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
-                >
-                ส่งงาน
-              </button>
-                </Link>
-
-              <Link to="/student/upload/fileupload">
-              <button
-                style={{
-                  backgroundColor: "#F06464",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "8px 20px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                }}
+              <Link
+                to="/student/upload/fileupload"
+                state={{ course_id: selectedCourse }}
               >
-                แก้ไข
-              </button>
+                <button
+                  style={{
+                    backgroundColor: "#278FDB",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "8px 20px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                  disabled={!selectedCourse}
+                >
+                  ส่งงาน
+                </button>
+              </Link>
+              <Link
+                to="/student/upload/fileupload"
+                state={ { course_id: selectedCourse }}
+              >
+                <button
+                  style={{
+                    backgroundColor: "#F06464",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "8px 20px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                  disabled={!selectedCourse}
+                >
+                  แก้ไข
+                </button>
               </Link>
             </div>
           </div>
@@ -85,4 +93,4 @@ function index() {
   );
 }
 
-export default index;
+export default Index;

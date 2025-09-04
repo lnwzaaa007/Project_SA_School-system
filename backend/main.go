@@ -41,7 +41,9 @@ func main() {
 		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
 		router.GET("/schedule-times-end", controllers.GetTimeEndAll)
 		router.GET("/schedule-get-id", controllers.GetSchedulesByID) //schedule-get-all?grade=2&term=1
+		router.GET("/schedule-course/:id",controllers.GetCourse)
 		router.POST("/schedules", controllers.CreateSchedule)
+		router.DELETE("/schedules/:id",controllers.DeleteScheduleByID)
 
 		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)
@@ -69,6 +71,16 @@ func main() {
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
 		// router.GET("/courses/:id", controllers.GetCourseByID)	
+		// CreateAssignments routes
+		router.POST("/assignments", controllers.CreateHomeWork)
+
+		// AssignmentSubmit routes
+		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+
+		// Course routes
+		r.GET("/courses", controllers.GetCourses)
+		
+
 	}
 
 

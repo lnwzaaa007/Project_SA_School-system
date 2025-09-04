@@ -13,7 +13,7 @@ type Schedules struct {
 
 	Attendances []Attendances  `gorm:"foreignKey:SchedulesID" json:"attendances"`
 	DayID uint	`json:"day_id"`
-	Day   *Days `gorm:"foreignKey:DayID;references:ID"`
+	Days   *Days `gorm:"foreignKey:DayID;references:ID"`
 	TeacherID uint `json:"teacher_id"`
 	Teacher   *Teacher `gorm:"foreignKey:TeacherID;references:ID"`
 	CourseID uint `json:"course_id"`
