@@ -27,52 +27,65 @@ import Attendance from "../../pages/student/Attendance";
 import AcademicResult from "../../pages/student/AcademicResult";
 import SlipPayment from "../../pages/student/Payment/Slippayment";
 import FileUpload from "../../pages/student/Upload/uploadfile";
+import type {StudentInterface} from "../../interfaces/Student"
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const StudentFullLayout: React.FC = () => {
 
-  const [student, setStudent] = useState<any>(null);
+  const [student, setStudent] = useState<StudentInterface>();
   const [isLoading, setIsLoading] = useState(true);
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const userIdStr = localStorage.getItem("id");
-  //       if (!userIdStr) {
-  //         throw new Error("ไม่พบ userId ใน localStorage");
-  //       }
-
-  //       const userId = Number(userIdStr); // ✅ แปลงเป็น number
-  //       console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
-
-  //       const res = await studentAPI.getNameStudentById(userId);
-  //       console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
-
-  //       setStudent(res ?? null);
-  //     } catch (e) {
-  //       console.error(e);
-  //       setStudent(null);
-  //       messageApi.error("ไม่สามารถโหลดข้อมูลนักเรียนได้");
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   })();
-  // }, []);
   useEffect(() => {
     (async () => {
-    
-        const userId = Number(localStorage.getItem("id"));
-        
+      try {
+        const userIdStr = localStorage.getItem("id");
+        if (!userIdStr) {
+          throw new Error("ไม่พบ userId ใน localStorage");
+        }
+
+        const userId = Number(userIdStr); // ✅ แปลงเป็น number
         console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
 
-        const res = await studentAPI.getNameStudentById(userId);
+        const res = await studentAPI.getStudent(userId);
         console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
 
-        setStudent(res);
+        setStudent(res ?? null);
+
+        // ใช้ค่าจากผลลัพธ์ API โดยตรง แทนการอ่านจาก state ที่ยังไม่อัปเดต
+        // หมายเหตุ: อย่า overwrite ค่า "id" (users_id) ใน localStorage ด้วย res.id
+        // เพราะจาก backend field id จะเป็น "ID" (ตัวใหญ่) และไม่ใช่ users_id
+
+        if (res && res.student_id) {
+          localStorage.setItem("grade_id", String(res.grade_id));
+          localStorage.setItem("ID", String(res.ID));
+          localStorage.setItem("student_id", String(res.student_id))
+        }
+        // console.log("student_id", localStorage.getItem("student_id"))
+        
+      } catch (e) {
+        console.error(e);
+        // setStudent(null);
+        messageApi.error("ไม่สามารถโหลดข้อมูลนักเรียนได้");
+      } finally {
         setIsLoading(false);
-  
+      }
     })();
   }, []);
+  // useEffect(() => {
+  //   (async () => {
+    
+  //       const userId = Number(localStorage.getItem("id"));
+        
+  //       console.log("📌 userId (from localStorage):", userId); // ✅ print ดูใน console
+
+  //       const res = await studentAPI.getStudent(userId);
+  //       console.log("📌 studentAPI.getById result:", res); // ✅ print ดูผลลัพธ์ API
+
+  //       setStudent(res);
+  //       setIsLoading(false);
+  
+  //   })();
+  // }, []);
 
   
   // const [isLoading, setIsLoading] = useState(false);

@@ -1,0 +1,13 @@
+.timetable .ant-table-cell {
+  white-space: pre-line; /* keep newlines for code/name/teacher */
+}
+
+.timetable .ant-table-thead > tr > th,
+.timetable .ant-table-tbody > tr > td {
+  text-align: center;
+}
+
+.timetable .ant-table-tbody > tr > td:first-child {
+  font-weight: 600;
+}
+

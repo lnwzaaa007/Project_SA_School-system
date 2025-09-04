@@ -1,16 +1,12 @@
 package controllers
 
 import (
-	// "fmt"
+
 	"net/http"
 	"strings"
-
-	// "golang.org/x/text/number"
 	"gorm.io/gorm"
-
 	"strconv"
 	"errors"
-
 	"github.com/gin-gonic/gin"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
@@ -22,51 +18,6 @@ type gradeInput struct {
 	GradeYear  string `json:"grade_year"`
 	GradeClass int    `json:"grade_class"`
 }
-
-// func CreateSchedule(c *gin.Context) {
-// 	var input gradeInput
-
-// 	// Bind JSON input เข้ากับ struct
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	// ✅ ตรวจสอบ grade_year, grade_class
-// 	if input.GradeYear == "" || input.GradeClass == 0 {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุชั้นปีและห้อง"})
-// 		return
-// 	}
-
-// 	// 🔍 ค้นหา Grade ID
-// 	var grade entity.Grade
-// 	if err := config.DB().
-// 		Where("grade_year = ? AND grade_class = ?", input.GradeYear, input.GradeClass).
-// 		First(&grade).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบระดับชั้นนี้ในระบบ"})
-// 		return
-// 	}
-
-// 	// สร้าง schedule object ด้วย GradeID ที่ได้
-// 	schedule := input.Schedules
-// 	schedule.GradeID = grade.ID
-
-// 	// ตรวจสอบความครบถ้วน
-// 	if schedule.CourseID == 0 || schedule.DayID == 0 || schedule.TeacherID == 0 ||
-// 		schedule.TimeStartID == 0 || schedule.TimeEndID == 0 || schedule.TermID == 0 {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ครบ"})
-// 		return
-// 	}
-
-// 	// 🔨 save ลง database
-// 	if err := config.DB().Create(&schedule).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถบันทึกตารางเรียนได้"})
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusCreated, gin.H{"data": schedule})
-// }
-
 func CreateSchedule(c *gin.Context) {
 	var input gradeInput
 
@@ -75,12 +26,14 @@ func CreateSchedule(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// 2) validate พื้นฐาน
 	if input.GradeYear == "" || input.GradeClass == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุชั้นปีและห้อง"})
 		return
 	}
 
-	// 2) หา GradeID
+	// หา GradeID
 	var grade entity.Grade
 	if err := config.DB().
 		Where("grade_year = ? AND grade_class = ?", input.GradeYear, input.GradeClass).
@@ -90,48 +43,61 @@ func CreateSchedule(c *gin.Context) {
 	}
 
 	// 3) เตรียม schedule
-	schedule := input.Schedules
-	schedule.GradeID = grade.ID
+	s := input.Schedules
+	s.GradeID = grade.ID
 
-	// 4) ตรวจความครบถ้วน
-	if schedule.CourseID == 0 || schedule.DayID == 0 || schedule.TeacherID == 0 ||
-		schedule.TimeStartID == 0 || schedule.TimeEndID == 0 || schedule.TermID == 0 {
+	// เช็คความครบถ้วน
+	if s.CourseID == 0 || s.DayID == 0 || s.TeacherID == 0 ||
+		s.TimeStartID == 0 || s.TimeEndID == 0 || s.TermID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ครบ"})
 		return
 	}
-	if schedule.TimeStartID >= schedule.TimeEndID {
+	// เช็คช่วงเวลาเริ่ม-สิ้นสุด
+	if s.TimeStartID >= s.TimeEndID {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "เวลาเริ่มต้องน้อยกว่าเวลาสิ้นสุด"})
 		return
 	}
 
-	// 5) ✅ กันซ้ำ: ครูคนเดิม วันเดียวกัน เทอม/ชั้น/ห้องเดียวกัน ห้ามช่วงเวลาทับกัน
+	db := config.DB()
+
+	// 4) ตรวจ “ครูชนคาบ” (ครูเดียวกัน, วันเดียวกัน, เทอมเดียวกัน, ทับช่วงเวลา กับห้องใดๆ ก็ห้าม)
+	// เงื่อนไขซ้อนทับ: new_start < exist_end AND new_end > exist_start
 	var cnt int64
-	if err := config.DB().
-		Model(&entity.Schedules{}).
-		Where("grade_id = ? AND term_id = ? AND day_id = ? AND teacher_id = ?",
-			schedule.GradeID, schedule.TermID, schedule.DayID, schedule.TeacherID).
-		// overlap logic: NOT (exist_end <= new_start OR exist_start >= new_end)
-		Where("NOT (time_end_id <= ? OR time_start_id >= ?)",
-			schedule.TimeStartID, schedule.TimeEndID).
+	if err := db.Model(&entity.Schedules{}).
+		Where("term_id = ? AND day_id = ? AND teacher_id = ?", s.TermID, s.DayID, s.TeacherID).
+		Where("time_start_id < ? AND time_end_id > ?", s.TimeEndID, s.TimeStartID).
 		Count(&cnt).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ตรวจสอบตารางซ้ำไม่สำเร็จ"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ตรวจสอบตารางครูล้มเหลว"})
 		return
 	}
 	if cnt > 0 {
-		c.JSON(http.StatusConflict, gin.H{
-			"error": "ครูคนนี้มีคาบซ้ำเวลาในวัน/ชั้น/ห้อง/เทอมนี้แล้ว",
-		})
+		c.JSON(http.StatusConflict, gin.H{"error": "เวลานี้ครูสอนวิชาอื่นอยู่แล้ว"})
+		return
+	}
+
+	// 5) ตรวจ “ห้อง/ชั้นชนคาบ” (grade เดียวกัน, วันเดียวกัน, เทอมเดียวกัน, ทับช่วงเวลา)
+	cnt = 0
+	if err := db.Model(&entity.Schedules{}).
+		Where("term_id = ? AND day_id = ? AND grade_id = ?", s.TermID, s.DayID, s.GradeID).
+		Where("time_start_id < ? AND time_end_id > ?", s.TimeEndID, s.TimeStartID).
+		Count(&cnt).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ตรวจสอบตารางห้องล้มเหลว"})
+		return
+	}
+	if cnt > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "เวลานี้มีคาบอื่นในห้องนี้อยู่แล้ว"})
 		return
 	}
 
 	// 6) บันทึก
-	if err := config.DB().Create(&schedule).Error; err != nil {
+	if err := db.Create(&s).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถบันทึกตารางเรียนได้"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": schedule})
-}
+	c.JSON(http.StatusCreated, gin.H{"data": s})
+}/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 
@@ -148,7 +114,7 @@ type ScheduleResponse struct {
 	ClassInWeek   int     `json:"class_in_week"`
 	HoursOfTerm   int     `json:"hours_of_term"`
 	Subject_Group string  `json:"subject_group"`
-	Teacher       string  `json:"teacher"`
+	TeacherName   string  `json:"teacher_name"`
 	GradeYeaer    string  `json:"grade_year"`
 	Grade_Class   int     `josn:"grade_class"`
 }
@@ -206,12 +172,12 @@ func GetSchedulesByID(c *gin.Context) {
 			Subject_Group: subjectGroupName,
 			GradeYeaer:    s.Grade.Grade_Year,
 			Grade_Class:   s.Grade.Grade_Class,
-			Teacher:       s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
+			TeacherName:       s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
 		}
 		responses = append(responses, res)
 	}
 	c.JSON(http.StatusOK, gin.H{"data": responses})
-}
+}/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -270,7 +236,7 @@ code := strings.ToUpper(strings.TrimSpace(c.Param("id")))
     }
 
     c.JSON(http.StatusOK, gin.H{"data": resp})
-}
+}/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -297,5 +263,7 @@ func DeleteScheduleByID(c *gin.Context) {
 		"message": "ลบรายวิชาสำเร็จ",
 		"deleted": tx.RowsAffected,
 	})
-}
+}/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 

@@ -1,12 +1,6 @@
 import axios from "axios";
 import type { AxiosResponse, AxiosError } from "axios";
-import type {
-    Student,
-    //  Teacher,
-    SignInInterface,
-    LoginStudentRequest,
-    // LoginTeacherRequest,
-} from "../../interfaces";
+import type {SignInInterface,} from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
@@ -22,7 +16,6 @@ const getCookie = (name: string): string | null => {
   }
   return null;
 };
-
 
 const getConfig = () => ({
   headers: {
@@ -122,13 +115,16 @@ export const authAPI = {
 // };
 
 export const studentAPI = {
-  getNameStudent: () => Get("/student"),
-  getNameStudentById: (id: number | string) => Get(`/student/${id}`),
+  getStudent: (user_id :number) => Get(`/students/${user_id}`),
+  // getNameStudentById: (user_id: number | string) => Get(`/student/${user_id}`),
+  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
 };
 
 export const teacherAPI = {
-  getNameTeacher: () => Get("/teacher"),
-  getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  // getNameTeacher: () => Get("/teacher"),
+  getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
+  // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`),
 };
 
 export const adminAPI = {
@@ -151,7 +147,8 @@ export const ScheduleAPI = {
   getTimeEnd: () => Get("/schedule-times-end"),
   getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
-  postSchedule: (data: PostSchedule) => Post(`/schedules`,data,false),
+  // requires auth to pass middleware
+  postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
 
 };

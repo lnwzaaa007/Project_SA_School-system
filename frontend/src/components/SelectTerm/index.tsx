@@ -54,7 +54,7 @@ const SelectTerm: React.FC<SelectTerm> = ({value,onChange}) => {
         ))}
       </Select>
     </>
-  );
+  );                                                                                                                                                   
 };
 
 export default SelectTerm;

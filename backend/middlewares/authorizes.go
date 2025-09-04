@@ -30,13 +30,6 @@ func Authorizes() gin.HandlerFunc {
 			Issuer:    "AuthService",
 		}
 
-		_, err := jwtWrapper.ValidateToken(clientToken)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			return
-
-		}
-		c.Next()
 		claims, err := jwtWrapper.ValidateToken(clientToken)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
