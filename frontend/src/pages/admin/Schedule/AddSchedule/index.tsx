@@ -134,14 +134,14 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({
         throw new Error(msg);
       }
 
-      message.success("บันทึกตารางเรียนสำเร็จ");
+      messageApi.success("บันทึกตารางเรียนสำเร็จ");
       //ดึงข้อมูลตารางเรียนที่เพิ่มล่าสุด 
       fetchSchedule(); 
 
       // ปิด/รีเซ็ต
       // onCancel();
     } catch (err: any) {
-      message.error(err?.response?.data?.error || err?.message || "บันทึกไม่สำเร็จ");
+      messageApi.error(err?.response?.data?.error || err?.message || "บันทึกไม่สำเร็จ");
     } finally {
       setSubmitting(false);
     }

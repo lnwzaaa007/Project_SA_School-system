@@ -78,16 +78,16 @@ func main() {
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
 		// router.GET("/courses/:id", controllers.GetCourseByID)	
-        // CreateAssignments routes
-        router.POST("/assignments", controllers.CreateHomeWork)
-        router.GET("/assignments/:id", controllers.GetAllAssignment)
-        router.GET("/assignment/:id", controllers.GetAllAssignment)
+		// CreateAssignments routes
+		router.POST("/assignments", controllers.CreateHomeWork)
+		router.GET("/assignments/:id", controllers.GetAllAssignment)
+		router.GET("/assignment/:id", controllers.GetAllAssignment)
 
 		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 
-        // Course routes (list all courses)
-        router.GET("/courses", controllers.GetCourses)
+		// Course routes
+		router.GET("/courses", controllers.GetCourses)
 		
 		// ✅ ดาวน์โหลดตาม id
 		router.GET("/submissions/:id/download", controllers.DownloadSubmission)

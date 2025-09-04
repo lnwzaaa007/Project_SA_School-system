@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 	"time"
-	// "strconv"
+	"strconv"
     "github.com/gin-gonic/gin"
     "github.com/lnwzaaa007/Project_SA_School-system/backend/config"
     "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
@@ -57,11 +57,11 @@ func GetTeacherschedule(c *gin.Context){
         c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ grade_id"})
         return
     }
-    // gradeID, err := strconv.Atoi(teacher_id)
-    // if err != nil || gradeID <= 0 {
-    //     c.JSON(http.StatusBadRequest, gin.H{"error": "grade_id ไม่ถูกต้อง"})
-    //     return
-    // }
+    teacherID, err := strconv.Atoi(teacher_id)
+    if err != nil || teacherID <= 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "grade_id ไม่ถูกต้อง"})
+        return
+    }
 
     // หาเทอมปัจจุบันจากเวลาขณะนี้
     now := time.Now()
@@ -83,7 +83,7 @@ func GetTeacherschedule(c *gin.Context){
         Preload("TimeStart").
         Preload("TimeEnd").
         Preload("Grade").
-        Where("teacher_id = ? ",teacher_id).
+        Where("term_id = ? AND teacher_id = ? ",term.ID,teacherID).
         Find(&schedules).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
