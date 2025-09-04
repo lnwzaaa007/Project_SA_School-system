@@ -15,6 +15,7 @@ func main() {
 
 	r := gin.Default()
 	r.Use(CORSMiddleware())
+	// r.Use(middlewares.Authorizes())
 
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
@@ -62,15 +63,35 @@ func main() {
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
 
-		// CreateAssignments routes
-		router.POST("/assignments", controllers.CreateHomeWork)
+		//Announcement routes
+		router.POST("/new-announcement", controllers.CreateAnnouncement)
+		// router.GET("/announcements", controllers.ListAnnouncements)
+		// router.GET("/announcements/:id", controllers.GetAnnouncementByID)
 
-		// AssignmentSubmit routes
+		//Target Group routes
+		router.GET("/targetgroup", controllers.GetTargetGroupAll)
+
+		
+		
+		// Course routes
+		router.GET("/subjectgroup", controllers.GetSubjectGroupAll)
+		router.POST("/new-course", controllers.CreateCourse)
+		// router.GET("/courses", controllers.ListCourses)
+		// router.GET("/courses/:id", controllers.GetCourseByID)	
+        // CreateAssignments routes
+        router.POST("/assignments", controllers.CreateHomeWork)
+        router.GET("/assignments/:id", controllers.GetAllAssignment)
+        router.GET("/assignment/:id", controllers.GetAllAssignment)
+
+		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 
-		// Course routes
-		router.GET("/courses", controllers.GetCourses)
+        // Course routes (list all courses)
+        router.GET("/courses", controllers.GetCourses)
 		
+		// ✅ ดาวน์โหลดตาม id
+		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
+	
 
 	}
 

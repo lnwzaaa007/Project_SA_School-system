@@ -55,7 +55,7 @@ const TeacherFullLayout: React.FC = () => {
           localStorage.setItem("teacher_id", String(res.teacher_id))
         }
 
-        console.log("res teacher id",localStorage.getItem("ID"))
+        // console.log("res teacher id",localStorage.getItem("teacher_id"))
 
         } catch (e) {
           console.error(e);

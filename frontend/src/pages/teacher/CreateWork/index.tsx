@@ -35,11 +35,9 @@ const CreateWork: React.FC = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.get("http://localhost:8088/courses")
-      .then(res => setCourses(res.data.data))
-      .catch(() => setCourses([]));
-  }, []);
+  console.log(selectedCourse)
+
+
 
   const handleCreate = async () => {
     if (!selectedCourse || !title || !description || !openDate || !closeDate) {
@@ -47,12 +45,12 @@ const CreateWork: React.FC = () => {
       return;
     }
     try {
-      await axios.post("http://localhost:8088/homework", {
+      await axios.post("http://localhost:8088/assignments", {
         course_id: selectedCourse,
         assignment_title: title,
         description: description,
-        time_start: openDate.format("YYYY-MM-DDTHH:mm:ss"),
-        time_end: closeDate.format("YYYY-MM-DDTHH:mm:ss"),
+        time_start: openDate.toISOString(),
+        time_end: closeDate.toISOString(),
         submit_Point_all: 10, // กำหนดคะแนนรวมตามต้องการ
       });
       Modal.success({ title: "สร้างงานสำเร็จ" });
@@ -92,7 +90,7 @@ const CreateWork: React.FC = () => {
             label: course.name,
           }))}
           value={selectedCourse}
-          onChange={setSelectedCourse}
+          onChange={(value) => setSelectedCourse(value)}
           style={{ width: "100%", marginBottom: 16 }}
         />
         <Input
@@ -120,6 +118,7 @@ const CreateWork: React.FC = () => {
           onChange={setCloseDate}
           style={{ width: "100%", marginBottom: 16 }}
         />
+        
       </Modal>
 
       <Row gutter={[16, 16]}>

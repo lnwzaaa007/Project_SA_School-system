@@ -25,12 +25,13 @@ type AssignmentSubmit struct {
 	Submit_Point 			float32 `json:"submit_Point"`
 	Submit_Point_all 		float32 `json:"submit_Point_all"`
 	Submit_status 			Submit_status `json:"submit_status"`
+	CourseID         uint      `json:"course_id"` 
 
 	
 	GradeID uint
 	Grade   *Grade `gorm:"foreignKey:GradeID"`
 
-	CourseID uint
+	// CourseID uint
 	Course   *Course `gorm:"foreignKey:CourseID"`
 
 	
