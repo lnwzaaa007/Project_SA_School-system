@@ -69,19 +69,14 @@ const AssignmentForm: React.FC = () => {
 
   const handleFileChange: UploadProps['onChange'] = info => {
     console.log("📂 FileChange Event:", info);
-    if (info.file.status !== 'removed') {
+  
+    if (info.file) {
       setFormData(prev => {
-        const newData = { ...prev, file: info.file.originFileObj! };
+        const newData = { ...prev, file: info.file as unknown as  File || null };
         console.log("📌 FormData หลังเลือกไฟล์:", newData);
         return newData;
       });
-    } else {
-      setFormData(prev => {
-        const newData = { ...prev, file: null };
-        console.log("📌 FormData หลังลบไฟล์:", newData);
-        return newData;
-      });
-    }
+    } 
   };
 
   const onFinish = (values: any) => {
@@ -116,17 +111,35 @@ const AssignmentForm: React.FC = () => {
       <div>วันที่เปิด: {formData.openDate || '-'}</div>
       <div>วันที่ปิด: {formData.closeDate || '-'}</div>
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item label="ไฟล์" required>
+        <Form.Item  label="ไฟล์" required>
           <Upload beforeUpload={() => false} onChange={handleFileChange} maxCount={1}>
             <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
           </Upload>
         </Form.Item>
+        {/* <Form.Item label="ไฟล์" required>
+          <Upload
+            maxCount={1}
+            beforeUpload={(file) => {
+              // ได้ไฟล์ดิบแน่นอน
+              setFormData(prev => ({ ...prev, file }));
+              return false; // กันอัปโหลดอัตโนมัติ
+            }}
+            onRemove={() => {
+              setFormData(prev => ({ ...prev, file: null }));
+            }}
+          >
+            <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
+          </Upload>
+        </Form.Item> */}
+
         <Form.Item label="ความคิดเห็น (ไม่บังคับ)" name="feedback" initialValue="">
           <Input.TextArea rows={2} placeholder="พิมพ์ข้อความถึงครู (ถ้าต้องการ)" />
         </Form.Item>
+
         <Form.Item>
           <Button htmlType="submit" type="primary">ส่งงาน</Button>
         </Form.Item>
+
       </Form>
     </div>
   );

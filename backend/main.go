@@ -16,6 +16,8 @@ func main() {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	// r.Use(middlewares.Authorizes())
+	
+	r.POST("/upload", controllers.UploadFileOnly)
 
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
@@ -96,14 +98,11 @@ func main() {
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
 		router.GET("/assignment/:id", controllers.GetAllAssignment)
 
-		// ส่งงาน
-		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+		
 
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
 		
-		// ✅ ดาวน์โหลดตาม id
-		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
 	
 
 	}
