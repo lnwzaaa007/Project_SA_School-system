@@ -44,7 +44,7 @@ func SetupDatabase() {
     seedDays()
     seedTimeStart()
     seedTimeEnd()
-    seedStudent()
+    // seedStudent()
     seedTeachers()
     seedAdmin()
     seedUserType()
