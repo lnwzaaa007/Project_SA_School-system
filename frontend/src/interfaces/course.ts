@@ -20,7 +20,7 @@ export interface courseInterface {
     // level?: string;
     // period?: number;
     teacher?: string;
-    teacherID?: number;
+    teacher_id?: number;
     gradeID?: number;
     termID?: number;
     

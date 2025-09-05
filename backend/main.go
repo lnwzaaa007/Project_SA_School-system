@@ -38,6 +38,7 @@ func main() {
 		router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
 		router.GET("/teachers/schedule",controllers.GetTeacherschedule)
 		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
+		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
@@ -105,9 +106,10 @@ func main() {
 
 		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
-
+		
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
+		router.GET("/coursesall", controllers.GetCourseAll) //ดึงข้อมูลวิชาทั้งหมด
 		
 		// ✅ ดาวน์โหลดตาม id
 		router.GET("/submissions/:id/download", controllers.DownloadSubmission)

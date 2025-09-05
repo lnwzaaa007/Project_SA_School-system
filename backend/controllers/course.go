@@ -18,7 +18,7 @@ type CourseInput struct {
 	// Grade_Year		string 	`json:"grade_year" binding: "required"` 
 	// Grade_Class 	uint	`json:"grade_class"`
 	// TermID 			uint 	`json:"term_id"`
-	// TeacherID		uint 	`json:"teacher_id" binding:"required"`
+	TeacherID		uint 	`json:"teacher_id" binding:"required"`
 }
 func CreateCourse(c *gin.Context) {
 	var input CourseInput
@@ -86,7 +86,7 @@ func CreateCourse(c *gin.Context) {
 		SubjectGroupID: input.SubjectGroupID,
 		// GradeID: input.GradeID,
 		// TermID: input.TermID,
-		// TeacherID: input.TeacherID,
+		TeacherID: input.TeacherID,
 	}
 	// var createdCourse entity.Course
 	// 	if err := config.DB().
@@ -112,8 +112,30 @@ func CreateCourse(c *gin.Context) {
 
 //Get ดึงข้อมูลแสดงออกหน้าจอ
 type ResultByCourseID struct {
-	
+	ID				uint 	`json:"id"`
+	Course_Code		string 	`json:"course_code"` 
+	Course_Name		string 	`json:"course_name"`
+	SubjectGroupName string  `json:"subject_group_name"`
+	Credit_Num   	float32 `json:"credit_num"`
+	Class_in_week 	int 	`json:"class_in_week"`
+	Hours_of_term 	float32 `json:"hours_of_term"`
+	Grade_Year		string 	`json:"grade_year"`
+	Grade_Class 	uint	`json:"grade_class"`
+	TeacherName		string 	`json:"teacher_name"`
 }
 func GetCourseAll (c *gin.Context){
-
+	courseID := c.Param("id")
+	var results []ResultByCourseID
+	if err := config.DB().
+		Table("courses").
+		Select("courses.id, courses.course_code, courses.course_name, subject_groups.subject_group_name, courses.credit_num, courses.class_in_week, courses.hours_of_term, grades.grade_year, grades.grade_class, teachers.t_first_name || ' ' || teachers.t_last_name AS teacher_name").
+		Joins("LEFT JOIN subject_groups ON courses.subject_group_id = subject_groups.id").
+		Joins("LEFT JOIN grades ON courses.grade_id = grades.id").
+		Joins("LEFT JOIN teachers ON courses.teacher_id = teachers.id", courseID).
+		// Where("courses.id = ?", courseID).
+		Scan(&results).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลได้"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": results})
 }

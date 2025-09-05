@@ -1,4 +1,4 @@
-import React ,{useState} from 'react';
+import React ,{useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import { Button, Col, Row, Modal, message, Popconfirm, Switch} from 'antd';
 import './messageConfig.css'
@@ -11,26 +11,57 @@ import type { TableProps } from 'antd';
 import {FormOutlined,
         DeleteOutlined,  
 } from '@ant-design/icons';
+import {courseAPI} from '../../services/https/';
 
-interface DataType {
-  key: string;
-  courseid: string; //รหัสวิชา
-  name: string; //ชื่อวิชา
-  teachername: string; //ครูผู้สอน
-  creditnum: number; //จำนวนหน่วยกิต
-  grade: string//ชั้น
-  class: number//ห้อง
-  classinweek: number//จำนวนตาบ
-  groupsubject: string//กลุ่มสาระ
-//   tags: string[];
+// interface DataType {
+//   key: string;
+//   courseid: string; //รหัสวิชา
+//   name: string; //ชื่อวิชา
+//   teachername: string; //ครูผู้สอน
+//   creditnum: number; //จำนวนหน่วยกิต
+//   grade: string//ชั้น
+//   class: number//ห้อง
+//   classinweek: number//จำนวนตาบ
+//   groupsubject: string//กลุ่มสาระ
+// //   tags: string[];
+
+// }
+interface CourseDataType {
+  id: number;
+  course_code: string; //รหัสวิชา
+  course_name: string; //ชื่อวิชา
+  teacher_name: string; //ชื่อครูผู้สอน
+  credit_num: number; //จำนวนหน่วยกิต
+  grade_year: string;//ชั้น
+  grade_class: number;//ห้อง
+  class_in_week: number;//จำนวนตาบ
+  subject_group_name: string;//ชื่อกลุ่มสาระ
 
 }
 const CourseTable: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteRecord, setDeleteRecord] = useState<any>(null);
   const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [data, setData] = useState<CourseDataType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const showDeleteModal = (record: any) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try{
+        const res = await courseAPI.getCourseAll();
+        console.log("📌 Course API response:", res.data);
+        setData(res.data);
+      }catch (err){
+        console.error('❌ โหลด Course ผิดพลาด:', err);
+      }finally{
+        setLoading(false);
+      }
+    };
+      fetchData();
+  },[]);
+    const showDeleteModal = (record: any) => {
     setDeleteRecord(record);
     setIsDeleteModalOpen(true);
   };
@@ -40,7 +71,7 @@ const CourseTable: React.FC = () => {
     setIsDeleteModalOpen(false);
     setDeleteRecord(null);
     // setShowDeleteSuccess(true);
-    message.success({content:"ลบสำเร็จ",  duration: 2 ,});
+    messageApi.success({content:"ลบสำเร็จ",  duration: 2 ,});
     console.log("ลบสำเร็จ"); // เพิ่มบรรทัดนี้
     console.log("setShowDeleteSuccess true");
     
@@ -53,11 +84,11 @@ const CourseTable: React.FC = () => {
   };
   
 
-  const columns: TableProps<DataType>['columns'] = [
+  const columns: TableProps<CourseDataType>['columns'] = [
     {
       title: 'ลำดับที่',
-      dataIndex: 'key',
-      key: 'key',
+      dataIndex: 'id',
+      key: 'id',
       width: 100,
       onHeaderCell: () => ({
           style: {
@@ -68,8 +99,8 @@ const CourseTable: React.FC = () => {
     }, 
     {
       title: 'รหัสวิชา',
-      dataIndex: 'courseid',
-      key: 'courseid',
+      dataIndex: 'course_code',
+      key: 'course_code',
       width: 200,
       onHeaderCell: () => ({
           style: {
@@ -79,8 +110,8 @@ const CourseTable: React.FC = () => {
     },
     {
       title: 'ชื่อวิชา',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'course_name',
+      key: 'course_name',
       width: 150,
       onHeaderCell: () => ({
           style: {
@@ -91,8 +122,8 @@ const CourseTable: React.FC = () => {
     },
     {
       title: 'ครูผู้สอน',
-      dataIndex: 'teachername',
-      key: 'teachername',
+      dataIndex: 'teacher_name',
+      key: 'teacher_name',
       width: 180,
       onHeaderCell: () => ({
           style: {
@@ -132,8 +163,8 @@ const CourseTable: React.FC = () => {
   //   },
     {
       title: 'จำนวนหน่วยกิต',
-      dataIndex: 'creditnum',
-      key: 'creditnum',
+      dataIndex: 'credit_num',
+      key: 'credit_num',
       width: 150,
       onHeaderCell: () => ({
           style: {
@@ -143,8 +174,8 @@ const CourseTable: React.FC = () => {
     },
     {
       title: 'ระดับชั้น',
-      dataIndex: 'grade',
-      key: 'grade',
+      dataIndex: 'grade_year',
+      key: 'grade_year',
       width: 130,
       onHeaderCell: () => ({
           style: {
@@ -154,8 +185,8 @@ const CourseTable: React.FC = () => {
     },
     {
       title: 'ห้อง',
-      dataIndex: 'class',
-      key: 'class',
+      dataIndex: 'grade_class',
+      key: 'grade_class',
       width: 100,
       onHeaderCell: () => ({
           style: {
@@ -165,8 +196,8 @@ const CourseTable: React.FC = () => {
     },
     {
       title: 'จำนวนคาบ/สัปดาห์',
-      dataIndex: 'classinweek',
-      key: 'classinweek',
+      dataIndex: 'class_in_week',
+      key: 'class_in_week',
       width: 180,
       onHeaderCell: () => ({
           style: {
@@ -177,8 +208,8 @@ const CourseTable: React.FC = () => {
     },
     {
       title: 'กลุ่มสาระ',
-      dataIndex: 'groupsubject',
-      key: 'groupsubject',
+      dataIndex: 'subject_group_name',
+      key: 'subject_group_name',
       onHeaderCell: () => ({
           style: {
               background:"#f2f2f2"
@@ -238,30 +269,33 @@ const CourseTable: React.FC = () => {
     },
   ];
 
-  const data: DataType[] = [
-    {
-      key: '1',
-      courseid: 'ENG23 ',
-      name: 'science',
-      teachername: 'Pensri',
-      creditnum: 1,
-      grade: 'ม.1',//ชั้น
-      class: 1,//ห้อง
-      classinweek: 3,//จำนวนตาบ
-      groupsubject: "ภาษาไทย",//กลุ่มสาระ
+  
+
+  // const data: DataType[] = [
+  //   {
+  //     key: '1',
+  //     courseid: 'ENG23 ',
+  //     name: 'science',
+  //     teachername: 'Pensri',
+  //     creditnum: 1,
+  //     grade: 'ม.1',//ชั้น
+  //     class: 1,//ห้อง
+  //     classinweek: 3,//จำนวนตาบ
+  //     groupsubject: "ภาษาไทย",//กลุ่มสาระ
       
-    },
-    {
-      key: '2',
-      courseid: 'ค31102',
-      name: 'คณิตศาสตร์ 2',
-      teachername: 'สมชาย ใจดี',
-      creditnum: 1.5,
-      grade: 'ม.2',//ชั้น
-      class: 2,//ห้อง
-      classinweek: 3,//จำนวนตาบ
-      groupsubject: "กลุ่มสาระคณิตศาสตร์",//กลุ่มสาระ
-    },
+  //   },
+  //   {
+  //     key: '2',
+  //     courseid: 'ค31102',
+  //     name: 'คณิตศาสตร์ 2',
+  //     teachername: 'สมชาย ใจดี',
+  //     creditnum: 1.5,
+  //     grade: 'ม.2',//ชั้น
+  //     class: 2,//ห้อง
+  //     classinweek: 3,//จำนวนตาบ
+  //     groupsubject: "กลุ่มสาระคณิตศาสตร์",//กลุ่มสาระ
+  //   },
+
   //   {
   //     key: '2',
   //     courseid: 'ENG23 ',
@@ -278,12 +312,20 @@ const CourseTable: React.FC = () => {
   //     creditnum: 2,
       
   //   },
-  ];
+  // ];
 
 
   return(
     <>
-    <Table<DataType> columns={columns} dataSource={data}  />
+    {contextHolder}
+  
+    <Table<CourseDataType> columns={columns} dataSource={data}  rowKey="id" loading = {loading}
+      pagination={{ 
+      pageSize: 10,   // จำนวน row ต่อหน้า
+      // showSizeChanger: true,  // ให้เลือกเปลี่ยนจำนวน row/หน้า
+      // pageSizeOptions: ['5', '10', '20', '50'], // ตัวเลือกจำนวน row ต่อหน้า
+      // showTotal: (total, range) => `${range[0]}-${range[1]} จากทั้งหมด ${total} รายการ`
+    }}/>
     <Modal
         title="ยืนยันการลบ"
         open={isDeleteModalOpen}
@@ -302,7 +344,6 @@ const CourseTable: React.FC = () => {
         <p>คุณต้องการลบข้อมูลนี้หรือไม่?</p>
         
     </Modal>
-    
     
     </>
   )

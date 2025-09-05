@@ -125,7 +125,8 @@ export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
   // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
-  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`),
+  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
+  getNameTeacherAll: () => Get(`/teachers`),
 };
 
 export const adminAPI = {
@@ -186,8 +187,10 @@ export const subjectGroupAPI = {
 
 export const courseAPI = {
   CreateCourseAll: (course:{course_code: string; course_name:string; subject_group_id: number; credit_num: number;
-    class_in_week: number; grade_year: string; grade_class: number; teacher: string;
+    class_in_week: number; grade_year: string; grade_class: number; teacher_id: number;
    }) => Post("/new-course", course),
+  getCourseAll: () => Get("/coursesall")
+  
 };
 export const ProvinceAPI ={
   getProvince: () => Get("/province"),
