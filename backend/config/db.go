@@ -53,7 +53,7 @@ func SetupDatabase() {
     seedUsers()
 	seedProvince()
 	//seeddistrict()
-	seedCourses()
+	//seedCourse()
 	seedSubjectGroup()
 	seedTargetGroup(db)
 	
