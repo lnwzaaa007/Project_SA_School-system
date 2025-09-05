@@ -203,4 +203,10 @@ export const AssignmentAPI = {
 
 }
 
+export async function submitAssignment(fd: FormData) {
+  const res = await fetch("http://localhost:8088/submit-assignment", { method: "POST", body: fd });
+  if (!res.ok) throw new Error(`Submit failed ${res.status}`);
+  return res.json();
+}
+
 

@@ -18,8 +18,9 @@ func main() {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	// r.Use(middlewares.Authorizes())
-	
-	// r.POST("/upload", controllers.UploadFileOnly)
+	r.POST("/submit-assignment", controllers.AssignmentSubmit)
+	r.POST("/upload", controllers.UploadFileOnly)
+	r.MaxMultipartMemory = 64 << 20
 	// ✅ วางสองบรรทัดนี้ตรงนี้ (นอก group / ไม่ต้องมี auth)
 	_ = os.MkdirAll("uploads", 0755)                  // สร้างโฟลเดอร์หลัก หากยังไม่มี
 	r.StaticFS("/uploads", http.Dir("uploads"))       // เสิร์ฟไฟล์ใน /uploads เป็นสาธารณะ
@@ -27,7 +28,7 @@ func main() {
 
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
-
+	
 	
 	{
 		// student
@@ -51,7 +52,7 @@ func main() {
 		
 		// New routes for terms and schedule
 		router.GET("/terms", controllers.GetTermAll)
-
+		
 		// Schedule routes
 		router.GET("/schedule-days", controllers.GetDaysAll)
 		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
@@ -100,15 +101,14 @@ func main() {
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
 		// router.GET("/courses/:id", controllers.GetCourseByID)	
-
+		
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
 		router.GET("/assignment/:id", controllers.GetAllAssignment)
 		
-		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 		
-
+		
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
 		
