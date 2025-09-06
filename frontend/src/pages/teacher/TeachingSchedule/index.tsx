@@ -85,7 +85,7 @@ const renderCell = (period: number) =>
     return { children: value, props: { colSpan: span, style } };
   };
 
-const ScheduleStudent: React.FC = () => {
+const ScheduleTeacher: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const navigate = useNavigate();
 
@@ -488,4 +488,4 @@ const ScheduleStudent: React.FC = () => {
     </>
   );
 };
-export default ScheduleStudent;
+export default ScheduleTeacher;

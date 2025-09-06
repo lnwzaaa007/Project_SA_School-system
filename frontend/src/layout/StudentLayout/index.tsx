@@ -50,7 +50,7 @@ const StudentFullLayout: React.FC = () => {
 
         if (res && res.student_id) {
           localStorage.setItem("grade_id", String(res.grade_id));
-          localStorage.setItem("ID", String(res.ID));
+          localStorage.setItem("IDstudent", String(res.ID));
           localStorage.setItem("student_id", String(res.student_id))
         }
         // console.log("student_id", localStorage.getItem("student_id"))

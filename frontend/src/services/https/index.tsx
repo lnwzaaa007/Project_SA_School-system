@@ -143,7 +143,7 @@ export const gradeAPI = {
 export const termAPI = {
   getTermsAll: () => Get("/terms"),
 };
-
+//แม็ก ระบบ สร้างตารางเรียน
 export const ScheduleAPI = {
   getDays: () => Get("/schedule-days"),
   getTimeStart: () => Get("/schedule-times-start"),
@@ -155,11 +155,12 @@ export const ScheduleAPI = {
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
 
 };
-
+//แม็ก ระบบเช็คชื่อ
 export const AttendancesAPI ={
   getCourseSchedule: (grade: number,classID:number) => Get(`/attendances-course?grade=${grade}&class=${classID}`),
   getStudentByGrade: (grade: number,classID:number) => Get(`/attendances-student?grade=${grade}&class=${classID}`),
   postAttendance: (data: AttendanceInterface) => Post(`/attendances-record`,data,true),
+  getAttendanceHistory: (schedule_id:number, student_id:number) => Get(`/attendances-history?schedule_id=${schedule_id}&student_id=${student_id}`)
 };
 
 export const userTypeAPI = {
@@ -221,7 +222,6 @@ export const GenderAPI = {
 export const TitleAPI = {
   getTitle : () => Get("/title"),
 }
-
 
 
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react"; 
 import { useLocation } from "react-router-dom";
 import { AttendancesAPI, gradeAPI } from "../../../services/https";
-import SelectGrade from "../../../components/SelectGrade";
-import SelectClass from "../../../components/SelectClass";
-import SelectCourse from "../../../components/SelectCourse";
+// import SelectGrade from "../../../components/SelectGrade";
+// import SelectClass from "../../../components/SelectClass";
+// import SelectCourse from "../../../components/SelectCourse";
 import type { StudentInterface } from "../../../interfaces/Student";
 import { Button, Card, Checkbox, Typography, Input, Table, message } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
