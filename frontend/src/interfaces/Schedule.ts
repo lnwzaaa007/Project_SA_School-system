@@ -26,7 +26,7 @@ export interface ScheduleCoureseInterface{
 }
 
 export interface ScheduleInterface {
-  id?:            number;
+  id_schedule?:   number;
   day?:           string;
   start_tinme?:   string;
   end_time?:      string;

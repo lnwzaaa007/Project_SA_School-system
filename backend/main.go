@@ -30,31 +30,29 @@ func main() {
 		
 
 		// router.GET("/student/:id", controllers.GetNameStudentById)
-		router.GET("/students/schedule",controllers.GetStudentSchedule) 
-
+		
 		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
 		router.PUT("/student/:id", controllers.UpdateStudent)          // แก้ไขนักเรียนตาม PK id
 		router.GET("/student/:id/image", controllers.GetStudentImage)  // ดึงรูปนักเรียน (ไบต์จาก BLOB)
 		// router.DELETE("/students/:id", control..lers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
-
+		
 		// Teacher routes
 		// router.GET("/teacher", controllers.GetNameTeacher)
 		router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
-		router.GET("/teachers/schedule",controllers.GetTeacherschedule)
 		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
-
+		
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
-
+		
 		// Grade routes
 		router.GET("/gradeyears", controllers.GetGradeYearAll)
 		router.GET("/gradeclasses", controllers.GetGradeClassAll)
 		router.GET("/gradeclassID", controllers.GetGradesByYearAndClass)
-
+		
 		// New routes for terms and schedule
 		router.GET("/terms", controllers.GetTermAll)
-
+		
 		// Schedule routes
 		router.GET("/schedule-days", controllers.GetDaysAll)
 		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
@@ -63,6 +61,14 @@ func main() {
 		router.GET("/schedule-course/:id",controllers.GetCourse)
 		router.POST("/schedules", controllers.CreateSchedule)
 		router.DELETE("/schedules/:id",controllers.DeleteScheduleByID)
+		router.GET("/students/schedule",controllers.GetStudentSchedule) 
+		router.GET("/teachers/schedule",controllers.GetTeacherschedule)
+		
+		//Attendances routes
+        router.GET("/attendances-course", controllers.GetCourseInSchedule)
+        router.GET("/attendances-student", controllers.GetStudentAllByGradeId)
+        router.POST("/attendances-record", controllers.CreateAttendance)
+		router.GET("/attendances-history", controllers.GetAttendanceStudent)
 
 		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)

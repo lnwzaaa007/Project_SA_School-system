@@ -2,6 +2,7 @@ import axios from "axios";
 import type { AxiosResponse, AxiosError } from "axios";
 import type {SignInInterface,} from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
+import type {AttendanceInterface} from "../../interfaces/Attendance"
 import { useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
@@ -153,6 +154,12 @@ export const ScheduleAPI = {
   postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
 
+};
+
+export const AttendancesAPI ={
+  getCourseSchedule: (grade: number,classID:number) => Get(`/attendances-course?grade=${grade}&class=${classID}`),
+  getStudentByGrade: (grade: number,classID:number) => Get(`/attendances-student?grade=${grade}&class=${classID}`),
+  postAttendance: (data: AttendanceInterface) => Post(`/attendances-record`,data,true),
 };
 
 export const userTypeAPI = {

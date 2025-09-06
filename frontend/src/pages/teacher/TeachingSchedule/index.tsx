@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { teacherAPI } from "../../../services/https";
 import type { ScheduleInterface } from "../../../interfaces/Schedule";
 import { Table, Card, message, List, Divider } from "antd";
@@ -38,12 +39,8 @@ const TIME_SLOTS = [
 
 type TimeKey = Exclude<keyof TimeTableRow, "key" | "day" | "span">;
 
+
 const ROOM_PALETTE = [
-  "#F94144", // red
-  "#F3722C", // orange
-  "#F8961E", // amber
-  "#90BE6D", // green
-  "#43AA8B", // teal
   "#577590", // steel
   "#277DA1", // blue
   "#9C27B0", // purple
@@ -51,69 +48,46 @@ const ROOM_PALETTE = [
   "#009688", // cyan
   "#795548", // brown
   "#E91E63", // pink
+  "#F94144", // red
+  "#F3722C", // orange
+  "#F8961E", // amber
+  "#90BE6D", // green
+  "#43AA8B", // teal
 ];
 
-// Utilities: color by course code only
-const getCourseCodeFromCell = (val?: string) => {
-  // value format: `${course_code}\n${course_name}(+teacher)`
-  return (val || "").split("\n")[2];
+// ดึงชื่อห้องออกมา เช่น "ห้อง 1/1"
+const getRoomFromCell = (val?: string) => {
+  const parts = (val || "").split("\n");
+  return parts[2]?.trim(); // index 2 สมมติว่าเป็นห้อง
 };
 
-const hashToHue = (str: string) => {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = (h << 5) - h-5 + str.charCodeAt(i);
-    h |= 0
+// แปลง string เป็น index (วนกลับมาที่ palette ถ้าเกิน)
+const getRoomColors = (room?: string) => {
+  if (!room) return undefined;
+
+  let hash = 0;
+  for (let i = 0; i < room.length; i++) {
+    hash = (hash + room.charCodeAt(i)) % ROOM_PALETTE.length;
   }
-  return Math.abs(h) % 360;
+
+  const bg = ROOM_PALETTE[hash];
+  return {
+    backgroundColor: bg,
+    color: "#000"
+  } as React.CSSProperties;
 };
-
-const getCourseColors = (code?: string) => {
-  if (!code) return undefined;
-  const hue = hashToHue(code);
-  const bg = `hsl(${hue}, 100%, 70%)`;
-  const fg = `hsl(${hue}, 100%, 0%)`;
-  return { backgroundColor: bg, color: fg } as React.CSSProperties;
-};
-
-
 const renderCell = (period: number) =>
   (value: string | undefined, row: TimeTableRow) => {
     const span = row.span?.[period] ?? 1;
     if (span === 0) return { children: null, props: { colSpan: 0 } };
-    const code = getCourseCodeFromCell(value);
-    const style = getCourseColors(code);
-    console.log("code",code)
+    const room = getRoomFromCell(value);
+    const style = getRoomColors(room);
     return { children: value, props: { colSpan: span, style } };
   };
 
-const timeTableColumns: ColumnsType<TimeTableRow> = [
-  { title: "Day/Time", dataIndex: "day", key: "day", align: "center" },
-  { title: "08.40-09.30", dataIndex: "time1", key: "time1", align: "center", render: renderCell(1)},
-  { title: "09.30-10.20", dataIndex: "time2", key: "time2", align: "center", render: renderCell(2) },
-  { title: "10.20-11.10", dataIndex: "time3", key: "time3", align: "center", render: renderCell(3) },
-  { title: "11.10-12.00", dataIndex: "time4", key: "time4", align: "center", render: renderCell(4) },
-  {
-    title: "12.00-13.00",
-    dataIndex: "time5",
-    key: "time5",
-    align: "center",
-    render: (_, __, index) => {
-      // รวม "พักเที่ยง" 5 แถวไว้ที่บรรทัดแรก (ต้องแน่ใจว่าเรียงวัน Monday→Friday)
-      if (index === 0) {
-        return { children: "พักเที่ยง", props: { rowSpan: DAYS.length } };
-      }
-      return { children: null, props: { rowSpan: 0 } };
-    },
-  },
-  { title: "13.00-13.50", dataIndex: "time6", key: "time6", align: "center", render: renderCell(6) },
-  { title: "13.50-14.40", dataIndex: "time7", key: "time7", align: "center", render: renderCell(7) },
-  { title: "14.40-15.30", dataIndex: "time8", key: "time8", align: "center", render: renderCell(8) },
-  { title: "15.30-16.30", dataIndex: "time9", key: "time9", align: "center", render: renderCell(9)},
-];
-
 const ScheduleStudent: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
+  const navigate = useNavigate();
 
   const [detailCourse, setDetailCourse] = useState<ScheduleInterface[]>([]);
 
@@ -255,7 +229,7 @@ const ScheduleStudent: React.FC = () => {
 
       // รูปแบบจาก backend: { data: [...], term_id, semester, academic_year }
       const raw = (Array.isArray(res?.data) ? res.data : []) as ScheduleInterface[];
-      console.log("dgadgasdfas",raw);
+      // console.log("dgadgasdfas", raw?.[0]?.id_schedule);
 
       setDetailCourse(raw);
       setTableData(buildTableData(raw));
@@ -271,7 +245,175 @@ const ScheduleStudent: React.FC = () => {
     fetchTeacherSchedule();
   }, []);
 
+  const handleCellClick = (row: TimeTableRow, period: number) => {
+    const key = `time${period}` as TimeKey;
+    const val = row[key];
+    if (!val) return;
 
+    // หาเวลาเริ่ม-จบของคาบที่คลิก
+    const clickedStart = TIME_SLOTS[period - 1];
+    const clickedEnd = TIME_SLOTS[period] ?? "16:30";
+
+    // helper สำหรับ map เวลา → index
+    const startIdx = (t?: string) => (t ? TIME_SLOTS.findIndex((x) => x === t) : -1);
+    const endIdxExclusive = (t?: string) => {
+      if (!t) return -1;
+      const idx = TIME_SLOTS.findIndex((x) => x === t);
+      return idx === -1 ? TIME_SLOTS.length : idx; // exclusive
+    };
+
+    // พยายามจับคู่ข้อมูลวิชาจริงจาก API ด้วย day และช่วงเวลา
+    const match = detailCourse.find((it) => {
+      const dayOk = (it.day ?? "") === row.day;
+      const s = (it as any).start_time ?? it.start_tinme;
+      const e = it.end_time;
+      const si = startIdx(s);
+      const ei = endIdxExclusive(e);
+      const pIndex = period - 1; // 0-based
+      return dayOk && si !== -1 && ei !== -1 && si <= pIndex && pIndex < ei;
+    });
+
+    // parse ข้อมูลพื้นฐานจากข้อความใน cell เผื่อหา match ไม่ได้
+    const [code, name, roomLabel] = (val || "").split("\n");
+    let grade_year: string | undefined;
+    let grade_class: number | undefined;
+    const m = /ห้อง\s*(\d+)\/(\d+)/.exec(roomLabel || "");
+    if (m) {
+      grade_year = m[1];
+      grade_class = Number(m[2]);
+    }
+
+    // รวม payload โดยให้ค่าที่ parse จากข้อความใน cell มีสิทธิ์ override ห้อง
+    const payload = match
+      ? {
+          id_schedule: (match as any).id_schedule,
+          day: match.day,
+          start_time: (match as any).start_time ?? match.start_tinme,
+          end_time: match.end_time,
+          course_code: match.course_code,
+          course_name: match.course_name,
+          grade_year: grade_year ?? match.grade_year,
+          grade_class: grade_class ?? match.grade_class,
+        }
+      : {
+          day: row.day,
+          start_time: clickedStart,
+          end_time: clickedEnd,
+          course_code: code,
+          course_name: name,
+          grade_year,
+          grade_class,
+        };
+
+    navigate("/teacher/attendanceRecord", { state: payload });
+  };
+
+  // คอลัมน์ของตาราง (เพิ่ม onCell เพื่อให้คลิกได้)
+  const timeTableColumns: ColumnsType<TimeTableRow> = [
+    { title: "Day/Time", dataIndex: "day", key: "day", align: "center" },
+    {
+      title: "08.40-09.30",
+      dataIndex: "time1",
+      key: "time1",
+      align: "center",
+      render: renderCell(1),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 1),
+        style: { cursor: record.time1 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "09.30-10.20",
+      dataIndex: "time2",
+      key: "time2",
+      align: "center",
+      render: renderCell(2),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 2),
+        style: { cursor: record.time2 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "10.20-11.10",
+      dataIndex: "time3",
+      key: "time3",
+      align: "center",
+      render: renderCell(3),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 3),
+        style: { cursor: record.time3 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "11.10-12.00",
+      dataIndex: "time4",
+      key: "time4",
+      align: "center",
+      render: renderCell(4),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 4),
+        style: { cursor: record.time4 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "12.00-13.00",
+      dataIndex: "time5",
+      key: "time5",
+      align: "center",
+      render: (_, __, index) => {
+        if (index === 0) {
+          return { children: "พักเที่ยง", props: { rowSpan: DAYS.length } };
+        }
+        return { children: null, props: { rowSpan: 0 } };
+      },
+    },
+    {
+      title: "13.00-13.50",
+      dataIndex: "time6",
+      key: "time6",
+      align: "center",
+      render: renderCell(6),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 6),
+        style: { cursor: record.time6 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "13.50-14.40",
+      dataIndex: "time7",
+      key: "time7",
+      align: "center",
+      render: renderCell(7),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 7),
+        style: { cursor: record.time7 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "14.40-15.30",
+      dataIndex: "time8",
+      key: "time8",
+      align: "center",
+      render: renderCell(8),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 8),
+        style: { cursor: record.time8 ? "pointer" : "default" },
+      }),
+    },
+    {
+      title: "15.30-16.30",
+      dataIndex: "time9",
+      key: "time9",
+      align: "center",
+      render: renderCell(9),
+      onCell: (record) => ({
+        onClick: () => handleCellClick(record, 9),
+        style: { cursor: record.time9 ? "pointer" : "default" },
+      }),
+    },
+  ];
+
+  
   return (
     <>
       {contextHolder}
