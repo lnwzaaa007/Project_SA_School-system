@@ -7,8 +7,8 @@ import { courseAPI } from '../../../../services/https'
 import { gradeAPI } from '../../../../services/https';
 import type { GradeYearInterface } from '../../../../interfaces/Grade';
 import type { GradeClassInterface } from '../../../../interfaces/Grade';
-import type { teacherAPI } from '../../../../services/https';
-// import { Teacher } from '../../../../interfaces/Teacher';
+import { teacherAPI } from '../../../../services/https';
+import type { Teacher } from '../../../../interfaces/Teacher';
 
 const { Option } = Select;
 //อาจจะต้องมี
@@ -25,7 +25,7 @@ const CreateCourse:React.FC = () => {
     const [subjectGroups, setSubjectGroups] = useState<subjectGroupInterface[]>([]);
     const [grades, setGrades] = useState<GradeYearInterface[]>([]);
     const [class_, setClass_] = useState<GradeClassInterface[]>([]);
-    // const [teacher, setTeacher] = useState<Teacher[]>([]);
+    const [teacher, setTeacher] = useState<Teacher[]>([]);
     const [messageApi, contextHolder ]= message.useMessage();
 
     // const [selectGrade ,setSelectedGrade] = useState<string | null>(null);
@@ -59,6 +59,7 @@ const CreateCourse:React.FC = () => {
       const fetchClass = async () => {
           try {
             const res = await gradeAPI.getClassesAll();
+            
             if (Array.isArray(res)) {
               setClass_(res);
             } else {
@@ -69,11 +70,26 @@ const CreateCourse:React.FC = () => {
             messageApi.error('เกิดข้อผิดพลาด');
           }
         };
+    const fetchTeacherName = async () => {
+        try{
+            const res = await teacherAPI.getNameTeacherAll();
+            console.log("📌 Teacher API response:", res);
+            if (Array.isArray(res)){
+                setTeacher(res);
+            }else{
+                messageApi.error('ไม่พบข้อมูลครู')
+            }
+        }catch (err){
+            console.error('❌ โหลด Teacher ผิดพลาด:', err);
+            messageApi.error('เกิดข้อผิดพลาด');
+        }
+    }
       
     useEffect(() => {
         fetchSubjectGroups();
         fetchGrades();
         fetchClass();
+        fetchTeacherName();
     }, []);
     const navigate = useNavigate();
 
@@ -151,10 +167,21 @@ const CreateCourse:React.FC = () => {
 
             <Form.Item
                 label={<span style={{ fontSize: "18px" }}>ครูประจำรายวิชา</span>}
-                name="teacher"
+                name="teacher_id"
                 rules={[{ required: true, message: "กรุณากรอกชื่อครูประจำรายวิชา" }]}
             >
-                <Input placeholder="เช่น ครูสมชาย ใจดี" style={{height:'48px'}}/>
+                {/* <Input placeholder="เช่น ครูสมชาย ใจดี" style={{height:'48px'}}/> */}
+                <Select placeholder="ครูประจำรายวิชา" style={{ width: "100%" ,height:'48px' }}
+                    onChange ={(value) => {
+                        console.log("เลือกครูid:", value);
+                    }}>
+                    {teacher.map((t) => (
+                        <Option key={t.id} value={t.id}>
+                        {t.tfirst_name} {t.tlast_name} 
+                        {/* {JSON.stringify(t)} */}
+                        </Option>
+                    ))}
+                </Select>
             </Form.Item>
 
             <Form.Item
@@ -187,7 +214,7 @@ const CreateCourse:React.FC = () => {
                         console.log("เลือก:", value);
                 }}>
                 {grades.map((g,) => (
-                    <Option key={g.ID ?? g.ID} value={g.grade_year}>
+                    <Option key={g.id ?? g.id} value={g.grade_year}>
                         มัธยมศึกษาปีที่ {g.grade_year}
                     </Option>
                 ))}
@@ -205,7 +232,7 @@ const CreateCourse:React.FC = () => {
                         console.log("เลือก:", value);
                 }}>
                 {class_.map((g,) => (
-                    <Option key={g.ID ?? g.ID} value={g.grade_class}>
+                    <Option key={g.id ?? g.id} value={g.grade_class}>
                         ห้อง {g.grade_class}
                     </Option>
                 ))}
@@ -252,8 +279,9 @@ const CreateCourse:React.FC = () => {
                     ยกเลิก
                 </Button>
                 &nbsp;&nbsp;
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" onClick={() => messageApi.success('บันทึกข้อมูลสำเร็จ')}>
                     บันทึกข้อมูล
+                    
                 </Button>
             
                 {/* </Link> */}

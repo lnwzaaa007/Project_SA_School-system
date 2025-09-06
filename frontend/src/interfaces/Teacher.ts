@@ -12,8 +12,8 @@ export interface Teacher {
 
   teacherId: string;          // Teacher_ID
   titleTH: TitleNameTH;
-  tFirstName: string;
-  tLastName: string;
+  tfirst_name: string;
+  tlast_name: string;
   titleENG: TitleNameENG;
   eFirstName: string;
   eLastName: string;
