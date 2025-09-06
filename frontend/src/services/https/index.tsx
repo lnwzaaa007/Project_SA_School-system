@@ -2,6 +2,7 @@ import axios from "axios";
 import type { AxiosResponse, AxiosError } from "axios";
 import type {SignInInterface,} from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
+import type {AttendanceInterface} from "../../interfaces/Attendance"
 import { useEffect } from "react";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
@@ -118,14 +119,14 @@ export const authAPI = {
 export const studentAPI = {
   getStudent: (user_id :number) => Get(`/students/${user_id}`),
   // getNameStudentById: (user_id: number | string) => Get(`/student/${user_id}`),
-  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
+  
 };
 
 export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
   // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
-  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
+ 
   getNameTeacherAll: () => Get(`/teachers`),
 };
 
@@ -142,7 +143,7 @@ export const gradeAPI = {
 export const termAPI = {
   getTermsAll: () => Get("/terms"),
 };
-
+//แม็ก ระบบ สร้างตารางเรียน
 export const ScheduleAPI = {
   getDays: () => Get("/schedule-days"),
   getTimeStart: () => Get("/schedule-times-start"),
@@ -151,8 +152,17 @@ export const ScheduleAPI = {
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
   // requires auth to pass middleware
   postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
-  deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
+  deleteSchedule: (id: number) => Delete(`/schedules/${id}`),
+  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
+  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
 
+};
+//แม็ก ระบบเช็คชื่อ
+export const AttendancesAPI ={
+  getCourseSchedule: (grade: number,classID:number) => Get(`/attendances-course?grade=${grade}&class=${classID}`),
+  getStudentByGrade: (grade: number,classID:number) => Get(`/attendances-student?grade=${grade}&class=${classID}`),
+  postAttendance: (data: AttendanceInterface) => Post(`/attendances-record`,data,true),
+  getAttendanceHistory: (schedule_id:number, student_id:number) => Get(`/attendances-history?schedule_id=${schedule_id}&student_id=${student_id}`)
 };
 
 export const userTypeAPI = {
@@ -214,7 +224,6 @@ export const GenderAPI = {
 export const TitleAPI = {
   getTitle : () => Get("/title"),
 }
-
 
 
 

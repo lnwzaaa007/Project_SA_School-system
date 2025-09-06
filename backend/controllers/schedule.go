@@ -6,6 +6,7 @@ import (
 	"strings"
 	"gorm.io/gorm"
 	"strconv"
+	"time"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
@@ -18,6 +19,39 @@ type gradeInput struct {
 	GradeYear  string `json:"grade_year"`
 	GradeClass int    `json:"grade_class"`
 }
+
+// จัดรูปแบบข้อมูลตอบกลับให้เหมือนกับ ScheduleResponse ที่ใช้ในหน้าตารางเรียน
+type ScheduleResponse struct {
+	ID            int     `json:"id_schedule"`
+	Day           string  `json:"day"`
+	StartTime     string  `json:"start_time"`
+	EndTime       string  `json:"end_time"`
+	CourseName    string  `json:"course_name"`
+	CourseCode    string  `json:"course_code"`
+	CreditNum     float32 `json:"credit_num"`
+	ClassInWeek   int     `json:"class_in_week"`
+	HoursOfTerm   int     `json:"hours_of_term"`
+	Subject_Group string  `json:"subject_group"`
+	TeacherName   string  `json:"teacher_name"`
+	GradeYeaer    string  `json:"grade_year"`
+	Grade_Class   int     `json:"grade_class"`
+}
+//get /course
+type CourseResponse struct {
+	ID            int     `json:"id"`
+    CourseCode    string  `json:"course_code"`
+    CourseName    string  `json:"course_name"`
+    CreditNum     float32 `json:"credit_num"`
+    ClassInWeek   int     `json:"class_in_week"`
+    HoursOfTerm   int     `json:"hours_of_term"`
+    Subject_Group string  `json:"subject_group"`
+    TeacherName   string  `json:"teacher_name"`
+	TercherID     int     `json:"teacher_id"`
+}
+
+
+
+//บันทึกตารางเรียน
 func CreateSchedule(c *gin.Context) {
 	var input gradeInput
 
@@ -101,24 +135,6 @@ func CreateSchedule(c *gin.Context) {
 
 
 
-
-// get/Schedule /by term grade class
-type ScheduleResponse struct {
-	ID 			  int	  `json:"id"`					
-	Day           string  `json:"day"`
-	StartTime     string  `json:"start_time"`
-	EndTime       string  `json:"end_time"`
-	CourseName    string  `json:"course_name"`
-	CourseCode    string  `json:"course_code"`
-	CreditNum     float32 `json:"credit_num"`
-	ClassInWeek   int     `json:"class_in_week"`
-	HoursOfTerm   int     `json:"hours_of_term"`
-	Subject_Group string  `json:"subject_group"`
-	TeacherName   string  `json:"teacher_name"`
-	GradeYeaer    string  `json:"grade_year"`
-	Grade_Class   int     `josn:"grade_class"`
-}
-
 func GetSchedulesByID(c *gin.Context) {
 	var schedules []entity.Schedules
 	var responses []ScheduleResponse
@@ -147,9 +163,9 @@ func GetSchedulesByID(c *gin.Context) {
 		Preload("Term").
 		Where("grades.grade_year = ? AND grades.grade_class = ? AND schedules.term_id = ?", gradeID, classID, termID).
 		Find(&schedules).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	// map -> response struct
 	for _, s := range schedules {
 
@@ -179,20 +195,6 @@ func GetSchedulesByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": responses})
 }/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-//get /course
-type CourseResponse struct {
-	ID            int     `json:"id"`
-    CourseCode    string  `json:"course_code"`
-    CourseName    string  `json:"course_name"`
-    CreditNum     float32 `json:"credit_num"`
-    ClassInWeek   int     `json:"class_in_week"`
-    HoursOfTerm   int     `json:"hours_of_term"`
-    Subject_Group string  `json:"subject_group"`
-    TeacherName   string  `json:"teacher_name"`
-	TercherID     int     `json:"teacher_id"`
-}
 
 func GetCourse(c *gin.Context) {
 code := strings.ToUpper(strings.TrimSpace(c.Param("id")))
@@ -267,3 +269,140 @@ func DeleteScheduleByID(c *gin.Context) {
 
 
 
+func GetStudentSchedule (c *gin.Context){
+    gradeIDStr := c.Query("grade_id")
+    if gradeIDStr == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ grade_id"})
+        return
+    }
+    gradeID, err := strconv.Atoi(gradeIDStr)
+    if err != nil || gradeID <= 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "grade_id ไม่ถูกต้อง"})
+        return
+    }
+
+    // หาเทอมปัจจุบันจากเวลาขณะนี้
+    now := time.Now()
+    var term entity.Term
+    if err := config.DB().
+        Where("start_date <= ? AND end_date >= ?", now, now).
+        First(&term).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบเทอมปัจจุบัน"})
+        return
+    }
+
+    // ดึงตารางเรียนของ grade_id ที่อยู่ในเทอมปัจจุบัน
+    var schedules []entity.Schedules
+    if err := config.DB().
+        Preload("Days").
+        Preload("Course").
+        Preload("Course.Subject_Group").
+        Preload("Teacher").
+        Preload("TimeStart").
+        Preload("TimeEnd").
+        Preload("Grade").
+        Where("term_id = ? AND grade_id = ?", term.ID, gradeID).
+        Find(&schedules).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+
+    responses := make([]ScheduleResponse, 0, len(schedules))
+    for _, s := range schedules {
+        subjectGroupName := ""
+        if s.Course != nil && s.Course.Subject_Group != nil {
+            subjectGroupName = s.Course.Subject_Group.SubjectGroup_Name
+        }
+
+        resp := ScheduleResponse{
+            ID:            int(s.ID),
+            Day:           s.Days.ThaiDay,
+            StartTime:     s.TimeStart.Period,
+            EndTime:       s.TimeEnd.Period,
+            CourseName:    s.Course.Course_Name,
+            CourseCode:    s.Course.Course_Code,
+            CreditNum:     s.Course.Credit_Num,
+            ClassInWeek:   s.Course.Class_in_week,
+            HoursOfTerm:   s.Course.Hours_of_term,
+            Subject_Group: subjectGroupName,
+            TeacherName:   s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
+        }
+        if s.Grade != nil {
+            resp.GradeYeaer = s.Grade.Grade_Year
+            resp.Grade_Class = s.Grade.Grade_Class
+        }
+        responses = append(responses, resp)
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": responses, "term_id": term.ID, "semester": term.Semester, "academic_year": term.Academic_year})
+}//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//get ตารางสอนครู
+func GetTeacherschedule(c *gin.Context){
+	teacher_id := c.Query("teacher_id")
+    if teacher_id == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ grade_id"})
+        return
+    }
+    // gradeID, err := strconv.Atoi(teacher_id)
+    // if err != nil || gradeID <= 0 {
+    //     c.JSON(http.StatusBadRequest, gin.H{"error": "grade_id ไม่ถูกต้อง"})
+    //     return
+    // }
+
+    // หาเทอมปัจจุบันจากเวลาขณะนี้
+    now := time.Now()
+    var term entity.Term
+    if err := config.DB().
+        Where("start_date <= ? AND end_date >= ?", now, now).
+        First(&term).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบเทอมปัจจุบัน"})
+        return
+    }
+
+    // ดึงตารางเรียนของ grade_id ที่อยู่ในเทอมปัจจุบัน
+    var schedules []entity.Schedules
+    if err := config.DB().
+        Preload("Days").
+        Preload("Course").
+        Preload("Course.Subject_Group").
+        Preload("Teacher").
+        Preload("TimeStart").
+        Preload("TimeEnd").
+        Preload("Grade").
+        Where("term_id = ? AND teacher_id = ? ",term.ID,teacher_id).
+        Find(&schedules).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    responses := make([]ScheduleResponse, 0, len(schedules))
+    for _, s := range schedules {
+        subjectGroupName := ""
+        if s.Course != nil && s.Course.Subject_Group != nil {
+            subjectGroupName = s.Course.Subject_Group.SubjectGroup_Name
+        }
+
+        resp := ScheduleResponse{
+            ID:            int(s.ID),
+            Day:           s.Days.ThaiDay,
+            StartTime:     s.TimeStart.Period,
+            EndTime:       s.TimeEnd.Period,
+            CourseName:    s.Course.Course_Name,
+            CourseCode:    s.Course.Course_Code,
+            CreditNum:     s.Course.Credit_Num,
+            ClassInWeek:   s.Course.Class_in_week,
+            HoursOfTerm:   s.Course.Hours_of_term,
+            Subject_Group: subjectGroupName,
+            TeacherName:   s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
+        }
+        if s.Grade != nil {
+            resp.GradeYeaer = s.Grade.Grade_Year
+            resp.Grade_Class = s.Grade.Grade_Class
+        }
+        responses = append(responses, resp)
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": responses, "term_id": term.ID, "semester": term.Semester, "academic_year": term.Academic_year})
+}

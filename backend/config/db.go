@@ -34,23 +34,23 @@ func SetupDatabase() {
 		&entity.Enrollment{}, &entity.Grade{}, &entity.Guardian{}, &entity.GuardianStudent{}, &entity.Payment{},
 		&entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{}, &entity.Subdistrict{},
 		&entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{}, &entity.Term{}, &entity.Tuition{},
-		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{},&entity.Notifications{}, &entity.Title{},&entity.Gender{},&entity.Enrollments{},
+		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{}, &entity.Notifications{}, &entity.Title{}, &entity.Gender{}, &entity.Enrollments{},
 	)
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
 	}
 
 	//ฟังก์ชัน seed ข้อมูล
-    seedDays()
-    seedTimeStart()
-    seedTimeEnd()
-    // seedStudent()
-    seedTeachers()
-    seedAdmin()
-    seedUserType()
-    seedGrade()
-    seedTerm()
-    seedUsers()
+	seedDays()
+	seedTimeStart()
+	seedTimeEnd()
+	// seedStudent()
+	// seedTeachers()
+	seedAdmin()
+	seedUserType()
+	seedGrade()
+	seedTerm()
+	seedUsers()
 	seedProvince()
 	//seeddistrict()
 	//seedCourse()
@@ -58,6 +58,5 @@ func SetupDatabase() {
 	seedTargetGroup(db)
 	seedGender()
 	seedTitle()
-	
 
 }
