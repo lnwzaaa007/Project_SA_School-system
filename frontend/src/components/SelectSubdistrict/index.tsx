@@ -40,7 +40,10 @@ const SelectSubdistrict: React.FC<subdistrict> = ({ districtId, value, onChange,
       className="custom-select-subdistrict"
         placeholder="ตำบล/แขวง"
         value={value ?? undefined}
-        onChange={(v) => onChange(v)}
+        onChange={(v) => {
+          console.log("เลือก:", v); // แสดงเฉพาะ id
+          onChange(v);
+        }}
         allowClear
         disabled={disabled || !districtId}
         options={options.map((d) => ({ value: d.id, label: d.Sname_th }))}

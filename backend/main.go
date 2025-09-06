@@ -12,11 +12,15 @@ const PORT = "8088"
 func main() {
 	config.ConnectionDB()
 	config.SetupDatabase()
-
+	
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	// r.Use(middlewares.Authorizes())
+	r.MaxMultipartMemory = 32 << 20
 
+    // ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
+    r.Static("/uploads", "./uploads")
+	r.POST("/enrollments", controllers.CreateEnrollment)
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
 	
@@ -113,6 +117,17 @@ func main() {
 		
 		// ✅ ดาวน์โหลดตาม id
 		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
+
+		// // สมัครเรียน
+		//  router.POST("/enrollments", controllers.CreateEnrollment)
+
+		// gender
+		router.GET("/gender", controllers.GetGender)
+		router.GET("/gender/:id", controllers.GetGenderById)
+
+		// title
+		router.GET("/title", controllers.GetTitle)
+		router.GET("/title/:id", controllers.GetTitleById)
 	
 
 	}
@@ -124,6 +139,8 @@ func main() {
 
 	// Run the server go run main.go
 	r.Run("localhost:" + PORT)
+	// สมัครเรียน
+	
 
 }
 

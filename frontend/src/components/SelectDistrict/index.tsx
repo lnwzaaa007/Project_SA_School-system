@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Select, message ,} from "antd";
 import { AddressAPI } from "../../services/https";
 import './index.css';
+import type { DistrictInterface } from "../../interfaces/District";
 
 const {Option} =Select;
 type Props = {
@@ -36,14 +37,18 @@ const SelectDistrict: React.FC<Props> = ({ provinceId, value, onChange, disabled
      <>
       {ctx}
       <Select
-      className="custom-select-district"
-        placeholder="อำเภอ/เขต"
-        value={value ?? undefined}
-        onChange={(v) => onChange(v)}
-        allowClear
-        disabled={disabled || !provinceId}
-        options={options.map((d) => ({ value: d.id, label: d.Pname_th }))}
-      />
+  className="custom-select-district"
+  placeholder="อำเภอ/เขต"
+  value={value ?? undefined}
+  onChange={(v) => {
+    console.log("เลือก:", v); // แสดงเฉพาะ id
+    onChange(v);
+  }}
+  allowClear
+  disabled={disabled || !provinceId}
+  options={options.map((d) => ({ value: d.id, label: d.Pname_th }))}
+/>
+
     </>
   );
 };
