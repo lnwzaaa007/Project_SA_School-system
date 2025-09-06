@@ -12,12 +12,19 @@ import MadalCancel from "../../../components/ModalCancel";
 import UploadImages from "../../../components/UploadImages";
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
+import SelectGender from "../../../components/SelectGender";
+import SelectTitleTH from "../../../components/SelectTitleTH";
+import SelectTitleENG from "../../../components/SelectTitleENG";
 
 
 
 const AddInformation = () => {
   
-
+  const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
+  const [selectedClass, setSelectedClass] = useState<number | null>(null);
+  const [selectedGender, setSelectedGender] = useState<number | null>(null);
+  const [selectedTitleTH, setSelectedTitleTH] = useState<number | null>(null);
+  const [selectedTitleENG, setSelectedTitleENG] = useState<number | null>(null);
   const navigate = useNavigate();
   
   return (
@@ -40,13 +47,8 @@ const AddInformation = () => {
           <Row gutter={[16, 12]}>
             <Col xs={24} md={3}>
               <label style= {{lineHeight: "2"}}>คำนำหน้า</label>
-              <Select placeholder="เลือก" style={{ width: "100%" }}>
-                <Option value="เด็กชาย">เด็กชาย</Option>
-                <Option value="เด็กหญิง">เด็กหญิง</Option>
-                <Option value="นาย">นาย</Option>
-                <Option value="นาง">นาง</Option>
-                <Option value="นางสาว">นางสาว</Option>
-              </Select>
+              
+              <SelectTitleTH value={selectedTitleTH} onChange={setSelectedTitleTH}/>
             </Col>
 
             <Col xs={24} md={9}>
@@ -63,12 +65,8 @@ const AddInformation = () => {
         <Row  gutter={[16, 12]}>
           <Col xs={24} md={3}>
             <label style= {{lineHeight: "2"}}>Name Prefix</label>
-            <Select placeholder="Select" style={{ width: "100%" }}>
-                <Option value="Master">Master</Option>
-                <Option value="Miss">Miss</Option>
-              <Option value="Mr.">Mr.</Option>
-              <Option value="Ms.">Ms.</Option>
-            </Select>
+            <SelectTitleENG value={selectedTitleENG} onChange={setSelectedTitleENG}/>
+
           </Col>
 
           <Col xs={24} md={9}>
@@ -92,10 +90,8 @@ const AddInformation = () => {
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>เพศ</label>
-            <Select placeholder="เลือก" style={{ width: "100%" }}>
-              <Option value="ชาย">ชาย</Option>
-              <Option value="หญิง">หญิง</Option>
-            </Select>
+            <p></p>
+            <SelectGender value={selectedGender} onChange={setSelectedGender} />
           </Col>
         </Row>
         <Row gutter={[16, 12]}>
@@ -103,13 +99,13 @@ const AddInformation = () => {
           <label style= {{lineHeight: "2"}}>ชั้น</label>
           <p></p>
 
-            <SelectGrade/>
+            <SelectGrade value={selectedGrade} onChange={setSelectedGrade}/>
             
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>ห้อง</label>
             <p></p>
-            <SelectClass/>
+            <SelectClass value={selectedClass} onChange={setSelectedClass}/>
             
           </Col>
         </Row>

@@ -204,4 +204,14 @@ export const AssignmentAPI = {
 
 }
 
+export const GenderAPI = {
+  getGender: () => Get("/gender"),
+}
+
+export const TitleAPI = {
+  getTitle : () => Get("/title"),
+}
+
+
+
 

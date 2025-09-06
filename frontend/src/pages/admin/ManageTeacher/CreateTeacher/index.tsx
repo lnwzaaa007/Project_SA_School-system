@@ -14,6 +14,10 @@ import SelectProvince from "../../../../components/SelectProvince";
 import SelectDistrict from "../../../../components/SelectDistrict";
 import SelectSubdistrict from "../../../../components/SelectSubdistrict";
 import SelectZipcode from "../../../../components/SelectZipcode";
+import SelectGender from "../../../../components/SelectGender";
+import SelectTitleENG from "../../../../components/SelectTitleENG";
+import SelectTitleTH from "../../../../components/SelectTitleTH";
+
 
 
 const ManageTeacher = () => {
@@ -21,7 +25,10 @@ const ManageTeacher = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);;
   const [selectedSubdistrict, setSelectedSubdistrict] = useState<number | null>(null);
   const [selectedZipcode, setSelectedZipcode] = useState<number | null>(null);
-  
+  const [selectedGender, setSelectedGender] = useState<number | null>(null);
+  const [selectedTitleTH, setSelectedTitleTH] = useState<number | null>(null);
+  const [selectedTitleENG, setSelectedTitleENG] = useState<number | null>(null);
+
     const handleProvinceChange = (value: React.SetStateAction<number | null>) => {
       setSelectedProvince(value);
       setSelectedDistrict(null); // reset อำเภอ
@@ -65,11 +72,8 @@ const ManageTeacher = () => {
           <Row gutter={[16, 12]}>
             <Col xs={24} md={3}>
               <label style= {{lineHeight: "2"}}>คำนำหน้า</label>
-              <Select placeholder="เลือก" style={{ width: "100%" }}>
-                <Option value="นาย">นาย</Option>
-                <Option value="นาง">นาง</Option>
-                <Option value="นางสาว">นางสาว</Option>
-              </Select>
+              <SelectTitleTH value={selectedTitleTH} onChange={setSelectedTitleTH}/>
+
             </Col>
 
             <Col xs={24} md={9}>
@@ -86,10 +90,7 @@ const ManageTeacher = () => {
         <Row  gutter={[16, 12]}>
           <Col xs={24} md={3}>
             <label style= {{lineHeight: "2"}}>Name Prefix</label>
-            <Select placeholder="Select" style={{ width: "100%" }}>
-              <Option value="Mr.">Mr.</Option>
-              <Option value="Ms.">Ms.</Option>
-            </Select>
+            <SelectTitleENG value={selectedTitleENG} onChange={setSelectedTitleENG}/>
           </Col>
 
           <Col xs={24} md={9}>
@@ -113,10 +114,8 @@ const ManageTeacher = () => {
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>เพศ</label>
-            <Select placeholder="เลือก" style={{ width: "100%" }}>
-              <Option value="ชาย">ชาย</Option>
-              <Option value="หญิง">หญิง</Option>
-            </Select>
+            <p></p>            
+            <SelectGender value={selectedGender} onChange={setSelectedGender} />
           </Col>
         </Row>
         <Row gutter={[16, 12]}>

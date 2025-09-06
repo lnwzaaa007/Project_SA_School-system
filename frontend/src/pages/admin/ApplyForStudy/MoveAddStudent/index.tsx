@@ -12,18 +12,24 @@ import MadalCancel from "../../../../components/ModalCancel";
 import UploadImages from "../../../../components/UploadImages";
 import SelectGrade from "../../../../components/SelectGrade";
 import SelectClass from "../../../../components/SelectClass";
+import SelectGender from "../../../../components/SelectGender";
+import SelectTitleTH from "../../../../components/SelectTitleTH";
+import SelectTitleENG from "../../../../components/SelectTitleENG";
 
 
 const MoveAddStudent = () => {
-  
-
+  const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
+  const [selectedClass, setSelectedClass] = useState<number | null>(null);
+  const [selectedGender, setSelectedGender] = useState<number | null>(null);
+  const [selectedTitleTH, setSelectedTitleTH] = useState<number | null>(null);
+  const [selectedTitleENG, setSelectedTitleENG] = useState<number | null>(null);
   const navigate = useNavigate();
   
   return (
-    <div >
+ 
+      <div>
       
-      
-        <div style={{justifyContent: "center",boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: '75px', background : "linear-gradient(to left, #ffffffff, #ffffffff)", minHeight: '80vh', maxWidth: '100%' ,borderRadius: "16px" }} >
+        
           <h1>ข้อมูลทั่วไป</h1>
           <Row gutter={[16, 12]}>
             <Col xs={24} md={12}>
@@ -39,11 +45,8 @@ const MoveAddStudent = () => {
           <Row gutter={[16, 12]}>
             <Col xs={24} md={3}>
               <label style= {{lineHeight: "2"}}>คำนำหน้า</label>
-              <Select placeholder="เลือก" style={{ width: "100%" }}>
-                <Option value="นาย">นาย</Option>
-                <Option value="นาง">นาง</Option>
-                <Option value="นางสาว">นางสาว</Option>
-              </Select>
+              <SelectTitleTH value={selectedTitleTH} onChange={setSelectedTitleTH}/>
+
             </Col>
 
             <Col xs={24} md={9}>
@@ -60,10 +63,8 @@ const MoveAddStudent = () => {
         <Row  gutter={[16, 12]}>
           <Col xs={24} md={3}>
             <label style= {{lineHeight: "2"}}>Name Prefix</label>
-            <Select placeholder="Select" style={{ width: "100%" }}>
-              <Option value="Mr.">Mr.</Option>
-              <Option value="Ms.">Ms.</Option>
-            </Select>
+            <SelectTitleENG value={selectedTitleENG} onChange={setSelectedTitleENG}/>
+
           </Col>
 
           <Col xs={24} md={9}>
@@ -87,10 +88,8 @@ const MoveAddStudent = () => {
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>เพศ</label>
-            <Select placeholder="เลือก" style={{ width: "100%" }}>
-              <Option value="ชาย">ชาย</Option>
-              <Option value="หญิง">หญิง</Option>
-            </Select>
+            <p></p>
+            <SelectGender value={selectedGender} onChange={setSelectedGender} />
           </Col>
         </Row>
         <Row gutter={[16, 12]} >
@@ -98,13 +97,13 @@ const MoveAddStudent = () => {
           <label style= {{lineHeight: "2"}}>ชั้น</label>
           <p></p>
 
-            <SelectGrade/>
+            <SelectGrade value={selectedGrade} onChange={setSelectedGrade}/>
             
           </Col>
           <Col xs={24} md={12}>
             <label style= {{lineHeight: "2"}}>ห้อง</label>
             <p></p>
-            <SelectClass/>
+            <SelectClass value={selectedClass} onChange={setSelectedClass}/>
             
           </Col>
         </Row>
@@ -166,16 +165,16 @@ const MoveAddStudent = () => {
           </Space>
       
     </div>
-    </div>
+
     
 
   
 
 
+   </div> 
     
     
-    
-</div>
+
   );
 };
 

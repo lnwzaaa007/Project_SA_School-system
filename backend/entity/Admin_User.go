@@ -18,5 +18,7 @@ type Admin_User struct {
 	// Users Users
 	UsersID uint	`json:"users_id"`
 	Enrollment []Enrollment `gorm:"foreignKey:AdminID" json:"enrollment"`
+	Enrollments []Enrollments `gorm:"foreignKey:AdminID" json:"enrollments"`
+
 	Announcement []Announcement `gorm:"foreignKey:AdminID" json:"announcement"`
 }

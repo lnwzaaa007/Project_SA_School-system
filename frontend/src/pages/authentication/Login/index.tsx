@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Row, Col } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Outlet } from "react-router-dom";
 import { Button, Space, Typography, Input, Card,Form,message} from "antd";
 import School from "../../../assets/School.jpg"
 import { authAPI ,studentAPI,teacherAPI ,adminAPI,userTypeAPI} from "../../../services/https";
@@ -219,6 +219,7 @@ const SignInPages = () => {
           </Space>
         </Card>
       </div>
+        <Outlet/>
     </div>
     </>
   );

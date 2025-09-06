@@ -17,5 +17,6 @@ type Thai_Subdistrict struct {
 
 	
 
-	Address Address 
+	Address Address  //`gorm:"foreignKey:addressID" json:"address_id"`
+
 }
