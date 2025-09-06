@@ -119,14 +119,14 @@ export const authAPI = {
 export const studentAPI = {
   getStudent: (user_id :number) => Get(`/students/${user_id}`),
   // getNameStudentById: (user_id: number | string) => Get(`/student/${user_id}`),
-  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
+  
 };
 
 export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
   // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
-  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
+ 
   getNameTeacherAll: () => Get(`/teachers`),
 };
 
@@ -152,7 +152,9 @@ export const ScheduleAPI = {
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
   // requires auth to pass middleware
   postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
-  deleteSchedule: (id: number) => Delete(`/schedules/${id}`)
+  deleteSchedule: (id: number) => Delete(`/schedules/${id}`),
+  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
+  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
 
 };
 //แม็ก ระบบเช็คชื่อ

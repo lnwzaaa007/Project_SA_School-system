@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { studentAPI } from "../../../services/https";
+import { ScheduleAPI } from "../../../services/https";
 import type { ScheduleInterface } from "../../../interfaces/Schedule";
 import { Table, Card, message, List, Divider } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -213,7 +213,7 @@ const ScheduleStudent: React.FC = () => {
       }
 
       // เรียก API ตารางเรียนของนักเรียนตาม grade_id
-      const res: any = await studentAPI.getStudentSchedule(grade_id);
+      const res: any = await ScheduleAPI.getStudentSchedule(grade_id);
 
       // รูปแบบจาก backend: { data: [...], term_id, semester, academic_year }
       const raw = (Array.isArray(res?.data) ? res.data : []) as ScheduleInterface[];
