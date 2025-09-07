@@ -31,12 +31,29 @@ const getConfigWithoutAuth = () => ({
   },
 });
 
+// services/https.ts (หรือไฟล์ services ของคุณ)
+const isFormData = (data: any) =>
+  typeof FormData !== "undefined" && data instanceof FormData;
+
+const getFormConfig = (requireAuth = true) => ({
+  headers: {
+    ...(requireAuth
+      ? { Authorization: `Bearer ${getCookie("0195f494-feaa-734a-92a6-05739101ede9")}` }
+      : {}),
+    // อย่ากำหนด Content-Type เวลาเป็น FormData
+  },
+});
+
 export const Post = async (
   url: string,
   data: any,
   requireAuth: boolean = true
 ): Promise<AxiosResponse | any> => {
-  const config = requireAuth ? getConfig() : getConfigWithoutAuth();
+  const config = isFormData(data)
+    ? getFormConfig(requireAuth)
+    : requireAuth
+    ? getConfig()
+    : getConfigWithoutAuth();
   return await axios
     .post(`${API_URL}${url}`, data, config)
     .then((res) => res)
@@ -214,6 +231,10 @@ export const GenderAPI = {
 export const TitleAPI = {
   getTitle : () => Get("/title"),
 }
+
+export const EnrollmentAPI = {
+  createEnrollment: (form: FormData) => Post("/enrollments", form, false),
+};
 
 
 
