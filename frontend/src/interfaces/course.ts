@@ -21,8 +21,8 @@ export interface courseInterface {
     // period?: number;
     teacher?: string;
     teacher_id?: number;
-    gradeID?: number;
-    termID?: number;
+    grade_id?: number;
+    term_id?: number;
     
 }
 // export inter

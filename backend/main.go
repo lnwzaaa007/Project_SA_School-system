@@ -98,7 +98,10 @@ func main() {
 		router.GET("/subjectgroup", controllers.GetSubjectGroupAll)
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
-		// router.GET("/courses/:id", controllers.GetCourseByID)	
+		// router.GET("/courses/:id", controllers.GetCourseByID)
+		// router.PUT("/course/:id", controllers.UpdateCourseByID)
+		// router.DELETE("/course/:id", controllers.DeleteCourseByID)
+		router.GET("/gradeclass/allwithyear", controllers.GetGradeClassAllWithYear)	
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)

@@ -14,10 +14,11 @@ type CourseInput struct {
 	SubjectGroupID 	uint 	`json:"subject_group_id" binding:"required"`
 	Credit_Num   	float32 `json:"credit_num" binding:"required"`
 	Class_in_week 	int 	`json:"class_in_week"`
-	Hours_of_term 	float32 	`json:"hours_of_term"`
-	// Grade_Year		string 	`json:"grade_year" binding: "required"` 
-	// Grade_Class 	uint	`json:"grade_class"`
-	// TermID 			uint 	`json:"term_id"`
+	Hours_of_term 	float32 `json:"hours_of_term"`
+	GradeID			uint	`json:"grade_id"`
+	Grade_Year		string 	`json:"grade_year" binding: "required"` 
+	Grade_Class 	uint	`json:"grade_class" binding: "required"` 
+	TermID 			uint 	`json:"term_id"`
 	TeacherID		uint 	`json:"teacher_id" binding:"required"`
 }
 func CreateCourse(c *gin.Context) {
@@ -26,6 +27,7 @@ func CreateCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	// ตรวจสอบความครบถ้วน
 	if input.Course_Code == "" || input.Course_Name == "" || input.SubjectGroupID == 0 ||
 		input.Credit_Num == 0 {
@@ -52,6 +54,11 @@ func CreateCourse(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบกลุ่มวิชานี้ในระบบ"})
 		return
 	}
+	var grade entity.Grade
+    if err := config.DB().Where("grade_year = ? AND grade_class = ?", input.Grade_Year, input.Grade_Class).First(&grade).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบข้อมูลระดับชั้นและห้องนี้ในระบบ"})
+        return
+    }
 	// ตรวจสอบระดับชั้น
 	// var grade entity.Grade
 	// if err := config.DB().Where("grade_year = ?", input.Grade_Year).First(&grade).Error; err != nil {
@@ -74,6 +81,9 @@ func CreateCourse(c *gin.Context) {
 	// 	return
 	// }
 
+	//บันทึกข้อมูลลง GradeID
+
+
 	//คำนวณจำนวนชั่วโมงเรียนต่อเทอม
 	hourOfTerm := int(input.Credit_Num * 40.0)
 	//การ map ข้อมูล
@@ -84,8 +94,10 @@ func CreateCourse(c *gin.Context) {
 		Class_in_week: input.Class_in_week,
 		Hours_of_term: hourOfTerm,
 		SubjectGroupID: input.SubjectGroupID,
-		// GradeID: input.GradeID,
-		// TermID: input.TermID,
+		GradeID:   grade.ID,
+		// Grade_Year:   input.Grade_Year,
+		// Grade_Class:  input.Grade_Class,
+		TermID: input.TermID,
 		TeacherID: input.TeacherID,
 	}
 	// var createdCourse entity.Course
@@ -115,7 +127,7 @@ type ResultByCourseID struct {
 	ID				uint 	`json:"id"`
 	Course_Code		string 	`json:"course_code"` 
 	Course_Name		string 	`json:"course_name"`
-	SubjectGroupName string  `json:"subject_group_name"`
+	SubjectGroupName string `json:"subject_group_name"`
 	Credit_Num   	float32 `json:"credit_num"`
 	Class_in_week 	int 	`json:"class_in_week"`
 	Hours_of_term 	float32 `json:"hours_of_term"`
@@ -138,4 +150,24 @@ func GetCourseAll (c *gin.Context){
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": results})
+}
+
+//ดึงข้อมูลระดับชั้นและห้อง ทั้งหมด
+type GradeClassWithYear struct {
+    ID         uint   `json:"id"`
+    GradeClass int    `json:"grade_class"`
+    GradeYear  string `json:"grade_year"`
+}
+func GetGradeClassAllWithYear(c *gin.Context) {
+    var gradeClasses []GradeClassWithYear
+    // ดึงข้อมูลจากตาราง grades ทั้ง grade_class และ grade_year
+    if err := config.DB().Raw(`
+        SELECT id, grade_class, grade_year
+        FROM grades
+        ORDER BY grade_year, grade_class
+    `).Scan(&gradeClasses).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+    c.JSON(http.StatusOK, gradeClasses)
 }

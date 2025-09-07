@@ -101,7 +101,7 @@ const CourseTable: React.FC = () => {
       title: 'รหัสวิชา',
       dataIndex: 'course_code',
       key: 'course_code',
-      width: 200,
+      width: 120,
       onHeaderCell: () => ({
           style: {
               background:"#f2f2f2"
@@ -112,7 +112,7 @@ const CourseTable: React.FC = () => {
       title: 'ชื่อวิชา',
       dataIndex: 'course_name',
       key: 'course_name',
-      width: 150,
+      width: 180,
       onHeaderCell: () => ({
           style: {
               background:"#f2f2f2"
@@ -131,36 +131,7 @@ const CourseTable: React.FC = () => {
           }
       })
     },
-  //   {
-  //     title: 'จำนวนหน่วยกิต',
-  //     key: 'tags',
-  //     dataIndex: 'tags',
-  //     render: (_, { tags }) => (
-  //       <>
-  //         {tags.map((tag) => {
-  //           let color = tag.length > 5 ? 'geekblue' : 'green';
-  //           if (tag === 'loser') {
-  //             color = 'volcano';
-  //           }
-  //           return (
-  //             <Tag color={color} key={tag}>
-  //               {tag.toUpperCase()}
-  //             </Tag>
-  //           );
-  //         })}
-  //       </>
-  //     ),
-  //   },
-  //   {
-  //     title: 'Action',
-  //     key: 'action',
-  //     render: (_, record) => (
-  //       <Space size="middle">
-  //         <a>Invite {record.name}</a>
-  //         <a>Delete</a>
-  //       </Space>
-  //     ),
-  //   },
+
     {
       title: 'จำนวนหน่วยกิต',
       dataIndex: 'credit_num',
@@ -181,7 +152,8 @@ const CourseTable: React.FC = () => {
           style: {
               background:"#f2f2f2"
           }
-      })
+      }),
+      render: (text) => `ม. ${text}` // เพิ่ม "ม." หน้าข้อความ
     },
     {
       title: 'ห้อง',
@@ -198,7 +170,7 @@ const CourseTable: React.FC = () => {
       title: 'จำนวนคาบ/สัปดาห์',
       dataIndex: 'class_in_week',
       key: 'class_in_week',
-      width: 180,
+      width: 150,
       onHeaderCell: () => ({
           style: {
               background:"#f2f2f2"

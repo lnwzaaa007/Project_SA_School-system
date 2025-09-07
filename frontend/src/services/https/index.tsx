@@ -187,9 +187,10 @@ export const subjectGroupAPI = {
 
 export const courseAPI = {
   CreateCourseAll: (course:{course_code: string; course_name:string; subject_group_id: number; credit_num: number;
-    class_in_week: number; grade_year: string; grade_class: number; teacher_id: number;
-   }) => Post("/new-course", course),
-  getCourseAll: () => Get("/coursesall")
+    class_in_week: number; grade_year: string; grade_class: number; teacher_id: number; term_id: number; grade_id: number;
+   }) => Post("/new-course", course), 
+  getCourseAll: () => Get("/coursesall"),
+  getGradClassAllWithYear: () => Get(`/gradeclass/allwithyear`),
   
 };
 export const ProvinceAPI ={
