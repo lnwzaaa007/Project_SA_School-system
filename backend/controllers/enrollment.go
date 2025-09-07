@@ -122,3 +122,47 @@ func CreateEnrollment(c *gin.Context) {
         },
     })
 }
+
+type Enrollment struct {
+    TitleID     uint   `json:"id"`
+    TFirst_Name string `josn:"t_first_name" `
+    TLast_Name  string `josn:"t_last_name" `
+    EFirst_Name string `josn:"e_first_name" `
+    ELast_Name  string `josn:"e_last_name"  `
+    Citizen_ID  string `josn:"citizen_id"   `
+    Tel         string `josn:"tel"          `
+    DateOfBirth string `josn:"date_of_birth" ` // YYYY-MM-DD
+    GenderID    uint   `josn:"gender_id"    `
+    Nationality string `josn:"nationality"  `
+    Email       string `josn:"email"       `
+    Religious   string `josn:"religious"` // optional
+    Address     string `josn:"address"      `
+    Guardian    string `josn:"guardian"     `
+    Grade_Year  int    `josn:"grade_year"   `
+    Grade_Class int    `josn:"grade_class"  `
+    Admin_ID    uint   `josn:"admin_id"`
+}
+
+func GetEnrollment(c *gin.Context) {
+	var enrollment []Enrollment
+	if err := config.DB().
+        Raw("SELECT * FROM enrollments ORDER BY id ASC").
+        Scan(&enrollment).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, enrollment)
+}
+func GetEnrollmentById(c *gin.Context) {
+	var name Enrollment
+	id := c.Param("id")
+
+	if err := config.DB().Table("enrollments").
+		Select("*").
+		Where("id = ?", id).
+		Scan(&name).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "enrollment not found"})
+		return
+	}
+	c.JSON(http.StatusOK, name)
+}

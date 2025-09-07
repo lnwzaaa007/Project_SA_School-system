@@ -126,7 +126,10 @@ func main() {
 		// title
 		router.GET("/title", controllers.GetTitle)
 		router.GET("/title/:id", controllers.GetTitleById)
-	
+
+		// enrollment
+		router.GET("/enrollment", controllers.GetEnrollment)
+		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
 
 	}
 

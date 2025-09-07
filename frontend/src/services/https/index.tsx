@@ -233,8 +233,10 @@ export const TitleAPI = {
 }
 
 export const EnrollmentAPI = {
+  getEnrollment: () => Get("/enrollment"),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
 };
+
 
 
 
