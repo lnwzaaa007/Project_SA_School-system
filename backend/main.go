@@ -18,9 +18,7 @@ func main() {
 	// r.Use(middlewares.Authorizes())
 	r.MaxMultipartMemory = 32 << 20
 
-	// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
-	r.Static("/uploads", "./uploads")
-	r.POST("/enrollments", controllers.CreateEnrollment)
+  
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
 
@@ -132,8 +130,16 @@ func main() {
 		router.GET("/title", controllers.GetTitle)
 		router.GET("/title/:id", controllers.GetTitleById)
 
+		// enrollment
+		router.GET("/enrollment", controllers.GetEnrollment)
+		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
+
 	}
 
+	// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
+    r.Static("/uploads", "./uploads")
+	r.POST("/enrollments", controllers.CreateEnrollment)
+	
 	// Login routes
 	r.POST("/auth", controllers.LoginUser)
 	// r.POST("/creator/auth", controllers.LoginUser)

@@ -85,6 +85,7 @@ const SignInPages = () => {
     }
   };
 
+
   return (
     <>
     {contextHolder}
@@ -133,8 +134,8 @@ const SignInPages = () => {
           <Button
               block
               onClick={() => {
-                navigate("/enrollment");
                 localStorage.setItem("role", "enrollment");
+                navigate("/enrollment");
               }}
             >
               สมัครเรียน
