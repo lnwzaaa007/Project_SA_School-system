@@ -79,9 +79,22 @@ const TableApplyForStudy: React.FC = () => {
     message.success(`ยืนยันข้อมูล: ${record.firstName} ${record.lastName}`);
   };
   const onDelete = async (record: Row) => {
-    message.info(`(ตัวอย่าง) ลบข้อมูล id=${record.id}`);
-    // ลบเสร็จ -> load();
-  };
+  try {
+    const res = await EnrollmentAPI.deleteEnrollment(record.id);
+
+    // Delete() ของคุณ: สำเร็จ -> คืน res.data (ไม่มี res.status)
+    // ผิดพลาด -> คืน error.response (มี res.status)
+    if (res && typeof res.status === "number") {
+      message.error(res?.data?.error || "ลบไม่สำเร็จ");
+      return;
+    }
+
+    message.success(res?.message || `ลบข้อมูล ID ${record.id} สำเร็จ`);
+    setRows((prev) => prev.filter((r) => r.id !== record.id));
+  } catch (e: any) {
+    message.error(e?.message || "ลบไม่สำเร็จ");
+  }
+};
 
   const columns: TableColumnsType<Row> = [
     { title:"ลำดับ",render: (_,_r, index) => index + 1, width: 50, fixed: "left"},

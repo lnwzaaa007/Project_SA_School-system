@@ -244,7 +244,9 @@ export const TitleAPI = {
 
 export const EnrollmentAPI = {
   getEnrollment: () => Get("/enrollment"),
+  getEnrollmentById: (id: number | string) => Get(`/enrollment/${id}`),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
+  deleteEnrollment: (id: number | string) => Delete(`/enrollment/${id}`),
 };
 
 
