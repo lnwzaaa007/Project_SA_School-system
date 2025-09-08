@@ -179,7 +179,10 @@ export const AttendancesAPI ={
   getCourseSchedule: (grade: number,classID:number) => Get(`/attendances-course?grade=${grade}&class=${classID}`),
   getStudentByGrade: (grade: number,classID:number) => Get(`/attendances-student?grade=${grade}&class=${classID}`),
   postAttendance: (data: AttendanceInterface) => Post(`/attendances-record`,data,true),
-  getAttendanceHistory: (schedule_id:number, student_id:number) => Get(`/attendances-history?schedule_id=${schedule_id}&student_id=${student_id}`)
+  getAttendanceHistory: (schedule_id:number, student_id:number) => Get(`/attendances/student-history?schedule_id=${schedule_id}&student_id=${student_id}`),
+  getAttendanceTeacher: (schedule_id:number) => Get(`/attendances/teacher-history?schedule_id=${schedule_id}`),
+  getAttendanceByDate: (schedule_id:number, date:string) => Get(`/attendances-date?schedule_id=${schedule_id}&date=${date}`),
+  updateAttendance: (data: AttendanceInterface & { date: string }) => Update(`/attendances-record`, data, true),
 };
 
 export const userTypeAPI = {
@@ -246,7 +249,5 @@ export const EnrollmentAPI = {
   getEnrollment: () => Get("/enrollment"),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
 };
-
-
 
 
