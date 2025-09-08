@@ -9,6 +9,8 @@ type Gender struct{
 
 	Enrollment	Enrollment	`gorm:"foreignKey:GenderID" json:"enrollment"`
 
+	Teacher Teacher `gorm:"foreignKey:GenderID" json:"teacher"`
+
 	Enrollments	Enrollments	`gorm:"foreignKey:GenderID" json:"enrollments"`
 
 }

@@ -34,10 +34,11 @@ func main() {
 		// router.DELETE("/students/:id", control..lers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
 
 		// Teacher routes
-		// router.GET("/teacher", controllers.GetNameTeacher)
+		router.GET("/teacher", controllers.GetNameTeacher)
 		router.GET("/teachers/:user_id", controllers.GetTeacherAllById)
-		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
+		router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
+		router.POST("/teacher", controllers.CreateTeacher)
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
@@ -133,6 +134,7 @@ func main() {
 		// enrollment
 		router.GET("/enrollment", controllers.GetEnrollment)
 		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
+		router.DELETE("/enrollment/:id", controllers.DeleteEnrollment) 
 
 	}
 
