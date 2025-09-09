@@ -143,6 +143,7 @@ export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
   // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  createTeacher: (form: FormData) => Post(`/teacher`, form, true),
  
   getNameTeacherAll: () => Get(`/teachers`),
 };

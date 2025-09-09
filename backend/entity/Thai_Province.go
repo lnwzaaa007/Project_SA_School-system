@@ -11,5 +11,6 @@ type Thai_Province struct {
 
 	Thai_District []Thai_District `gorm:"foreignKey:ProvinceID" json:"thai_amphures"`
 
-	Address Address 
+	Address Address `gorm:"foreignKey:Thai_Province_ID" json:"address"`
+
 } 
