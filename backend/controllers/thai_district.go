@@ -11,16 +11,16 @@ import (
 
 type thaidistrict struct {
 	District_ID uint `json:"id" gorm:"column:id"`
-	Province_ID 	  uint   `json:"province_id" gorm:"column:province_id"`
-	Province_Name string `json:"Pname_th" gorm:"column:name_th"`
-	District_name string `json:"Dname_th" gorm:"column:name_th"`
+	Province_ID 	  uint   `json:"thai_province_id" gorm:"column:thai_province_id"`
+	Province_Name string `json:"Pname_th" gorm:"column:thai_province_name"`
+	District_name string `json:"thai_district_name" gorm:"column:thai_district_name"`
 	
 }
 
 func GetThaiDistrict(c *gin.Context) {
 	var thaidistrict []thaidistrict
 	if err := config.DB().
-        Raw("SELECT thai_amphures.*,thai_provinces.name_th FROM thai_amphures inner join thai_provinces on thai_amphures.province_id = thai_provinces.id ").
+        Raw("SELECT thai_districts.*,thai_provinces.thai_province_name FROM thai_districts inner join thai_provinces on thai_districts.thai_province_id = thai_provinces.id ").
         Scan(&thaidistrict).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
         return
@@ -33,9 +33,9 @@ func GetThaiDistrictById(c *gin.Context) {
     var rows []thaidistrict
 
     if err := config.DB().
-        Table("thai_amphures").
-        Select("id, province_id, name_th").
-        Where("province_id = ?", provinceID).
+        Table("thai_districts").
+        Select("id, thai_province_id, thai_district_name").
+        Where("thai_province_id = ?", provinceID).
         Order("id ASC").
         Scan(&rows).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})

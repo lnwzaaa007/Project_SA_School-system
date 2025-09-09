@@ -24,6 +24,7 @@ type Enrollment struct {
 	GenderID uint `gorm:"foreignKey:GenderID;not null" json:"gender_id"`
 	Nationality string `gorm:"not null" json:"nationality"`
 	Email string `gorm:"not null" json:"email"`
+	Age int `json:"age"`
 	Religious *string ` json:"religious"`
 	Address string `gorm:"not null" json:"address"`
 	Guardian string `gorm:"not null" json:"guardian"`
