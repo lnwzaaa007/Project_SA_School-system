@@ -13,7 +13,7 @@ type subdistrict = {
   disabled?: boolean;
 };
 
-type Subdisistrict = { id: number; zip_code: number; amphure_id: number; Sname_th: string; };
+type Subdisistrict = { id: number; thai_zip_code: number; thai_district_id: number; thai_subdistrict_name: string; };
 
 const SelectSubdistrict: React.FC<subdistrict> = ({ districtId, value, onChange, disabled }) => {
   const [options, setOptions] = useState<Subdisistrict[]>([]);
@@ -46,7 +46,7 @@ const SelectSubdistrict: React.FC<subdistrict> = ({ districtId, value, onChange,
         }}
         allowClear
         disabled={disabled || !districtId}
-        options={options.map((d) => ({ value: d.id, label: d.Sname_th }))}
+        options={options.map((d) => ({ value: d.id, label: d.thai_subdistrict_name }))}
       />
     </>
   );

@@ -167,6 +167,7 @@ const ManageTeacher: React.FC = () => {
         <Row gutter={[16, 12]}>
           <Col xs={24} md={3}>
             <label style={{ lineHeight: "2" }}>คำนำหน้า (TH)</label>
+            <p></p>
             <SelectTitleTH value={titleThId} onChange={setTitleThId} />
           </Col>
           <Col xs={24} md={9}>
@@ -258,25 +259,35 @@ const ManageTeacher: React.FC = () => {
                   </Row>
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             <label>จังหวัด</label>
-            <div />
             <SelectProvince value={selectedProvince} onChange={handleProvinceChange} />
+            </div>
+            
           </Col>
           <Col xs={24} md={12}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             <label>อำเภอ/เขต</label>
-            <div />
             <SelectDistrict provinceId={selectedProvince} value={selectedDistrict} onChange={handleDistrictChange} disabled={!selectedProvince} />
+            </div>
+            
           </Col>
           
         </Row>
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 ,marginTop: 5}}>
             <label>ตำบล</label>
             <SelectSubdistrict districtId={selectedDistrict} value={selectedSubdistrict} onChange={handleSubdistrictChange} disabled={!selectedDistrict} />
+            </div>
+            
           </Col>
           <Col xs={24} md={12}>
-            <label>รหัสไปรษณีย์</label>
-            <SelectZipcode subdistrictId={selectedSubdistrict} value={selectedZipcode} onChange={handleZipcodeChange} disabled={!selectedSubdistrict} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 ,marginTop: 5}}>
+              <label>รหัสไปรษณีย์</label>
+              <SelectZipcode subdistrictId={selectedSubdistrict} value={selectedZipcode} onChange={handleZipcodeChange} disabled={!selectedSubdistrict} />
+            </div>
+            
           </Col>
           
         </Row>

@@ -13,7 +13,7 @@ type Props = {
   disabled?: boolean;
 };
 
-type District = { id: number; Pname_th: string; province_id: number };
+type District = { id: number; thai_district_name: string; thai_province_id: number };
 
 const SelectDistrict: React.FC<Props> = ({ provinceId, value, onChange, disabled }) => {
   const [options, setOptions] = useState<District[]>([]);
@@ -46,7 +46,7 @@ const SelectDistrict: React.FC<Props> = ({ provinceId, value, onChange, disabled
   }}
   allowClear
   disabled={disabled || !provinceId}
-  options={options.map((d) => ({ value: d.id, label: d.Pname_th }))}
+  options={options.map((d) => ({ value: d.id, label: d.thai_district_name }))}
 />
 
     </>
