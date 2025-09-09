@@ -177,7 +177,7 @@ const CreateCourse:React.FC = () => {
                     }}>
                     {teacher.map((t) => (
                         <Option key={t.id} value={t.id}>
-                        {t.tfirst_name} {t.tlast_name} 
+                        {t.t_first_name} {t.t_last_name} 
                         {/* {JSON.stringify(t)} */}
                         </Option>
                     ))}

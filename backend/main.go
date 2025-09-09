@@ -35,9 +35,9 @@ func main() {
 
 		// Teacher routes
 		router.GET("/teacher", controllers.GetNameTeacher)
-		router.GET("/teachers/:user_id", controllers.GetTeacherAllById)
+		router.GET("/teachers/:user_id", controllers.GetTeacherAllById) //แม็ก
 		router.GET("/teacher/:id", controllers.GetNameTeacherById)
-		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
+		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด แป้ง
 		router.POST("/teacher", controllers.CreateTeacher)
 
 		// Admin routes
