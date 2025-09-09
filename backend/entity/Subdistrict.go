@@ -15,5 +15,5 @@ type Subdistrict struct {
 	DistrictID uint
 	District   *District `gorm:"foreignKey:DistrictID"`
 
-	Address Address 
+	
 }

@@ -51,8 +51,8 @@ type Teacher struct {
 	Qualification 			string 			`json:"qualification"`
 	Qualification_image 	string 			`json:"qualification_image"`
 
-	AddressID 				uint 			`json:"address_id" `
-	UsersID 				uint 			`json:"users_id"`
+	AddressID 				uint 			`gorm:"foreignKey:AddressID"json:"address_id" `
+	UsersID 				uint 			`gorm:"foreignKey:UsersID" json:"users_id"`
 	Schedules 				[]Schedules 	`gorm:"foreignKey:TeacherID" json:"schedules"`
 	Attendances 			[]Attendances 	`gorm:"foreignKey:TeacherID" json:"attendances"`
 	Grade 					Grade 
