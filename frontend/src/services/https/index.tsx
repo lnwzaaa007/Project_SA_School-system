@@ -143,6 +143,7 @@ export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
   // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  createTeacher: (form: FormData) => Post(`/teacher`, form, true),
  
   getNameTeacherAll: () => Get(`/teachers`),
 };
@@ -247,7 +248,9 @@ export const TitleAPI = {
 
 export const EnrollmentAPI = {
   getEnrollment: () => Get("/enrollment"),
+  getEnrollmentById: (id: number | string) => Get(`/enrollment/${id}`),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
+  deleteEnrollment: (id: number | string) => Delete(`/enrollment/${id}`),
 };
 
 

@@ -6,17 +6,17 @@ import (
 )
 type Address struct {
 	gorm.Model
-	Address_Number  string
-	Road string
+	Address_Number  string `json:"address_number"`
+	Road string `json:"road"`
 
-	ProvinceID uint // FK
-	DistrictID uint
-	SubdistrictID uint
-	ZipcodeID uint
+	 Thai_ProvinceID uint // `gorm:"foreignKey:Thai_ProvinceID" json:"province_id"`// FK
+	 Thai_DistrictID uint // `gorm:"foreignKey:Thai_DistrictID" json:"thai_amphures_id"`
+	 Thai_SubdistrictID uint  //`gorm:"foreignKey:Thai_SubdistrictID" json:"thai_tambons_id"`
+	
 	
 
-	Teacher Teacher 
+	Teacher Teacher `gorm:"foreignKey:AddressID" json:"teacher"`
 
-	Student Student 
+	Student Student `gorm:"foreignKey:AddressID" json:"student"`
 
 }

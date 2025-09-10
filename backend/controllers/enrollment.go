@@ -1,17 +1,18 @@
 package controllers
 
 import (
-    "fmt"
-    "net/http"
-    "os"
-    "path/filepath"
-    "strings"
-    "time"
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "github.com/gin-gonic/gin/binding"
-    "github.com/lnwzaaa007/Project_SA_School-system/backend/config"
-    "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 )
 
 type EnrollmentCreateRequest struct {
@@ -144,25 +145,50 @@ type Enrollment struct {
 }
 
 func GetEnrollment(c *gin.Context) {
-	var enrollment []Enrollment
-	if err := config.DB().
-        Raw("SELECT * FROM enrollments ORDER BY id ASC").
-        Scan(&enrollment).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+    var items []entity.Enrollment
+    if err := config.DB().
+        Order("id ASC").
+        Find(&items).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed", "detail": err.Error()})
         return
     }
-	c.JSON(http.StatusOK, enrollment)
+    // หมายเหตุ: gorm.Model จะส่ง key "ID" (ตัวใหญ่) มาให้
+    // ฝั่ง frontend โค้ด normalize ของคุณรองรับทั้ง id/ID แล้ว จึงใช้ได้เลย
+    c.JSON(http.StatusOK, items)
 }
-func GetEnrollmentById(c *gin.Context) {
-	var name Enrollment
-	id := c.Param("id")
 
-	if err := config.DB().Table("enrollments").
-		Select("*").
-		Where("id = ?", id).
-		Scan(&name).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "enrollment not found"})
+func GetEnrollmentById(c *gin.Context) {
+    id := c.Param("id")
+    var item entity.Enrollment
+    if err := config.DB().First(&item, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "enrollment not found"})
+        return
+    }
+    c.JSON(http.StatusOK, item)
+}
+
+// DeleteEnrollment ลบข้อมูลสมัครเรียนตาม id และพยายามลบไฟล์ที่อัปโหลดไว้
+func DeleteEnrollment(c *gin.Context) {
+    enrollment_id := c.Param("id")
+	id, err := strconv.Atoi(enrollment_id)
+	if err != nil || id <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
-	c.JSON(http.StatusOK, name)
+
+	tx := config.DB().Where("id = ?", id).Delete(&entity.Enrollment{})
+	if tx.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": tx.Error.Error()})
+		return
+	}
+	if tx.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ลบสำเร็จ",
+		"deleted": id,
+	})
 }
+

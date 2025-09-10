@@ -14,5 +14,5 @@ type District struct {
 	ProvinceID uint ` json:"province_id"` 
 	Province   *Province `gorm:"foreignKey:ProvinceID" json:"province"`
 
-	Address Address  
+	  
 }

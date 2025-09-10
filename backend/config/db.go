@@ -35,6 +35,7 @@ func SetupDatabase() {
 		&entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{}, &entity.Subdistrict{},
 		&entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{}, &entity.Term{}, &entity.Tuition{},
 		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{}, &entity.Notifications{}, &entity.Title{}, &entity.Gender{}, &entity.Enrollments{},
+		&entity.Thai_District{},&entity.Thai_Province{},&entity.Thai_Subdistrict{},
 	)
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
