@@ -66,7 +66,10 @@ func main() {
 		router.GET("/attendances-course", controllers.GetCourseInSchedule)
 		router.GET("/attendances-student", controllers.GetStudentAllByGradeId)
 		router.POST("/attendances-record", controllers.CreateAttendance)
-		router.GET("/attendances-history", controllers.GetAttendanceStudent)
+		router.PUT("/attendances-record", controllers.UpdateAttendanceByDate)
+		router.GET("/attendances/student-history", controllers.GetAttendanceStudent)
+		router.GET("/attendances/teacher-history", controllers.GetAttendanceTeacher)
+		router.GET("/attendances-date", controllers.GetAttendanceByDate)
 
 		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)

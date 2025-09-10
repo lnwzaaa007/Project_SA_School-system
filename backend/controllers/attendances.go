@@ -210,7 +210,7 @@ func GetAttendanceStudent(c *gin.Context){
 
     var attendance []entity.Attendances
     if err := config.DB().
-        // Preload("AttendanceStatus").
+        Preload("AttendanceStatus").
         Where("schedules_id = ? AND student_id = ?", scheduleID, studentID).
         Order("attendances_date ASC").
         Find(&attendance).Error; err != nil {
@@ -222,4 +222,183 @@ func GetAttendanceStudent(c *gin.Context){
         return
     }
     c.JSON(http.StatusOK, gin.H{"data": attendance})
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func GetAttendanceTeacher(c *gin.Context){
+    
+    scheduleID := c.Query("schedule_id")
+    if scheduleID == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ schedule_id"})
+        return
+    }
+    var attendance []entity.Attendances
+    if err := config.DB().
+        // Preload("AttendanceStatus").
+        Where("schedules_id = ?", scheduleID).
+        Order("attendances_date ASC").
+        Find(&attendance).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่พบการเช็คชื่อ"})
+        return
+    }
+    if len(attendance) == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบการเช็คชื่อ"})
+        return
+    }
+    c.JSON(http.StatusOK, gin.H{"data": attendance})
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func GetAttendanceByDate(c *gin.Context) {
+    scheduleID := c.Query("schedule_id")
+    dayStr := c.Query("date") // รูปแบบ "YYYY-MM-DD"
+
+    if scheduleID == "" || dayStr == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ schedule_id และ date"})
+        return
+    }
+
+    // กำหนดโซนเวลาไทย
+    loc, _ := time.LoadLocation("Asia/Bangkok")
+
+    // แปลง "YYYY-MM-DD" เป็นช่วงเวลา [start, end) ในเวลาไทย
+    startLocal, err := time.ParseInLocation("2006-01-02", dayStr, loc)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "รูปแบบวันที่ไม่ถูกต้อง (ต้องเป็น YYYY-MM-DD)"})
+        return
+    }
+    endLocal := startLocal.Add(24 * time.Hour)
+
+    // แปลงไปเป็น UTC เพื่อใช้เทียบกับค่าใน DB
+    startUTC := startLocal.UTC()
+    endUTC := endLocal.UTC()
+
+    var records []entity.Attendances
+    q := config.DB().
+        Where("schedules_id = ?", scheduleID).
+        Where("attendances_date >= ? AND attendances_date < ?", startUTC, endUTC).
+        Order("attendances_date ASC")
+
+    // preload ถ้าต้องการ
+    // q = q.Preload("AttendanceStatus").Preload("Student").Preload("Teacher")
+
+    if err := q.Find(&records).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ดึงประวัติการเช็คชื่อไม่สำเร็จ"})
+        return
+    }
+    if len(records) == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบการเช็คชื่อในวันดังกล่าว"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "schedule_id": scheduleID,
+        "date":        dayStr,         // วันตามที่ผู้ใช้เลือก (ไทย)
+        "items":       records,
+    })
+}
+
+// PUT /attendances-record
+// อัปเดตการเช็กชื่อของคาบหนึ่งๆ สำหรับวันที่ที่เลือก (อัปเดตตาม schedules_id + student_id + date)
+type UpdateAttendanceByDateRequest struct {
+    SchedulesID uint `json:"schedules_id" binding:"required"`
+    TeacherID   uint `json:"teacher_id"`
+    GradeID     uint `json:"grade_id"`
+    Date        string `json:"date" binding:"required"` // รูปแบบ YYYY-MM-DD
+    Items       []struct {
+        StudentID           uint   `json:"student_id" binding:"required"`
+        AttendanceStatusID  uint   `json:"attendance_status_id" binding:"required"`
+        Note                string `json:"note"`
+    } `json:"items" binding:"required"`
+}
+
+func UpdateAttendanceByDate(c *gin.Context) {
+    var req UpdateAttendanceByDateRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+    if len(req.Items) == 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "items ว่าง"})
+        return
+    }
+
+    // สร้างช่วงเวลา Local ไทยสำหรับวันนั้น แล้วแปลงเป็น UTC เทียบกับ DB
+    loc, _ := time.LoadLocation("Asia/Bangkok")
+    startLocal, err := time.ParseInLocation("2006-01-02", req.Date, loc)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "รูปแบบวันที่ไม่ถูกต้อง (ต้องเป็น YYYY-MM-DD)"})
+        return
+    }
+    endLocal := startLocal.Add(24 * time.Hour)
+    startUTC := startLocal.UTC()
+    endUTC := endLocal.UTC()
+
+    // ทำในทรานแซคชัน
+    tx := config.DB().Begin()
+    if tx.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "เริ่มธุรกรรมไม่สำเร็จ"})
+        return
+    }
+
+    for _, it := range req.Items {
+        if it.StudentID == 0 || it.AttendanceStatusID == 0 {
+            tx.Rollback()
+            c.JSON(http.StatusBadRequest, gin.H{"error": "student_id และ attendance_status_id ต้องมากกว่า 0"})
+            return
+        }
+
+        var existing []entity.Attendances
+        if err := tx.Where("schedules_id = ? AND student_id = ? AND attendances_date >= ? AND attendances_date < ?",
+            req.SchedulesID, it.StudentID, startUTC, endUTC).
+            Find(&existing).Error; err != nil {
+            tx.Rollback()
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "ดึงข้อมูลเดิมไม่สำเร็จ"})
+            return
+        }
+
+        if len(existing) == 0 {
+            // ถ้าไม่พบให้สร้างใหม่ (upsert behavior)
+            rec := entity.Attendances{
+                Attendances_Date:   startUTC, // เก็บเป็นเวลาเริ่มวันตาม UTC
+                Note:               it.Note,
+                AttendanceStatusID: it.AttendanceStatusID,
+                SchedulesID:        req.SchedulesID,
+                StudentID:          it.StudentID,
+                TeacherID:          req.TeacherID,
+                GradeID:            req.GradeID,
+            }
+            if err := tx.Create(&rec).Error; err != nil {
+                tx.Rollback()
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "สร้างรายการใหม่ไม่สำเร็จ"})
+                return
+            }
+            continue
+        }
+
+        // อัปเดตทุกเรคอร์ดที่อยู่ในวันนั้นสำหรับนักเรียนคนนี้
+        for _, rec := range existing {
+            rec.AttendanceStatusID = it.AttendanceStatusID
+            rec.Note = it.Note
+            if req.TeacherID != 0 {
+                rec.TeacherID = req.TeacherID
+            }
+            if req.GradeID != 0 {
+                rec.GradeID = req.GradeID
+            }
+            if err := tx.Save(&rec).Error; err != nil {
+                tx.Rollback()
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปเดตรายการไม่สำเร็จ"})
+                return
+            }
+        }
+    }
+
+    if err := tx.Commit().Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ยืนยันธุรกรรมไม่สำเร็จ"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "อัปเดตการเช็กชื่อสำเร็จ"})
 }
