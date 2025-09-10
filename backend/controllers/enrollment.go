@@ -28,6 +28,7 @@ type EnrollmentCreateRequest struct {
     Nationality string `form:"nationality"  binding:"required"`
     Email       string `form:"email"        binding:"required,email"`
     Religious   string `form:"religious"` // optional
+    Age         *int `form:"age"`
     Address     string `form:"address"      binding:"required"`
     Guardian    string `form:"guardian"     binding:"required"`
     Grade_Year  int    `form:"grade_year"   binding:"required"`
@@ -53,6 +54,21 @@ func saveUploadedFile(c *gin.Context, field, uploadDir string) (string, error) {
     return strings.ReplaceAll(diskPath, "\\", "/"), nil
 }
 
+// เพิ่ม helper คำนวณอายุ
+func calcAge(dob time.Time, now time.Time) int {
+    y, m, d := now.Date()
+    by, bm, bd := dob.Date()
+
+    age := y - by
+    if m < bm || (m == bm && d < bd) {
+        age--
+    }
+    if age < 0 {
+        age = 0
+    }
+    return age
+}
+
 func CreateEnrollment(c *gin.Context) {
     var req EnrollmentCreateRequest
     if err := c.ShouldBindWith(&req, binding.FormMultipart); err != nil {
@@ -65,6 +81,11 @@ func CreateEnrollment(c *gin.Context) {
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "วันเกิดต้องอยู่ในรูปแบบ YYYY-MM-DD"})
         return
+    }
+
+    age := calcAge(dob, time.Now())
+    if req.Age != nil && *req.Age > 0 {
+        age = *req.Age
     }
 
     // บันทึกไฟล์ (แจ้งชัดว่าไฟล์ไหนขาด)
@@ -96,6 +117,7 @@ func CreateEnrollment(c *gin.Context) {
         Email:       req.Email,
         Religious:   religious,
         Address:     req.Address,
+        Age:         age,
         Guardian:    req.Guardian,
         Grade_Year:  req.Grade_Year,
         Grade_Class: req.Grade_Class,
@@ -115,6 +137,7 @@ func CreateEnrollment(c *gin.Context) {
     c.JSON(http.StatusCreated, gin.H{
         "message":   "สมัครเรียนสำเร็จ",
         "enroll_id": en.ID,
+         "age":       en.Age, 
         "files": gin.H{
             "transcript": torPath,
             "household":  housePath,
@@ -126,22 +149,23 @@ func CreateEnrollment(c *gin.Context) {
 
 type Enrollment struct {
     TitleID     uint   `json:"id"`
-    TFirst_Name string `josn:"t_first_name" `
-    TLast_Name  string `josn:"t_last_name" `
-    EFirst_Name string `josn:"e_first_name" `
-    ELast_Name  string `josn:"e_last_name"  `
-    Citizen_ID  string `josn:"citizen_id"   `
-    Tel         string `josn:"tel"          `
-    DateOfBirth string `josn:"date_of_birth" ` // YYYY-MM-DD
-    GenderID    uint   `josn:"gender_id"    `
-    Nationality string `josn:"nationality"  `
-    Email       string `josn:"email"       `
-    Religious   string `josn:"religious"` // optional
-    Address     string `josn:"address"      `
-    Guardian    string `josn:"guardian"     `
-    Grade_Year  int    `josn:"grade_year"   `
-    Grade_Class int    `josn:"grade_class"  `
-    Admin_ID    uint   `josn:"admin_id"`
+    TFirst_Name string `json:"t_first_name" `
+    TLast_Name  string `json:"t_last_name" `
+    EFirst_Name string `json:"e_first_name" `
+    ELast_Name  string `json:"e_last_name"  `
+    Citizen_ID  string `json:"citizen_id"   `
+    Tel         string `json:"tel"          `
+    DateOfBirth string `json:"date_of_birth" ` // YYYY-MM-DD
+    GenderID    uint   `json:"gender_id"    `
+    Nationality string `json:"nationality"  `
+    Email       string `json:"email"       `
+    Religious   string `json:"religious"` // optional
+    Address     string `json:"address"      `
+    Age         int    `json:"age"`
+    Guardian    string `json:"guardian"     `
+    Grade_Year  int    `json:"grade_year"   `
+    Grade_Class int    `json:"grade_class"  `
+    Admin_ID    uint   `json:"admin_id"`
 }
 
 func GetEnrollment(c *gin.Context) {

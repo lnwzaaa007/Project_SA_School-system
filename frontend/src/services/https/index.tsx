@@ -200,6 +200,15 @@ export const AddressAPI ={
     getDistrict: (id: number) => Get(`/thaidistrict/${id}`),
     getSubdistrict: (id: number) => Get(`/thaisubdistrict/${id}`),
     getZipcode: (id: number) => Get(`/thaizipcode/${id}`),
+    createAddress: (payload: {
+    address_number: string;
+    road?: string;
+    thai_province_id: number;
+    thai_district_id: number;
+    thai_subdistrict_id: number;
+    teacher_id?: number;   // PK ของตาราง teachers (ไม่ใช่ Teacher_ID ที่เป็น string)
+    student_id?: number;
+  }) => Post("/address", payload, true),
 }
 export const annoncementAPI = {
   getAnnouncements: () => Get("/new-announcements"),

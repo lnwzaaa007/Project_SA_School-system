@@ -18,7 +18,6 @@ func main() {
 	// r.Use(middlewares.Authorizes())
 	r.MaxMultipartMemory = 32 << 20
 
-  
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
 
@@ -74,14 +73,15 @@ func main() {
 		// Province routes
 		router.GET("/province", controllers.GetProvince)
 		router.GET("/province/:id", controllers.GetProvinceById)
-
-		// Thai_Province routes
-		router.GET("/thaiprovince", controllers.GetThaiProvince)
-		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
-
 		// District routes
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
+
+		// Address routes
+		router.POST("/address", controllers.CreateAddress) //toto
+		// Thai_Province routes
+		router.GET("/thaiprovince", controllers.GetThaiProvince)
+		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
 
 		// Thai_District routes
 		router.GET("/thaidistrict", controllers.GetThaiDistrict)
@@ -134,14 +134,14 @@ func main() {
 		// enrollment
 		router.GET("/enrollment", controllers.GetEnrollment)
 		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
-		router.DELETE("/enrollment/:id", controllers.DeleteEnrollment) 
+		router.DELETE("/enrollment/:id", controllers.DeleteEnrollment)
 
 	}
 
 	// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
-    r.Static("/uploads", "./uploads")
+	r.Static("/uploads", "./uploads")
 	r.POST("/enrollments", controllers.CreateEnrollment)
-	
+
 	// Login routes
 	r.POST("/auth", controllers.LoginUser)
 	// r.POST("/creator/auth", controllers.LoginUser)

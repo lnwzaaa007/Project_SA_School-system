@@ -206,6 +206,7 @@ func CreateTeacher(c *gin.Context) {
 		"message": "สร้างข้อมูลอาจารย์สำเร็จ",
 		"id":      t.ID,
 		"teacher": t,
+		
 		"files": gin.H{
 			"teacher_image":       teacherImgPath,
 			"qualification_image": qualImgPath,

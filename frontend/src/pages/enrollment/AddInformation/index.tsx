@@ -21,14 +21,13 @@ type ValidateResult = { missing: string[]; invalid: string[]; firstId: string | 
 const AddInformation: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Modal instance
   const [modal, contextHolder] = Modal.useModal();
 
   // ---------- states ----------
   const [citizenId, setCitizenId] = useState("");
   const [tel, setTel] = useState("");
   const [dob, setDob] = useState<Dayjs | null>(null);
+  const [age, setAge] = useState<number | null>(null); // <— NEW
 
   const [thTitleId, setThTitleId] = useState<number | null>(null);
   const [thFirst, setThFirst] = useState("");
@@ -55,6 +54,16 @@ const AddInformation: React.FC = () => {
   const [fileCopyCid, setFileCopyCid] = useState<UploadFile | null>(null);
   const [fileImage, setFileImage] = useState<UploadFile | null>(null);
 
+  // ---------- helper: คำนวณอายุ ----------
+  const calcAge = (d: Dayjs): number => {
+    const today = dayjs();
+    let a = today.year() - d.year();
+    if (today.month() < d.month() || (today.month() === d.month() && today.date() < d.date())) {
+      a--;
+    }
+    return Math.max(a, 0);
+  };
+
   // ---------- Upload helper ----------
   const pickFile = (setter: (f: UploadFile | null) => void) => ({
     beforeUpload: (file: File) => {
@@ -66,7 +75,7 @@ const AddInformation: React.FC = () => {
         modal.error({ title: "ชนิดไฟล์ไม่ถูกต้อง", content: "อนุญาตเฉพาะรูปภาพหรือ PDF" });
         return Upload.LIST_IGNORE;
       }
-      return false; // ไม่อัปโหลดอัตโนมัติ
+      return false;
     },
     maxCount: 1,
     onRemove: () => setter(null),
@@ -110,7 +119,7 @@ const AddInformation: React.FC = () => {
     });
 
   const resetForm = () => {
-    setCitizenId(""); setTel(""); setDob(null);
+    setCitizenId(""); setTel(""); setDob(null); setAge(null);
     setThTitleId(null); setThFirst(""); setThLast("");
     setEnTitleId(null); setEnFirst(""); setEnLast("");
     setStatus(undefined); setGenderId(null);
@@ -140,19 +149,12 @@ const AddInformation: React.FC = () => {
     let firstId: string | null = null;
 
     const need = (cond: boolean, msg: string, id: string) => {
-      if (cond) {
-        missing.push(msg);
-        if (!firstId) firstId = id;
-      }
+      if (cond) { missing.push(msg); if (!firstId) firstId = id; }
     };
     const bad = (cond: boolean, msg: string, id: string) => {
-      if (cond) {
-        invalid.push(msg);
-        if (!firstId) firstId = id;
-      }
+      if (cond) { invalid.push(msg); if (!firstId) firstId = id; }
     };
 
-    // 1) ยังไม่ได้กรอก/เลือก
     need(!thTitleId, "กรุณาเลือกคำนำหน้า (ไทย)", "fld_title_th");
     need(!thFirst, "กรุณากรอกชื่อ (ไทย)", "fld_t_first");
     need(!thLast, "กรุณากรอกนามสกุล (ไทย)", "fld_t_last");
@@ -166,17 +168,10 @@ const AddInformation: React.FC = () => {
     need(!email, "กรุณากรอก E-mail", "fld_email");
     need(!guardian, "กรุณากรอกชื่อผู้ปกครอง", "fld_guardian");
     need(!address, "กรุณากรอกที่อยู่", "fld_address");
+    // ไม่บังคับกรอก age เพราะคำนวณอัตโนมัติ
 
-    // ไฟล์: ถ้าขาดให้แจ้งแยกชัด ๆ
-    need(!fileTranscript?.originFileObj, "กรุณาแนบ ปพ.1", "fld_uploads");
-    need(!fileHousehold?.originFileObj, "กรุณาแนบ สำเนาทะเบียนบ้าน", "fld_uploads");
-    need(!fileCopyCid?.originFileObj, "กรุณาแนบ สำเนาบัตรประชาชน", "fld_uploads");
-    need(!fileImage?.originFileObj, "กรุณาแนบ รูปถ่าย", "fld_uploads");
-
-    // ถ้ายังมีช่อง missing ให้หยุดก่อน (จะแจ้งเฉพาะที่ยังไม่ได้ใส่)
     if (missing.length > 0) return { missing, invalid, firstId };
 
-    // 2) เช็ครูปแบบ (ข้อมูลครบแล้ว)
     bad(!onlyDigits(citizenId) || citizenId.length !== 13, "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก", "fld_citizen");
     bad(!onlyDigits(tel) || tel.length < 9 || tel.length > 10, "เบอร์โทรศัพท์ไม่ถูกต้อง", "fld_tel");
     bad(!emailOk(email), "รูปแบบ E-mail ไม่ถูกต้อง", "fld_email");
@@ -196,17 +191,8 @@ const AddInformation: React.FC = () => {
   // ---------- submit ----------
   const handleSubmit = async () => {
     const { missing, invalid, firstId } = validate();
-
-    if (missing.length > 0) {
-      showErrorsModal(missing);
-      setTimeout(() => scrollAndFocus(firstId), 0);
-      return;
-    }
-    if (invalid.length > 0) {
-      showInvalidModal(invalid);
-      setTimeout(() => scrollAndFocus(firstId), 0);
-      return;
-    }
+    if (missing.length > 0) { showErrorsModal(missing); setTimeout(() => scrollAndFocus(firstId), 0); return; }
+    if (invalid.length > 0) { showInvalidModal(invalid); setTimeout(() => scrollAndFocus(firstId), 0); return; }
 
     try {
       const fd = new FormData();
@@ -227,6 +213,10 @@ const AddInformation: React.FC = () => {
       fd.append("grade_year", String(gradeYear));
       fd.append("grade_class", String(gradeClass));
       fd.append("admin_id", "1");
+
+      // (ออปชัน) ส่ง age ไปด้วย — ถ้า Backend ไม่อ่านฟิลด์นี้จะถูกละเลย
+      const ageToSend = age ?? (dob ? calcAge(dob) : 0);
+      fd.append("age", String(ageToSend));
 
       fd.append("transcript_of_records", fileTranscript!.originFileObj as File);
       fd.append("household_registration_certificate", fileHousehold!.originFileObj as File);
@@ -251,7 +241,6 @@ const AddInformation: React.FC = () => {
 
   return (
     <div style={{ background: "#F1EEE0", minHeight: "100vh", padding: 20 }}>
-      {/* ต้องวาง contextHolder ใน JSX */}
       {contextHolder}
 
       <div style={{ padding: 24, background: "#fff", maxWidth: "60%", margin: "20px auto", borderRadius: 32 }}>
@@ -262,16 +251,30 @@ const AddInformation: React.FC = () => {
             <label>เลขบัตรประชาชน</label>
             <Input value={citizenId} onChange={(e) => setCitizenId(e.target.value)} disabled={loading} />
           </Col>
-          <Col xs={24} md={12} id="fld_dob">
+          <Col xs={24} md={6} id="fld_dob">
             <label>วันเกิด</label>
-            <DatePicker style={{ width: "100%" }} value={dob} onChange={(d) => setDob(d)} format="YYYY-MM-DD" disabled={loading} />
+            <DatePicker
+              style={{ width: "100%" }}
+              value={dob}
+              onChange={(d) => { setDob(d); setAge(d ? calcAge(d) : null); }} // <— อัปเดต age
+              format="YYYY-MM-DD"
+              disabled={loading}
+            />
+          </Col>
+           <Col xs={24} md={6}>
+            <label>อายุ (ปี)</label>
+            <Input value={age ?? ""} readOnly disabled placeholder="คำนวณอัตโนมัติจากวันเกิด" />
           </Col>
         </Row>
 
+
         <Row gutter={[16, 12]}>
           <Col xs={24} md={3} id="fld_title_th">
-            <label>คำนำหน้า</label>
-            <SelectTitleTH value={thTitleId} onChange={setThTitleId} />
+            <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <label>คำนำหน้า</label>
+              <SelectTitleTH value={thTitleId} onChange={setThTitleId} />
+            </div>
+            
           </Col>
           <Col xs={24} md={9} id="fld_t_first">
             <label>ชื่อ</label>
@@ -285,8 +288,11 @@ const AddInformation: React.FC = () => {
 
         <Row gutter={[16, 12]}>
           <Col xs={24} md={3}>
-            <label>Name Prefix</label>
+            <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <label>Name Prefix</label>
             <SelectTitleENG value={enTitleId} onChange={setEnTitleId} />
+            </div>
+            
           </Col>
           <Col xs={24} md={9}>
             <label>FirstName</label>
@@ -297,73 +303,59 @@ const AddInformation: React.FC = () => {
             <Input value={enLast} onChange={(e) => setEnLast(e.target.value)} disabled={loading} />
           </Col>
         </Row>
-
         <Row gutter={[16, 12]}>
-          <Col xs={24} md={12}>
-            <label>สถานะ</label>
-            <Select
-              value={status}
-              onChange={(v: "โสด" | "สมรส") => setStatus(v)}
-              style={{ width: "100%" }}
-              options={[
-                { value: "โสด", label: "โสด" },
-                { value: "สมรส", label: "สมรส" },
-              ]}
-              disabled={loading}
-            />
-          </Col>
+                  <Col xs={24} md={12} id="fld_grade_year">
+                  <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    <label>ชั้น</label>
+                    <SelectGrade value={gradeYear} onChange={setGradeYear} />
+                  </div>
+                    
+                  </Col>
+                  <Col xs={24} md={12} id="fld_grade_class">
+                  <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    <label>ห้อง</label>
+                    <SelectClass value={gradeClass} onChange={setGradeClass} />
+                  </div>
+                    
+                  </Col>
+                </Row>
+
+                <Row gutter={[16, 12]}>
+                  <Col xs={24} md={12} id="fld_nationality">
+                    <label>สัญชาติ</label>
+                    <Input value={nationality} onChange={(e) => setNationality(e.target.value)} disabled={loading} />
+                  </Col>
+                  <Col xs={24} md={12}>
+                    <label>ศาสนา</label>
+                    <Input value={religious} onChange={(e) => setReligious(e.target.value)} disabled={loading} />
+                  </Col>
+                </Row>
+
+                <Row gutter={[16, 12]}>
+                  <Col xs={24} md={12} id="fld_tel">
+                    <label>เบอร์ติดต่อ</label>
+                    <Input value={tel} onChange={(e) => setTel(e.target.value)} disabled={loading} />
+                  </Col>
+                  <Col xs={24} md={12} id="fld_email">
+                    <label>E-mail</label>
+                    <Input value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
+                  </Col>
+        </Row>
+        <Row gutter={[16, 12]}>
           <Col xs={24} md={12} id="fld_gender">
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                <label>เพศ</label>
-                <SelectGender value={genderId} onChange={setGenderId} />
-              </div>
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 12]}>
-          <Col xs={24} md={12} id="fld_grade_year">
-            <label>ชั้น</label>
-            <p></p>
-            <SelectGrade value={gradeYear} onChange={setGradeYear} />
-          </Col>
-          <Col xs={24} md={12} id="fld_grade_class">
-            <label>ห้อง</label>
-            <p></p>
-            <SelectClass value={gradeClass} onChange={setGradeClass} />
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 12]}>
-          <Col xs={24} md={12} id="fld_nationality">
-            <label>สัญชาติ</label>
-            <Input value={nationality} onChange={(e) => setNationality(e.target.value)} disabled={loading} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <label>เพศ</label>
+              <SelectGender value={genderId} onChange={setGenderId} />
+            </div>
           </Col>
           <Col xs={24} md={12}>
-            <label>ศาสนา</label>
-            <Input value={religious} onChange={(e) => setReligious(e.target.value)} disabled={loading} />
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 12]}>
-          <Col xs={24} md={12} id="fld_tel">
-            <label>เบอร์ติดต่อ</label>
-            <Input value={tel} onChange={(e) => setTel(e.target.value)} disabled={loading} />
-          </Col>
-          <Col xs={24} md={12} id="fld_email">
-            <label>E-mail</label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 12]} id="fld_guardian">
-          <Col xs={24} md={24}>
-            <label>ผู้ปกครอง</label>
-            <Input
-              value={guardian}
-              onChange={(e) => setGuardian(e.target.value)}
-              placeholder="ชื่อ-สกุลผู้ปกครอง"
-              disabled={loading}
-            />
+                      <label>ผู้ปกครอง</label>
+                      <Input
+                        value={guardian}
+                        onChange={(e) => setGuardian(e.target.value)}
+                        placeholder="ชื่อ-สกุลผู้ปกครอง"
+                        disabled={loading}
+                      />
           </Col>
         </Row>
 
@@ -376,29 +368,41 @@ const AddInformation: React.FC = () => {
 
         {/* Uploads */}
         <Row gutter={[16, 12]} id="fld_uploads">
-          <Col xs={24} md={12}>
+          <Col xs={24} md={6}>
             <label>ปพ.1</label>
-            <Upload {...pickFile(setFileTranscript)} disabled={loading}>
+            <div>
+              <Upload {...pickFile(setFileTranscript)} disabled={loading}>
               <Button disabled={loading}>เลือกไฟล์</Button>
             </Upload>
+            </div>
+            
           </Col>
-          <Col xs={24} md={12}>
+          <Col xs={24} md={6}>
             <label>สำเนาทะเบียนบ้าน</label>
-            <Upload {...pickFile(setFileHousehold)} disabled={loading}>
+            <div>
+              <Upload {...pickFile(setFileHousehold)} disabled={loading}>
               <Button disabled={loading}>เลือกไฟล์</Button>
             </Upload>
+            </div>
+            
           </Col>
-          <Col xs={24} md={12}>
+          <Col xs={24} md={6}>
             <label>สำเนาบัตรประชาชน</label>
-            <Upload {...pickFile(setFileCopyCid)} disabled={loading}>
+            <div>
+              <Upload {...pickFile(setFileCopyCid)} disabled={loading}>
               <Button disabled={loading}>เลือกไฟล์</Button>
             </Upload>
+            </div>
+            
           </Col>
-          <Col xs={24} md={12}>
+          <Col xs={24} md={6}>
             <label>Upload รูปภาพ</label>
-            <Upload {...pickFile(setFileImage)} accept="image/*" disabled={loading}>
+            <div>
+              <Upload {...pickFile(setFileImage)} accept="image/*" disabled={loading}>
               <Button disabled={loading}>เลือกรูป</Button>
             </Upload>
+            </div>
+            
           </Col>
         </Row>
 
