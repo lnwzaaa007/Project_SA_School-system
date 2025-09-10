@@ -9,9 +9,9 @@ type Address struct {
 	Address_Number  string `json:"address_number"`
 	Road string `json:"road"`
 
-	 Thai_ProvinceID uint // `gorm:"foreignKey:Thai_ProvinceID" json:"province_id"`// FK
-	 Thai_DistrictID uint // `gorm:"foreignKey:Thai_DistrictID" json:"thai_amphures_id"`
-	 Thai_SubdistrictID uint  //`gorm:"foreignKey:Thai_SubdistrictID" json:"thai_tambons_id"`
+	 Thai_ProvinceID uint  ` json:"thai_province_id"`// FK
+	 Thai_DistrictID uint  ` json:"thai_district_id"`
+	 Thai_SubdistrictID uint  ` json:"thai_subdistrict_id"`
 	
 	
 

@@ -1,7 +1,7 @@
 // src/pages/admin/MoveAddStudent.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Row, Col, Input, DatePicker, Select, Space, message, Button, Image } from "antd";
+import { Row, Col, Input, DatePicker, Select, Space, message, Button, Image, Modal } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import SelectGrade from "../../../../components/SelectGrade";
 import SelectClass from "../../../../components/SelectClass";
@@ -15,6 +15,7 @@ import MadalCancel from "../../../../components/ModalCancel";
 import { EnrollmentAPI } from "../../../../services/https";
 
 const { Option } = Select;
+
 const API_HOST = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
 const toUrl = (p?: string) => {
@@ -23,8 +24,80 @@ const toUrl = (p?: string) => {
   return `${API_HOST}/${p.replace(/^\/+/, "")}`;
 };
 const isImage = (p?: string) => !!p && /\.(png|jpe?g|gif|webp|bmp)$/i.test(p);
+const isPdf = (p?: string) => !!p && /\.pdf($|\?)/i.test(p);
+
+// ---------- NEW: helper คำนวณอายุ ----------
+const calcAge = (d: Dayjs): number => {
+  const today = dayjs();
+  let a = today.year() - d.year();
+  if (today.month() < d.month() || (today.month() === d.month() && today.date() < d.date())) {
+    a--;
+  }
+  return Math.max(a, 0);
+};
 
 const MoveAddStudent: React.FC = () => {
+const FilePreview: React.FC<{
+  path?: string;
+  width?: number;
+  height?: number;
+}> = ({ path, width = 180, height = 240 }) => {
+  if (!path) return <div>—</div>;
+  const url = toUrl(path);
+
+  if (isImage(path)) {
+    // Ant Design <Image> ขยายได้ด้วยตัวเองเมื่อคลิก
+    return <Image width={width} src={url} style={{ borderRadius: 8 }} />;
+  }
+
+  if (isPdf(path)) {
+    return (
+      <div>
+        <iframe
+          src={url}
+          width={width}
+          height={height}
+          style={{ border: "1px solid #eee", borderRadius: 8 }}
+        />
+        <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+          <Button type="primary" onClick={() => setPdfPreview(url)}>
+            ขยายดู
+          </Button>
+          <Button href={url} target="_blank" rel="noopener noreferrer">
+            เปิดแท็บใหม่
+          </Button>
+        </div>
+        <Modal
+          open={!!pdfPreview}
+          onCancel={() => setPdfPreview(null)}
+          footer={null}
+          width="50%"
+          height="180%"
+          style={{ top: 24 }}
+          bodyStyle={{ padding: 0 }}
+          destroyOnClose
+        >
+          {pdfPreview && (
+            <iframe
+              src={pdfPreview}
+              width="100%"
+              height="800 px"
+              style={{ border: "none", borderRadius: 8 }}
+            />
+          )}
+        </Modal>
+
+      </div>
+    );
+  }
+
+  return (
+    <Button href={url} target="_blank" rel="noopener noreferrer">
+      เปิดไฟล์
+    </Button>
+  );
+};
+
   const [search] = useSearchParams();
   const navigate = useNavigate();
   const viewId = search.get("id");
@@ -42,6 +115,9 @@ const MoveAddStudent: React.FC = () => {
   const [genderId, setGenderId] = useState<number | null>(null);
   const [gradeYear, setGradeYear] = useState<number | null>(null);
   const [gradeClass, setGradeClass] = useState<number | null>(null);
+  const [pdfPreview, setPdfPreview] = useState<string | null>(null);
+  const [age, setAge] = useState<number | null>(null);
+
   const [nationality, setNationality] = useState("");
   const [religious, setReligious] = useState("");
   const [tel, setTel] = useState("");
@@ -92,8 +168,17 @@ const MoveAddStudent: React.FC = () => {
         setGuardian(pick(data, "guardian", "Guardian") ?? "");
         setAddress(pick(data, "address", "Address") ?? "");
 
-        const dobRaw = pick(data, "date_of_birth", "DateOfBirth");
-        setDob(dobRaw ? dayjs(dobRaw) : null);
+        //วันเกิด
+       const dobRaw = pick(data, "date_of_birth", "DateOfBirth");
+      const dobVal = dobRaw ? dayjs(dobRaw) : null;
+      setDob(dobVal);
+        //อายุ
+      const ageRaw = pick(data, "age", "Age");
+      if (typeof ageRaw === "number") {
+        setAge(ageRaw);
+      } else {
+        setAge(dobVal ? calcAge(dobVal) : null);
+      }
 
         // English title (fallback เป็น title_id ถ้าไม่ส่ง en_title_id)
         const enTidRaw =
@@ -124,16 +209,30 @@ const MoveAddStudent: React.FC = () => {
           <label style={{ lineHeight: "2" }}>เลขบัตรประชาชน</label>
           <Input value={citizenId} onChange={(e) => setCitizenId(e.target.value)} disabled={loading} />
         </Col>
-        <Col xs={24} md={12}>
+        <Col xs={24} md={6}>
           <label style={{ lineHeight: "2" }}>วันเกิด</label>
-          <DatePicker style={{ width: "100%" }} value={dob} onChange={(d) => setDob(d)} disabled={loading} />
+          <DatePicker
+            style={{ width: "100%" }}
+            value={dob}
+            onChange={(d) => { setDob(d); setAge(d ? calcAge(d) : null); }}
+            disabled={loading}
+          />
+        </Col>
+        <Col xs={24} md={6}>
+          <label style={{ lineHeight: "2" }}>อายุ (ปี)</label>
+          <Input value={age ?? ""} readOnly placeholder="—" />
         </Col>
       </Row>
 
       <Row gutter={[16, 12]}>
         <Col xs={24} md={3}>
-          <label style={{ lineHeight: "2" }}>คำนำหน้า</label>
-          <SelectTitleTH value={thTitleId} onChange={setThTitleId} />
+          <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <label style={{ lineHeight: "2" }}>คำนำหน้า</label>          
+          <SelectTitleTH value={thTitleId} onChange={setThTitleId}  />
+          </div>
+          
+          
+          
         </Col>
         <Col xs={24} md={9}>
           <label style={{ lineHeight: "2" }}>ชื่อ</label>
@@ -147,8 +246,12 @@ const MoveAddStudent: React.FC = () => {
 
       <Row gutter={[16, 12]}>
         <Col xs={24} md={3}>
+        <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
           <label style={{ lineHeight: "2" }}>Name Prefix</label>
-          <SelectTitleENG value={enTitleId} onChange={setEnTitleId} />
+          <SelectTitleENG value={enTitleId} onChange={setEnTitleId} /> 
+        </div>
+          
+         
         </Col>
         <Col xs={24} md={9}>
           <label style={{ lineHeight: "2" }}>FirstName</label>
@@ -159,39 +262,22 @@ const MoveAddStudent: React.FC = () => {
           <Input value={enLast} onChange={(e) => setEnLast(e.target.value)} disabled={loading} />
         </Col>
       </Row>
-
       <Row gutter={[16, 12]}>
         <Col xs={24} md={12}>
-          <label style={{ lineHeight: "2" }}>สถานะ</label>
-          <Select
-            value={status}
-            onChange={(v: "โสด" | "สมรส") => setStatus(v)}
-            placeholder="เลือก"
-            style={{ width: "100%" }}
-            disabled={loading}
-            options={[{ value: "โสด", label: "โสด" }, { value: "สมรส", label: "สมรส" }]}
-          />
+          <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <label style={{ lineHeight: "2" }}>ชั้น</label>
+            <SelectGrade value={gradeYear} onChange={setGradeYear} />
+          </div>
+          
         </Col>
         <Col xs={24} md={12}>
-          <label style={{ lineHeight: "2" }}>เพศ</label>
-          <p />
-          <SelectGender value={genderId} onChange={setGenderId} />
+          <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <label style={{ lineHeight: "2" }}>ห้อง</label>
+            <SelectClass value={gradeClass} onChange={setGradeClass} />
+          </div>
+          
         </Col>
       </Row>
-
-      <Row gutter={[16, 12]}>
-        <Col xs={24} md={12}>
-          <label style={{ lineHeight: "2" }}>ชั้น</label>
-          <p />
-          <SelectGrade value={gradeYear} onChange={setGradeYear} />
-        </Col>
-        <Col xs={24} md={12}>
-          <label style={{ lineHeight: "2" }}>ห้อง</label>
-          <p />
-          <SelectClass value={gradeClass} onChange={setGradeClass} />
-        </Col>
-      </Row>
-
       <Row gutter={[16, 12]}>
         <Col xs={24} md={12}>
           <label style={{ lineHeight: "2" }}>สัญชาติ</label>
@@ -213,10 +299,15 @@ const MoveAddStudent: React.FC = () => {
           <Input value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
         </Col>
       </Row>
-
-      {/* ✅ ผู้ปกครอง / ที่อยู่ */}
       <Row gutter={[16, 12]}>
-        <Col xs={24} md={24}>
+        <Col xs={24} md={12}>
+          <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <label style={{ lineHeight: "2" }}>เพศ</label>
+            <SelectGender value={genderId} onChange={setGenderId} />
+          </div>
+          
+        </Col>
+        <Col xs={24} md={12}>
           <label style={{ lineHeight: "2" }}>ผู้ปกครอง</label>
           <Input
             value={guardian}
@@ -225,6 +316,15 @@ const MoveAddStudent: React.FC = () => {
             disabled={loading}
           />
         </Col>
+      </Row>
+
+      
+
+      
+
+      {/* ✅ ผู้ปกครอง / ที่อยู่ */}
+      <Row gutter={[16, 12]}>
+        
       </Row>
 
       <Row gutter={[16, 12]}>
@@ -241,55 +341,27 @@ const MoveAddStudent: React.FC = () => {
 
       {/* ----------- ไฟล์เดิมที่อัปโหลด ----------- */}
       <h3 style={{ marginTop: 16 }}>ไฟล์ที่เคยอัปโหลด</h3>
-      <Row gutter={[16, 12]}>
-        <Col xs={24} md={6}>
-          <label>ปพ.1 (ไฟล์เดิม)</label>
-          <div>
-            {fileTranscript ? (
-              isImage(fileTranscript) ? (
-                <Image width={180} src={toUrl(fileTranscript)} />
-              ) : (
-                <Button href={toUrl(fileTranscript)} target="_blank">เปิดไฟล์</Button>
-              )
-            ) : <div>—</div>}
-          </div>
-        </Col>
+<Row gutter={[16, 12]}>
+  <Col xs={24} md={6}>
+    <label>ปพ.1 (ไฟล์เดิม)</label>
+    <div><FilePreview path={fileTranscript} /></div>
+  </Col>
 
-        <Col xs={24} md={6}>
-          <label>สำเนาทะเบียนบ้าน (ไฟล์เดิม)</label>
-          <div>
-            {fileHousehold ? (
-              isImage(fileHousehold) ? (
-                <Image width={180} src={toUrl(fileHousehold)} />
-              ) : (
-                <Button href={toUrl(fileHousehold)} target="_blank">เปิดไฟล์</Button>
-              )
-            ) : <div>—</div>}
-          </div>
-        </Col>
+  <Col xs={24} md={6}>
+    <label>สำเนาทะเบียนบ้าน (ไฟล์เดิม)</label>
+    <div><FilePreview path={fileHousehold} /></div>
+  </Col>
 
-        <Col xs={24} md={6}>
-          <label>สำเนาบัตรประชาชน (ไฟล์เดิม)</label>
-          <div>
-            {fileCopyCid ? (
-              isImage(fileCopyCid) ? (
-                <Image width={180} src={toUrl(fileCopyCid)} />
-              ) : (
-                <Button href={toUrl(fileCopyCid)} target="_blank">เปิดไฟล์</Button>
-              )
-            ) : <div>—</div>}
-          </div>
-        </Col>
+  <Col xs={24} md={6}>
+    <label>สำเนาบัตรประชาชน (ไฟล์เดิม)</label>
+    <div><FilePreview path={fileCopyCid} /></div>
+  </Col>
 
-        <Col xs={24} md={6}>
-          <label>รูปภาพนักเรียน (ไฟล์เดิม)</label>
-          <div>
-            {fileImage ? (
-              <Image width={180} src={toUrl(fileImage)} style={{ borderRadius: 8 }} />
-            ) : <div>—</div>}
-          </div>
-        </Col>
-      </Row>
+  <Col xs={24} md={6}>
+    <label>รูปภาพนักเรียน (ไฟล์เดิม)</label>
+    <div><FilePreview path={fileImage} /></div>
+  </Col>
+</Row>
 
       <div style={{ display: "flex", justifyContent: "end", marginLeft: "calc(44% + 24px)" }}>
         <Space>
