@@ -11,7 +11,6 @@ import {
   EditOutlined,
   UploadOutlined,
   CreditCardOutlined,
-  MenuOutlined,
   LeftOutlined,
 } from "@ant-design/icons";
 import Studentimg from "../../assets/student.png";

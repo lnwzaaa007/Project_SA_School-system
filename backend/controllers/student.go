@@ -13,6 +13,7 @@ import (
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 	"gorm.io/gorm"
+    "golang.org/x/crypto/bcrypt" //mag เพิ่มตรงนี้ด้วย <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
 )
 type NameOnly struct {
     Student_ID string `json:"student_id"`
@@ -234,8 +235,54 @@ func AddStudent(c *gin.Context) {
 		}
 	}
 
+	//mag เวลาเพิ่ม studenะ ให้เพิ่ม user auto <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // --- 3) Optionally create Users record for login ---
+    var userID uint = payload.UsersID
+    if userID == 0 {
+        // Find UserType for Student (prefer by name, fallback by prefix)
+        var ut entity.UserType
+        if err := tx.Where("user_type_name = ?", "Student").First(&ut).Error; err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                if err2 := tx.Where("user_type_prefix = ?", "S").First(&ut).Error; err2 != nil {
+                    tx.Rollback()
+                    c.JSON(http.StatusBadRequest, gin.H{"error": "cannot find Student user type"})
+                    return
+                }
+            } else {
+                tx.Rollback()
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+                return
+            }
+        }
 
-    // --- 3) Create ---
+        // Default username = student_id, default password = citizen_id (or 123456 if empty)
+        defaultPwd := citizen
+        if defaultPwd == "" {
+            defaultPwd = "123456"
+        }
+        hashed, err := bcrypt.GenerateFromPassword([]byte(defaultPwd), 14)
+        if err != nil {
+            tx.Rollback()
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "password hash failed"})
+            return
+        }
+
+        u := entity.Users{
+            Username:  sid,
+            Password:  string(hashed),
+            UserTypeID: ut.ID,
+        }
+        if err := tx.Create(&u).Error; err != nil {
+            // If duplicate username, report conflict clearly
+            tx.Rollback()
+            c.JSON(http.StatusConflict, gin.H{"error": "username already exists for another user"})
+            return
+        }
+        userID = u.ID
+    }
+	//mag แก้ถึงตรงนี้ <<<<<<<<<<<<<<<<<<
+
+    // --- 4) Create Student ---
     s := entity.Student{
         Student_ID:    sid,
         TitleID:       payload.TitleID,
@@ -251,7 +298,7 @@ func AddStudent(c *gin.Context) {
         Email:         email, // ใช้ตัว normalize
         Religious:     payload.Religious,
         Student_image: img,
-        UsersID:       payload.UsersID,
+        UsersID:       userID, //mag เพิ่มตรงนี้ด้วย <<<<<<<<<<<<<<<<<<<<<<<<<<<
         AddressID:     payload.AddressID,
         GradeID:       payload.GradeID,
     }
@@ -384,5 +431,4 @@ func GetStudentImage(c *gin.Context) {
 	c.Header("Cache-Control", "public, max-age=3600")
 	c.Data(http.StatusOK, ctype, s.Student_image)
 }
-
 
