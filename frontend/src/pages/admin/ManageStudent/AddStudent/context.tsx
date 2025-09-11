@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from "react";
 import { message } from "antd";
-import { addressCRUD, studentCRUD, guardianCRUD } from "../../../../services/https";
+import { addressCRUD_N, studentCRUD, guardianCRUD } from "../../../../services/https";
 import { AddressAPI } from "../../../../services/https";
 
 // ---------- types ----------
@@ -40,11 +40,11 @@ type GuardianDraft = {
 type AddressDraft = {
   address_number?: string;
   road?: string;
-  province_id?: number;
+  province_id?: number;     // id ที่มาจาก Select (FE)
   district_id?: number;
   subdistrict_id?: number;
-  zipcode_id?: number;
 };
+
 
 // ---------- context shape ----------
 type Ctx = {
@@ -87,17 +87,17 @@ export const StudentCreateProvider: React.FC<React.PropsWithChildren> = ({ child
   const setAddress  = (p: Partial<AddressDraft>)   => setAddressState(a => ({ ...a, ...p }));
 
   const validate = () => {
-    if (!student.student_id) throw new Error("กรุณากรอกรหัสนักเรียน");
-    if (!student.citizen_id) throw new Error("กรุณากรอกเลขบัตรประชาชน");
-    if (!student.t_first_name || !student.t_last_name) throw new Error("กรอกชื่อ-นามสกุลให้ครบ");
-    if (!student.title_id) throw new Error("กรุณาเลือกคำนำหน้า");
-    if (!student.date_of_birth) throw new Error("กรุณาเลือกวันเกิด");
-    if (!student.grade_id) throw new Error("กรุณาเลือกชั้นปี");
-    if (!address.address_number) throw new Error("กรุณากรอกรายละเอียดที่อยู่");
-    if (!address.province_id || !address.district_id || !address.subdistrict_id || !address.zipcode_id) {
-      throw new Error("กรุณาเลือกจังหวัด/อำเภอ/ตำบล/รหัสไปรษณีย์ ให้ครบ");
-    }
-  };
+  if (!student.student_id) throw new Error("กรุณากรอกรหัสนักเรียน");
+  if (!student.citizen_id) throw new Error("กรุณากรอกเลขบัตรประชาชน");
+  if (!student.t_first_name || !student.t_last_name) throw new Error("กรอกชื่อ-นามสกุลให้ครบ");
+  if (!student.title_id) throw new Error("กรุณาเลือกคำนำหน้า");
+  if (!student.date_of_birth) throw new Error("กรุณาเลือกวันเกิด");
+  if (!student.grade_id) throw new Error("กรุณาเลือกชั้นปี");
+  if (!address.address_number) throw new Error("กรุณากรอกรายละเอียดที่อยู่");
+  if (!address.province_id || !address.district_id || !address.subdistrict_id) {
+    throw new Error("กรุณาเลือกจังหวัด/อำเภอ/ตำบล ให้ครบ");
+  }
+};
 
   const unwrap = (res: any) => Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
 
@@ -130,28 +130,23 @@ async function resolveAddressIds(draft: {
   province_id?: number | string;
   district_id?: number | string;
   subdistrict_id?: number | string;
-  zipcode_id?: number | string;
 }) {
-  // 1) province
+  // 1) provinces
   const provs = unwrap(await AddressAPI.getProvince());
   const provincePk = resolvePk(provs, draft.province_id);
 
-  // 2) district (อิงค่าที่เลือกจาก province เดิม—API ของคุณรับอะไรอยู่ก็ส่งแบบเดิมไป)
+  // 2) districts (ใช้ id ของจังหวัดที่ผู้ใช้เลือก)
   const dists = unwrap(await AddressAPI.getDistrict(Number(draft.province_id)));
   const districtPk = resolvePk(dists, draft.district_id);
 
-  // 3) subdistrict
+  // 3) subdistricts (ใช้ id ของอำเภอที่ผู้ใช้เลือก)
   const subs = unwrap(await AddressAPI.getSubdistrict(Number(draft.district_id)));
   const subPk = resolvePk(subs, draft.subdistrict_id);
 
-  // 4) zipcode
-  const zips = unwrap(await AddressAPI.getZipcode(Number(draft.subdistrict_id)));
-  const zipPk = resolvePk(zips, draft.zipcode_id);
-
-  if (!provincePk || !districtPk || !subPk || !zipPk) {
-    throw new Error("ข้อมูลจังหวัด/อำเภอ/ตำบล/ไปรษณีย์ ไม่สอดคล้องกัน");
+  if (!provincePk || !districtPk || !subPk) {
+    throw new Error("ข้อมูลจังหวัด/อำเภอ/ตำบล ไม่สอดคล้องกัน");
   }
-  return { provincePk, districtPk, subPk, zipPk };
+  return { provincePk, districtPk, subPk };
 }
 
    const saveAll = async () => {
@@ -162,17 +157,15 @@ async function resolveAddressIds(draft: {
       // 1) address
       console.log("[address draft]", address);
 
-      const { provincePk, districtPk, subPk, zipPk } =
-        await resolveAddressIds(address);
+    const { provincePk, districtPk, subPk } = await resolveAddressIds(address);
 
-      const addrRes = await addressCRUD.create({
-        address_number: String(address.address_number || "").trim(),
-        road: String(address.road || "").trim(),
-        province_id: provincePk,
-        district_id: districtPk,
-        subdistrict_id: subPk,
-        zipcode_id: zipPk,
-      });
+const addrRes = await addressCRUD_N.create({
+  address_number: String(address.address_number || "").trim(),
+  road: String(address.road || "").trim(),
+  province_id: provincePk,     // จะถูก normalize → thai_province_id
+  district_id: districtPk,     // จะถูก normalize → thai_district_id
+  subdistrict_id: subPk,       // จะถูก normalize → thai_subdistrict_id
+});
       if (!(addrRes?.status >= 200 && addrRes?.status < 300)) {
         throw new Error(addrRes?.data?.error || "สร้างที่อยู่ไม่สำเร็จ");
       }

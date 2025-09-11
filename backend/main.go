@@ -44,11 +44,12 @@ func main() {
 		router.DELETE("/guardian-student/:id", controllers.DeleteGuardianLink)
 
 		// Address routes (CRUD)
-		router.POST("/addresses", controllers.CreateAddress)
-		router.GET("/addresses", controllers.ListAddresses)
-		router.GET("/addresses/:id", controllers.GetAddressByID)
-		router.PUT("/addresses/:id", controllers.UpdateAddress)
-		router.DELETE("/addresses/:id", controllers.DeleteAddress)
+		router.POST("/addressesN", controllers.CreateAddressN)
+		router.GET("/addressesN", controllers.ListAddressesN)
+		// router.GET("/addresses/:id", controllers.GetAddressByIDn)
+		router.PUT("/addressesN/:id", controllers.UpdateAddressN)
+		router.DELETE("/addressesN/:id", controllers.DeleteAddressN)
+		router.GET("/addressesN/:id", controllers.GetAddressN)
 
 		// Teacher routes
 		router.GET("/teacher", controllers.GetNameTeacher)

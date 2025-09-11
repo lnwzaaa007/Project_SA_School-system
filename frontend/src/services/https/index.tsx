@@ -380,24 +380,59 @@ export const guardianCRUD = {
 
 
 // ==== Address (ที่อยู่) ====
-export const addressCRUD = {
-  create: (data: {
-    address_number: string;
-    road?: string;
-    province_id: number;
-    district_id: number;
-    subdistrict_id: number;
-    zipcode_id: number;
-  }) => Post("/addresses", data),
-  list: (qs = "") => Get(`/addresses${qs ? `?${qs}` : ""}`),
-  get: (id: number | string) => Get(`/addresses/${id}`),
-  update: (id: number | string, data: any) => Update(`/addresses/${id}`, data),
-  delete: (id: number | string) => Delete(`/addresses/${id}`),
+// services/https (เฉพาะส่วน Address)
+
+type CreateAddressPayload = {
+  address_number: string | number; // รองรับ FlexString ของหลังบ้าน
+  road?: string;
+  // ส่งอย่างใดอย่างหนึ่งก็ได้: แนะนำส่ง thai_* ตรงๆ
+  thai_province_id?: number;
+  thai_district_id?: number;
+  thai_subdistrict_id?: number;
+
+  // เผื่อ FE เก่าส่งแบบนี้มา — จะถูกแมพเป็น thai_*
+  province_id?: number;
+  district_id?: number;
+  subdistrict_id?: number;
 };
 
-// export const gradeCRUD = {
-//   list: (params?: any) => http.get("/grades", { params }),
-// };
+type UpdateAddressPayload = Partial<CreateAddressPayload>;
+
+// แปลง payload ให้เป็น thai_* เสมอ
+const normalizeAddressPayload = (data: CreateAddressPayload | UpdateAddressPayload) => {
+  const out: any = { ...data };
+
+  out.thai_province_id   = out.thai_province_id   ?? out.province_id;
+  out.thai_district_id   = out.thai_district_id   ?? out.district_id;
+  out.thai_subdistrict_id= out.thai_subdistrict_id?? out.subdistrict_id;
+
+  // ลบ alias เก่าออกเพื่อความสะอาด (ไม่บังคับ)
+  delete out.province_id;
+  delete out.district_id;
+  delete out.subdistrict_id;
+
+  return out;
+};
+
+export const addressCRUD_N = {
+  // POST /addresses
+  create: (data: CreateAddressPayload) =>
+    Post("/addressesN", normalizeAddressPayload(data)),
+
+  // GET /addresses  (รองรับส่ง query string เดิม)
+  list: (qs = "") => Get(`/addressesN${qs ? `?${qs}` : ""}`),
+
+  // GET /addresses/:id  ← ใช้ได้ต่อเมื่อเปิด route นี้แล้ว
+  get: (id: number | string) => Get(`/addressesN/${id}`),
+
+  // PUT /addresses/:id
+  update: (id: number | string, data: UpdateAddressPayload) =>
+    Update(`/addressesN/${id}`, normalizeAddressPayload(data)),
+
+  // DELETE /addresses/:id
+  delete: (id: number | string) => Delete(`/addressesN/${id}`),
+};
+
 
 
 export const gradeCRUD = {

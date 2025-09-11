@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Row, Col, Typography, message } from "antd";
-import { addressCRUD } from "../../services/https"; // ปรับ path ให้ตรงของคุณ
+import { addressCRUD_N } from "../../services/https"; // ปรับ path ให้ตรงของคุณ
 
 
 import SelectProvince from "../../components/SelectProvince";
