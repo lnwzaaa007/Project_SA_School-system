@@ -17,7 +17,12 @@ function Index() {
   // โหลดรายวิชา
   const fetchCourse = async () => {
     try {
-      const res = await AssignmentAPI.getCourses();
+      const grade_id = Number(localStorage.getItem('grade_id'));
+      if (!grade_id) {
+        console.error("❌ ไม่มี grade_id ใน localStorage");
+        return;
+      }
+      const res = await AssignmentAPI.getCourses(grade_id);
       if (Array.isArray(res.data)) {
         setCourses(
           res.data.map((c: any) => ({

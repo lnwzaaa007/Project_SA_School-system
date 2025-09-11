@@ -309,7 +309,7 @@ export const DistrictAPI ={
   getDistrict: (id: number) => Get(`/district/${id}`)
 }
 export const AssignmentAPI = {
-  getCourses: () => Get(`/courses`),
+  getCourses: (grade_id: number) => Get(`/courses/${grade_id}`), // เปลี่ยนเป็นรับ grade_id
   getAssignments: (id:number) => Get(`/assignments/${id}`),
   getAssignmentById: (id:number) => Get(`/assignment/${id}`), 
 
@@ -319,6 +319,11 @@ export async function submitAssignment(fd: FormData) {
   const res = await fetch("http://localhost:8088/submit-assignment", { method: "POST", body: fd });
   if (!res.ok) throw new Error(`Submit failed ${res.status}`);
   return res.json();
+}
+
+export const createAssignment = {
+  // postAssignment: (form: FormData) => Post("/assignments", form, true),
+  getCourseTeacher: (teacher_id: number) => Get(`/courses/teacher/${teacher_id}`),
 }
 
 export const GetBinary = async (

@@ -284,13 +284,19 @@ func saveFile(c *gin.Context, baseDir string, fh *multipart.FileHeader) (relPath
 
 // ---------- (ตัวอย่าง) ดึงรายวิชา ----------
 func GetCourses(c *gin.Context) {
-	var courses []entity.Course
-	if err := config.DB().Find(&courses).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลวิชาได้"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"data": courses})
+    gradeID := c.Param("grade_id") // รับ grade_id จาก URL
+
+    var courses []entity.Course
+    if err := config.DB().
+        Where("grade_id = ?", gradeID). // กรองเฉพาะวิชาของ grade นี้
+        Find(&courses).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลวิชาได้"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": courses})
 }
+
 
 // ---------- (ตัวอย่าง) ดึง assignment submit ตาม id ----------
 func GetAllAssignment(c *gin.Context) {

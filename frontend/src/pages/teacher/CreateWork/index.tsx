@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { Moment } from "moment";
 import moment from "moment";
 import axios from "axios";
+import { createAssignment } from "../../../services/https";
 
 const subjects = [
   { value: "thai", label: "ภาษาไทย" },
@@ -37,7 +38,34 @@ const CreateWork: React.FC = () => {
 
   console.log(selectedCourse)
 
+  const fetchCourses = async () => {
+    try {
+      const teacher_id = Number(localStorage.getItem("ID"));  
+      if (!teacher_id) {
+        console.error("❌ ไม่มี teacher_id ใน localStorage");
+        return;
+      }
+      const res = await createAssignment.getCourseTeacher(teacher_id);
 
+      if (Array.isArray(res.data)) {
+        setCourses(
+          res.data.map((c: any) => ({
+            id: c.ID,
+            name: `${c.course_name}`,
+          }))
+        );
+      } else {
+        console.error("ไม่พบข้อมูลรายวิชา:", res.data);
+      }
+    } catch (err) {
+      console.error("❌ โหลดรายวิชาผิดพลาด:", err);
+    }
+  };
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  // สร้างงาน
 
   const handleCreate = async () => {
     if (!selectedCourse || !title || !description || !openDate || !closeDate) {

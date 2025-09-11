@@ -18,13 +18,18 @@ type CreateAssignmentInput struct {
 	Submit_Point_all float32 `json:"submit_Point_all"`
 }
 
-func GetCoursess(c *gin.Context) {
-	var courses []entity.Course	
-	if err := config.DB().Find(&courses).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลวิชาได้"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"data": courses})
+func GetCoursesByIDTeacher(c *gin.Context) {
+    teacherID := c.Param("teacher_id") // รับ grade_id จาก URL
+
+    var courses []entity.Course
+    if err := config.DB().
+        Where("teacher_id = ?", teacherID). // กรองเฉพาะวิชาของ grade นี้
+        Find(&courses).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลวิชาได้"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": courses})
 }
 
 func CreateHomeWork(c *gin.Context) {

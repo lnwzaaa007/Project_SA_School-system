@@ -204,7 +204,10 @@ func main() {
 		router.GET("/student/education-record", controllers.GetMyEducationRecordByTermCourse)
 
 		// Course routes
-		router.GET("/courses", controllers.GetCourses)
+		router.GET("/courses/:grade_id", controllers.GetCourses)
+
+		// create assignment
+		router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
 
 
 		// ✅ ดาวน์โหลดตาม id
