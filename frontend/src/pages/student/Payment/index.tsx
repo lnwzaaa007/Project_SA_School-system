@@ -1,119 +1,11 @@
-// import React, { useState } from "react";
-// import { Select, Button } from "antd";
-// import { Link } from "react-router-dom";
-
-// // กล่องชำระเงินแต่ละรายการ
-// function PaymentBox({ name }: { name: string }) {
-//   return (
-    
-//     <div
-//       style={{
-//         width: "80%",
-//         backgroundColor: "#cceaff",
-//         padding: "20px",
-//         marginBottom: "20px",
-//         borderRadius: "12px",
-//         display: "flex",
-//         justifyContent: "space-between",
-//         alignItems: "center",
-//       }}
-//     >
-//       <div>{name}</div>
-//       <Link to="/student/payment/slip">
-//         <Button
-//           type="primary"
-//           style={{
-//             borderRadius: "20px",
-//             paddingInline: "24px",
-//           fontWeight: "bold",
-//         }}
-//       >
-//         ชำระเงิน
-//       </Button>
-//       </Link>
-//     </div>
-//   );
-// }
-
-// function index() {
-//   const [gradeOPTIONS, setGradeOptions] = useState<string[]>([]);
-//   const [termOPTIONS, setTermOptions] = useState<string[]>([]);
-
-//   // ชั้นปีการศึกษา
-//   const GradeOPTIONS = ["ม.1", "ม.2", "ม.3", "ม.4", "ม.5", "ม.6"];
-//   const GradeOptions = GradeOPTIONS.filter((o) => !gradeOPTIONS.includes(o));
-
-//   // เทอม
-//   const TermOPTIONS = ["เทอม 1", "เทอม 2"];
-//   const TermOptions = TermOPTIONS.filter((o) => !termOPTIONS.includes(o));
-
-//   // สมมุติข้อมูลนักเรียนที่ต้องชำระเงิน
-//   const paymentData = [
-//     { id: 1, name: "นักเรียน ม.1 เทอม 1" },
-//     { id: 2, name: "นักเรียน ม.1 เทอม 2" },
-//   ];
-
-//   return (
-//     <div
-//       style={{
-//         display: "flex",
-//         flexDirection: "column",
-//         alignItems: "center",
-//         marginTop: "10px",
-//       }}
-//     >
-//       <h1 style={{ textAlign: "center", marginBottom: "30px" }}>ชำระเงิน</h1>
-
-//       {/* Select เลือกกรอง */}
-//       <div
-//         style={{
-//           display: "flex",
-//           flexDirection: "row",
-//           gap: "20px",
-//           alignItems: "center",
-//           marginBottom: "30px",
-//         }}
-//       >
-//         <Select
-//           mode="multiple"
-//           placeholder="เลือกชั้นปี"
-//           value={gradeOPTIONS}
-//           onChange={setGradeOptions}
-//           style={{ width: "200px" }}
-//           options={GradeOptions.map((item) => ({
-//             value: item,
-//             label: item,
-//           }))}
-//         />
-
-//         <Select
-//           mode="multiple"
-//           placeholder="เลือกเทอม"
-//           value={termOPTIONS}
-//           onChange={setTermOptions}
-//           style={{ width: "200px" }}
-//           options={TermOptions.map((item) => ({
-//             value: item,
-//             label: item,
-//           }))}
-//         />
-//       </div>
-
-//       {/* กล่องชำระเงิน */}
-//       {paymentData.map((data) => (
-//         <PaymentBox key={data.id} name={data.name} />
-//       ))}
-//     </div>
-//   );
-// }
-
-// export default index;
-
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Card, Checkbox, Flex, List, Tag, Typography, message } from "antd";
+import { Button, Card, Checkbox, Flex, List, Tag, Typography, message, Table, Space } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Get } from "../../../services/https";
+const RAW_API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
+const API_URL = String(RAW_API_URL).replace(/\/+$/, "");
+const abs = (p: string) => (p?.startsWith("http") ? p : `${API_URL}${p?.startsWith("/") ? "" : "/"}${p}`);
 
 type BillUI = {
   billId: number;
@@ -130,6 +22,9 @@ const PaymentListPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [bills, setBills] = useState<BillUI[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  // payments result section
+  type StudentPayment = { id: number; dateTime: string; amount: number; statusCode: "WAITING"|"COMPLETE"|"REJECTED"|string; slipUrl: string; bills: { billId:number; title:string; amount:number }[] };
+  const [myPayments, setMyPayments] = useState<StudentPayment[]>([]);
 
   // TODO: ดึง studentId จาก auth/localStorage ตามระบบของคุณ
   const studentId = (localStorage.getItem("student_id") || 1);
@@ -185,6 +80,20 @@ useEffect(() => {
   };
   run();
 }, []);
+  // load my payment results (admin verification outcomes)
+  useEffect(() => {
+    (async () => {
+      try {
+        const sid = localStorage.getItem("ID");
+        if (!sid) return;
+        const res = await Get(`/payments/student/${sid}`);
+        const arr = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
+        setMyPayments(arr);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
   // useEffect(() => {
   //   const run = async () => {
   //     try {
@@ -282,6 +191,24 @@ useEffect(() => {
           );
         }}
       />
+
+      <Card style={{ marginTop: 24 }}>
+        <Typography.Title level={5} style={{ marginBottom: 12 }}>สถานะการตรวจสลิปล่าสุด</Typography.Title>
+        <Table
+          size="small"
+          rowKey="id"
+          dataSource={myPayments}
+          pagination={false}
+          columns={[
+            { title: "ID", dataIndex: "id", width: 80 },
+            { title: "เวลา", dataIndex: "dateTime", width: 180, render: (v:string)=> new Date(v).toLocaleString("th-TH") },
+            { title: "ยอด", dataIndex: "amount", width: 120, align: "right", render: (v:number)=> new Intl.NumberFormat("th-TH").format(v) },
+            { title: "สถานะ", dataIndex: "statusCode", width: 140, render: (s:string)=> s==="COMPLETE"? <Tag color="green">ตรวจสอบสำเร็จ</Tag> : s==="REJECTED"? <Tag color="red">ตรวจสอบไม่สำเร็จ</Tag> : <Tag color="gold">รอตรวจ</Tag> },
+            { title: "สลิป", dataIndex: "slipUrl", render: (u:string)=> <a href={abs(u)} target="_blank" rel="noreferrer">เปิดสลิป</a> },
+            { title: "บิลที่เกี่ยวข้อง", dataIndex: "bills", render: (bs:any[])=> <Space direction="vertical" size={0}>{bs?.map(b=> <span key={b.billId}>{b.title}</span>)}</Space> },
+          ]}
+        />
+      </Card>
     </div>
   );
 };

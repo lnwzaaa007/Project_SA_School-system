@@ -119,6 +119,10 @@ func main() {
 		
 		router.GET("/bills/student/:id", controllers.ListStudentBills) // alias
 		router.GET("/bills/summary", controllers.BillsSummary)
+		// Admin can list payment slips (waiting/complete)
+		router.GET("/payments", controllers.ListPaymentSlipsForAdmin)
+        // Student can view their payment results
+        router.GET("/payments/student/:id", controllers.ListStudentPayments)
 		router.POST("/payments/upload", controllers.UploadPaymentSlip)
 		router.POST("/payments/:id/verify", controllers.VerifyPayment)
 		router.GET("/payments/options/:student_id", controllers.GetStudentTuitionOptions)

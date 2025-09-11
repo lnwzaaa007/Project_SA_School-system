@@ -34,12 +34,22 @@ func sumApproved(tx *gorm.DB, billID uint) (int, error) {
 
 // นับจำนวนสลิปที่ "รอตรวจสอบ" ของบิล
 func countWaiting(tx *gorm.DB, billID uint) (int64, error) {
-	var cnt int64
-	err := tx.Model(&entity.Payment{}).
-		Joins("JOIN payment_bills pb ON pb.payment_id = payments.id").
-		Where("pb.bill_id = ? AND payments.status = ?", billID, entity.Waitting).
-		Count(&cnt).Error
-	return cnt, err
+    var cnt int64
+    err := tx.Model(&entity.Payment{}).
+        Joins("JOIN payment_bills pb ON pb.payment_id = payments.id").
+        Where("pb.bill_id = ? AND payments.status = ?", billID, entity.Waitting).
+        Count(&cnt).Error
+    return cnt, err
+}
+
+// count rejected payments for a bill
+func countRejected(tx *gorm.DB, billID uint) (int64, error) {
+    var cnt int64
+    err := tx.Model(&entity.Payment{}).
+        Joins("JOIN payment_bills pb ON pb.payment_id = payments.id").
+        Where("pb.bill_id = ? AND payments.status = ?", billID, entity.Statuspayment("Rejected")).
+        Count(&cnt).Error
+    return cnt, err
 }
 
 // sanitize ชื่อไฟล์/โฟลเดอร์ให้ปลอดภัย
@@ -457,11 +467,12 @@ func VerifyPayment(c *gin.Context) {
 			return err
 		}
 
-		if body.Approve {
-			p.Status = entity.Complete
-		} else {
-			p.Status = entity.Waitting
-		}
+        if body.Approve {
+            p.Status = entity.Complete
+        } else {
+            // ไม่อนุมัติ -> กลับไปสถานะ "รอตรวจ"
+            p.Status = entity.Waitting
+        }
 		if err := tx.Save(&p).Error; err != nil {
 			return err
 		}
