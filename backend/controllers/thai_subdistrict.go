@@ -10,16 +10,16 @@ import (
 
 type thaisubdistrict struct {
 	Subdistrict_ID   uint   `json:"id" gorm:"column:id"`
-	ZipCode          uint   `json:"zip_code" gorm:"column:zip_code"`
-	District_ID      uint   `json:"amphure_id" gorm:"column:amphure_id"`
-	Subdistrict_Name string `json:"Sname_th" gorm:"column:name_th"`
-	District_name    string `json:"Dname_th" gorm:"column:name_th"`
+	ZipCode          uint   `json:"thai_zip_code" gorm:"column:thai_zip_code"`
+	District_ID      uint   `json:"thai_district_id" gorm:"column:thai_district_id"`
+	Subdistrict_Name string `json:"thai_subdistrict_name" gorm:"column:thai_subdistrict_name"`
+	District_name    string `json:"thai_district_name" gorm:"column:thai_district_name"`
 }
 
 func GetThaiSubdistrict(c *gin.Context) {
 	var thaisubdistrict []thaisubdistrict
 	if err := config.DB().
-		Raw("SELECT thai_tambons.*,thai_amphures.name_th FROM thai_tambons inner join thai_amphures on thai_tambons.amphure_id = thai_amphures.id ").
+		Raw("SELECT thai_subdistricts.*,thai_districts.thai_district_name FROM thai_subdistricts inner join thai_districts on thai_subdistricts.thai_district_id = thai_districts.id ").
 		Scan(&thaisubdistrict).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
@@ -32,9 +32,9 @@ func GetThaiSubdistrictById(c *gin.Context) {
 	var rows []thaisubdistrict
 
 	if err := config.DB().
-		Table("thai_tambons").
-		Select("id, amphure_id, name_th, zip_code").
-		Where("amphure_id = ?", districtID).
+		Table("thai_subdistricts").
+		Select("id, thai_district_id, thai_subdistrict_name, thai_zip_code").
+		Where("thai_district_id = ?", districtID).
 		Order("id ASC").
 		Scan(&rows).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
@@ -48,8 +48,8 @@ func GetThaiZipcodeById(c *gin.Context) {
 	var rows []thaisubdistrict
 
 	if err := config.DB().
-		Table("thai_tambons").
-		Select("id, amphure_id, name_th, zip_code").
+		Table("thai_subdistricts").
+		Select("id, thai_district_id, thai_subdistrict_name, thai_zip_code").
 		Where("id = ?", subdistrictID).
 		Order("id ASC").
 		Scan(&rows).Error; err != nil {

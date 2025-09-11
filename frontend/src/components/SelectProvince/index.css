@@ -1,5 +1,5 @@
 .custom-select-province .ant-select-selector {
-    width: 740px !important;
+    width: auto !important;
     height: 40px !important;
     /* border-radius: 60px !important; */
     background-color: #f5f5f5 !important;

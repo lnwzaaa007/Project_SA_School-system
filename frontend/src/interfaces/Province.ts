@@ -1,4 +1,4 @@
 export interface ProvinceInterface {
     id?: number;
-    name_th?: string;
+    thai_province_name?: string;
 }

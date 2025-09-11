@@ -1,29 +1,37 @@
 package controllers
 
 import (
-	"net/http"
-	"time"
-	"strconv"
+    "errors"
+    "fmt"
+    "net/http"
+    "os"
+    "path/filepath"
+    "strings"
+    "time"
+
     "github.com/gin-gonic/gin"
+    "github.com/gin-gonic/gin/binding"
     "github.com/lnwzaaa007/Project_SA_School-system/backend/config"
     "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
-
+    "golang.org/x/crypto/bcrypt" //mag เพิ่มตรงนี้ด้วย <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
+    "gorm.io/gorm"
 )
 type NameOnlyTeacher struct {
     ID          uint   `json:"id"`
     Teacher_ID string `json:"teacher_id"`
-	TFirst_Name string `json:"tfirst_name"`
-	TLast_Name  string `json:"tlast_name"`
+	TFirst_Name string `json:"t_first_name"`
+	TLast_Name  string `json:"t_last_name"`
     Qualification string `json:"qualification"`
 }
 
 func GetNameTeacher(c *gin.Context) {
-	var teacher []entity.Teacher
-	if err := config.DB().Raw("SELECT TFirst_Name,TLast_Name FROM Teacher").Find(&teacher).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
+	var teacher []NameOnlyTeacher
+	if err := config.DB().
+        Raw("SELECT MIN(id) AS id, t_first_name,t_last_name,teacher_id,qualification FROM teachers GROUP BY id ORDER BY id ASC").
+        Scan(&teacher).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
 	c.JSON(http.StatusOK, teacher)
 }
 // GET /teachers/:user_id    get all techer by user_id
@@ -43,7 +51,7 @@ func GetNameTeacherById(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := config.DB().Table("teachers").
-		Select("teacher_id,t_first_name,t_last_name,qualification").
+		Select("*").
 		Where("id = ?", id).
 		Scan(&name).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "teacher not found"})
@@ -64,91 +72,205 @@ func GetNameTeacherAll(c *gin.Context) {
     c.JSON(http.StatusOK, names)
 }
 
-//get ตารางสอนครู
-func GetTeacherschedule(c *gin.Context){
-	teacher_id := c.Query("teacher_id")
-    if teacher_id == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ grade_id"})
-        return
-    }
-    teacherID, err := strconv.Atoi(teacher_id)
-    if err != nil || teacherID <= 0 {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "grade_id ไม่ถูกต้อง"})
-        return
-    }
+type TeacherCreateRequest struct {
+	TeacherID    string `form:"teacher_id" binding:"required"`
+	TitleID      uint   `form:"title_id" binding:"required"`
+	TFirstName   string `form:"t_first_name" binding:"required"`
+	TLastName    string `form:"t_last_name" binding:"required"`
+	EFirstName   string `form:"e_first_name"`
+	ELastName    string `form:"e_last_name"`
+	CitizenID    string `form:"citizen_id" binding:"required"`
+	Tel          string `form:"tel" binding:"required"`
+	DateOfBirth  string `form:"date_of_birth" binding:"required"` // YYYY-MM-DD
+	GenderID     uint   `form:"gender_id" binding:"required"`
+	Nationality  string `form:"nationality" binding:"required"`
+	Email        string `form:"email" binding:"required,email"`
+	Religious    string `form:"religious"`
+	Qualification string `form:"qualification"`
 
-    // หาเทอมปัจจุบันจากเวลาขณะนี้
-    now := time.Now()
-    var term entity.Term
-    if err := config.DB().
-        Where("start_date <= ? AND end_date >= ?", now, now).
-        First(&term).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบเทอมปัจจุบัน"})
-        return
-    }
-
-    // ดึงตารางเรียนของ grade_id ที่อยู่ในเทอมปัจจุบัน
-    var schedules []entity.Schedules
-    if err := config.DB().
-        Preload("Days").
-        Preload("Course").
-        Preload("Course.Subject_Group").
-        Preload("Teacher").
-        Preload("TimeStart").
-        Preload("TimeEnd").
-        Preload("Grade").
-        Where("term_id = ? AND teacher_id = ? ",term.ID,teacherID).
-        Find(&schedules).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    // จัดรูปแบบข้อมูลตอบกลับให้เหมือนกับ ScheduleResponse ที่ใช้ในหน้าตารางเรียน
-    type ScheduleResponse struct {
-        ID            int     `json:"id"`
-        Day           string  `json:"day"`
-        StartTime     string  `json:"start_time"`
-        EndTime       string  `json:"end_time"`
-        CourseName    string  `json:"course_name"`
-        CourseCode    string  `json:"course_code"`
-        CreditNum     float32 `json:"credit_num"`
-        ClassInWeek   int     `json:"class_in_week"`
-        HoursOfTerm   int     `json:"hours_of_term"`
-        Subject_Group string  `json:"subject_group"`
-        TeacherName   string  `json:"teacher_name"`
-        GradeYeaer    string  `json:"grade_year"`
-        Grade_Class   int     `json:"grade_class"`
-    }
-
-    responses := make([]ScheduleResponse, 0, len(schedules))
-    for _, s := range schedules {
-        subjectGroupName := ""
-        if s.Course != nil && s.Course.Subject_Group != nil {
-            subjectGroupName = s.Course.Subject_Group.SubjectGroup_Name
-        }
-
-        resp := ScheduleResponse{
-            ID:            int(s.ID),
-            Day:           s.Days.ThaiDay,
-            StartTime:     s.TimeStart.Period,
-            EndTime:       s.TimeEnd.Period,
-            CourseName:    s.Course.Course_Name,
-            CourseCode:    s.Course.Course_Code,
-            CreditNum:     s.Course.Credit_Num,
-            ClassInWeek:   s.Course.Class_in_week,
-            HoursOfTerm:   s.Course.Hours_of_term,
-            Subject_Group: subjectGroupName,
-            TeacherName:   s.Teacher.TFirst_Name + " " + s.Teacher.TLast_Name,
-        }
-        if s.Grade != nil {
-            resp.GradeYeaer = s.Grade.Grade_Year
-            resp.Grade_Class = s.Grade.Grade_Class
-        }
-        responses = append(responses, resp)
-    }
-
-    c.JSON(http.StatusOK, gin.H{"data": responses, "term_id": term.ID, "semester": term.Semester, "academic_year": term.Academic_year})
+	AddressID uint `form:"address_id"`
+	UsersID   uint `form:"users_id"`
 }
 
+// -------------------------------
+// Helpers: เซฟไฟล์ (บังคับต้องมี / Optional)
+// -------------------------------
+func saveUploadedFileRequired(c *gin.Context, field, uploadDir string) (string, error) {
+	f, err := c.FormFile(field)
+	if err != nil {
+		return "", err
+	}
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		return "", err
+	}
+	name := fmt.Sprintf("%s_%d_%s", field, time.Now().UnixNano(), filepath.Base(f.Filename))
+	diskPath := filepath.Join(uploadDir, name)
+	if err := c.SaveUploadedFile(f, diskPath); err != nil {
+		return "", err
+	}
+	return strings.ReplaceAll(diskPath, "\\", "/"), nil
+}
 
+func saveUploadedFileOptional(c *gin.Context, field, uploadDir string) (string, error) {
+	f, err := c.FormFile(field)
+	if err != nil {
+		// ถ้าไม่ส่งไฟล์มาก็ให้ว่างไป
+		if errors.Is(err, http.ErrMissingFile) {
+			return "", nil
+		}
+		return "", err
+	}
+	if f == nil {
+		return "", nil
+	}
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		return "", err
+	}
+	name := fmt.Sprintf("%s_%d_%s", field, time.Now().UnixNano(), filepath.Base(f.Filename))
+	diskPath := filepath.Join(uploadDir, name)
+	if err := c.SaveUploadedFile(f, diskPath); err != nil {
+		return "", err
+	}
+	return strings.ReplaceAll(diskPath, "\\", "/"), nil
+}
+
+// -------------------------------
+// POST /teachers  (สร้างอาจารย์ใหม่)
+// -------------------------------
+func CreateTeacher(c *gin.Context) {
+	var req TeacherCreateRequest
+	if err := c.ShouldBindWith(&req, binding.FormMultipart); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ถูกต้อง", "detail": err.Error()})
+		return
+	}
+
+	// ตรวจ format วันเกิด
+	dob, err := time.Parse("2006-01-02", req.DateOfBirth)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "วันเกิดต้องอยู่ในรูปแบบ YYYY-MM-DD"})
+		return
+	}
+
+	// teacher_id ต้องไม่ซ้ำ
+	var cnt int64
+	if err := config.DB().Model(&entity.Teacher{}).
+		Where("teacher_id = ?", req.TeacherID).
+		Count(&cnt).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ตรวจสอบ teacher_id ไม่สำเร็จ"})
+		return
+	}
+	if cnt > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "teacher_id นี้มีอยู่ในระบบแล้ว"})
+		return
+	}
+
+	// ไฟล์: รูปอาจารย์ (optional), ไฟล์วุฒิการศึกษา (optional)
+	// เปลี่ยนโฟลเดอร์ตามที่ต้องการได้
+	teacherImgPath, err := saveUploadedFileOptional(c, "teacher_image", "uploads/teachers")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "อัปโหลดรูปอาจารย์ไม่สำเร็จ", "detail": err.Error()})
+		return
+	}
+    qualImgPath, err := saveUploadedFileOptional(c, "qualification_image", "uploads/teacher_qualifications")
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "อัปโหลดไฟล์วุฒิการศึกษาไม่สำเร็จ", "detail": err.Error()})
+        return
+    }
+
+    // --- Transaction for creating Users (optional) and Teacher ---
+    tx := config.DB().Begin()
+    if tx.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot start transaction"})
+        return
+    }
+	//mag แก้ตรงนี้
+    // Optionally create Users record for login
+    var userID uint = req.UsersID
+    if userID == 0 {
+        // Find UserType for Teacher (prefer by name, fallback by prefix)
+        var ut entity.UserType
+        if err := tx.Where("user_type_name = ?", "Teacher").First(&ut).Error; err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                if err2 := tx.Where("user_type_prefix = ?", "T").First(&ut).Error; err2 != nil {
+                    tx.Rollback()
+                    c.JSON(http.StatusBadRequest, gin.H{"error": "cannot find Teacher user type"})
+                    return
+                }
+            } else {
+                tx.Rollback()
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+                return
+            }
+        }
+
+        // Default username = teacher_id, default password = citizen_id (or 123456 if empty)
+        defaultPwd := req.CitizenID
+        if strings.TrimSpace(defaultPwd) == "" {
+            defaultPwd = "123456"
+        }
+        hashed, err := bcrypt.GenerateFromPassword([]byte(defaultPwd), 14)
+        if err != nil {
+            tx.Rollback()
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "password hash failed"})
+            return
+        }
+
+        u := entity.Users{
+            Username:   req.TeacherID,
+            Password:   string(hashed),
+            UserTypeID: ut.ID,
+        }
+        if err := tx.Create(&u).Error; err != nil {
+            tx.Rollback()
+            c.JSON(http.StatusConflict, gin.H{"error": "username already exists for another user"})
+            return
+        }
+        userID = u.ID
+    }
+	//ถึงตรงนี้
+    // map ไปยัง entity.Teacher (คอลัมน์ใน DB)
+    t := entity.Teacher{
+        Teacher_ID:  req.TeacherID,
+        TitleID:     req.TitleID,
+        TFirst_Name: req.TFirstName,
+        TLast_Name:  req.TLastName,
+        EFirst_Name: req.EFirstName,
+        ELast_Name:  req.ELastName,
+        Citizen_ID:  req.CitizenID,
+        Tel:         req.Tel,
+        DateOfBirth: dob,
+        GenderID:    req.GenderID,
+        Nationality: req.Nationality,
+        Email:       req.Email,
+        Religious:   req.Religious,
+        Qualification:       req.Qualification,
+        Teacher_image:       teacherImgPath,
+        Qualification_image: qualImgPath,
+        AddressID:           req.AddressID,
+        UsersID:             userID,
+    }
+
+    if err := tx.Create(&t).Error; err != nil {
+        tx.Rollback()
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกข้อมูลไม่สำเร็จ", "detail": err.Error()})
+        return
+    }
+	//mag เพิ่มตรงนี้
+    if err := tx.Commit().Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "commit failed"})
+        return
+    }
+	//ถึงตรงนี้
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "สร้างข้อมูลอาจารย์สำเร็จ",
+		"id":      t.ID,
+		"teacher": t,
+		
+		"files": gin.H{
+			"teacher_image":       teacherImgPath,
+			"qualification_image": qualImgPath,
+		},
+	})
+}
 
