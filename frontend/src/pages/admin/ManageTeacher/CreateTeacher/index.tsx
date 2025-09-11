@@ -56,10 +56,10 @@ const ManageTeacher: React.FC = () => {
   const thaiCidOk = (id: string) => {
     const s = id.replace(/\D/g, "");
     if (s.length !== 13) return false;
-    let sum = 0;
-    for (let i = 0; i < 12; i++) sum += parseInt(s[i], 10) * (13 - i);
-    const check = (11 - (sum % 11)) % 10;
-    return check === parseInt(s[12], 10);
+    // let sum = 0;
+    // for (let i = 0; i < 12; i++) sum += parseInt(s[i], 10) * (13 - i);
+    // const check = (11 - (sum % 11)) % 10;
+    // return check === parseInt(s[12], 10);
   };
 
   const validate = (): ValidateResult => {

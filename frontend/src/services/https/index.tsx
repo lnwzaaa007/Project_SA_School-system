@@ -4,8 +4,10 @@ import type {SignInInterface,} from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
 import type {AttendanceInterface} from "../../interfaces/Attendance"
 import { useEffect } from "react";
+import type { UpdateCoursePayload } from "../../interfaces/course";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
+
 
 const getCookie = (name: string): string | null => {
   const cookies = document.cookie.split("; ");
@@ -31,6 +33,44 @@ const getConfigWithoutAuth = () => ({
     "Content-Type": "application/json",
   },
 });
+
+//////
+
+export const http = axios.create({
+  baseURL: API_URL,
+  // ถ้าต้องส่ง cookie cross-site ด้วยให้เปิดด้วย (ไม่บังคับ เพราะเราดึง token จาก cookie มาใส่ header อยู่แล้ว)
+  // withCredentials: true,
+});
+
+http.interceptors.request.use((config) => {
+  const tokenFromCookie = getCookie("0195f494-feaa-734a-92a6-05739101ede9");
+  const tokenFromLS = localStorage.getItem("token"); // เผื่อคุณเก็บ token ใน LS
+  const token = tokenFromCookie || tokenFromLS;
+
+  if (token && !config.headers?.Authorization) {
+    config.headers = config.headers ?? {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
+  // ใส่ content-type ให้แน่ใจ
+  (config.headers as any)["Content-Type"] =
+    config.headers?.["Content-Type"] || "application/json";
+  return config;
+});
+
+
+// ดัก 401 (เหมือนฟังก์ชัน Get/Post เดิมของคุณ)
+http.interceptors.response.use(
+  (r) => r,
+  (error) => {
+    if (error?.response?.status === 401) {
+      localStorage.clear();
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
+///////
 
 // services/https.ts (หรือไฟล์ services ของคุณ)
 const isFormData = (data: any) =>
@@ -142,10 +182,12 @@ export const studentAPI = {
 export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
-  // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
   createTeacher: (form: FormData) => Post(`/teacher`, form, true),
- 
   getNameTeacherAll: () => Get(`/teachers`),
+  getteacher :() => Get(`/teacher`),
+  getTeacherDetail: (id: number | string) => Get(`/teacher-detail/${id}`),
+  deleteTeacher: (id: number | string) => Delete(`/teacher/${id}`),
 };
 
 export const adminAPI = {
@@ -238,9 +280,25 @@ export const subjectGroupAPI = {
 
 export const courseAPI = {
   CreateCourseAll: (course:{course_code: string; course_name:string; subject_group_id: number; credit_num: number;
-    class_in_week: number; grade_year: string; grade_class: number; teacher_id: number;
-   }) => Post("/new-course", course),
-  getCourseAll: () => Get("/coursesall")
+    class_in_week: number; grade_year: string; grade_class: number; teacher_id: number; term_id: number; grade_id: number;
+   }) => Post("/new-course", course), 
+  getCourseAll: () => Get("/coursesall"),
+  getGradClassAllWithYear: () => Get(`/gradeclass/allwithyear`),
+  deleteCourse: (id: number) => Delete(`/course/${id}`),
+  updateCourse: (id: number, data: UpdateCoursePayload
+                // course:{
+                // course_code: string; 
+                // course_name: string; 
+                // subject_group_id: number; 
+                // credit_num: number;
+                // class_in_week: number; 
+                // grade_year: string; 
+                // grade_class: number; 
+                // teacher_id: number; 
+                // term_id: number; 
+                // grade_id: number;
+  ) => Update(`/course/${id}`,data ,true),
+  getCourseById: (id: number) => Get(`/course/${id}`),
   
 };
 export const ProvinceAPI ={
@@ -258,6 +316,17 @@ export const AssignmentAPI = {
 
 }
 
+export const GetBinary = async (
+  url: string,
+  requireAuth: boolean = true,
+  extraHeaders?: Record<string, string>
+) => {
+  const base = requireAuth ? getConfig() : getConfigWithoutAuth();
+  return await axios.get(`${API_URL}${url}`, {
+    responseType: "blob",
+    headers: { ...base.headers, ...(extraHeaders || {}) },
+  });
+};
 export const GenderAPI = {
   getGender: () => Get("/gender"),
 }
@@ -271,5 +340,119 @@ export const EnrollmentAPI = {
   getEnrollmentById: (id: number | string) => Get(`/enrollment/${id}`),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
   deleteEnrollment: (id: number | string) => Delete(`/enrollment/${id}`),
+};
+
+
+
+
+export const studentCRUD = {
+  list: (params: { q?: string; grade_id?: number|string; page?: number; page_size?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", String(params.q));
+    if (params?.grade_id) qs.set("grade_id", String(params.grade_id));
+    if (params?.page) qs.set("page", String(params.page));
+    if (params?.page_size) qs.set("page_size", String(params.page_size));
+    return Get(`/student?${qs.toString()}`);
+  },
+  // POST /studentAdd
+  create: (data: any) => Post("/studentAdd", data),
+
+  // GET /student/:id
+  getById: (id: number | string) => Get(`/student/${id}`),
+
+  // PUT /student/:id  (มี route หลังบ้านแล้ว เผื่อใช้ทีหลัง)
+  update: (id: number | string, data: any) => Update(`/student/${id}`, data),
+
+  // GET รูปนักเรียน (ใช้กับ <img src={...}>)
+  imageUrl: (id: number | string) => `${API_URL}/student/${id}/image`,
+
+  // ถ้ามีลบในอนาคต:
+  remove: (id: number | string) => Delete(`/students/${id}`),
+};
+
+
+// ==== Guardian (ผู้ปกครอง) ====
+export const guardianCRUD = {
+  // POST /guardian-student  (upsert พ่อ/แม่/ผู้ปกครอง ของนักเรียน 1 คน)
+  createProfile: (data: any) => Post("/guardian-student", data),
+
+  // GET /guardian-student?student_id=123
+  listByStudent: (studentId: number | string) =>
+    Get(`/guardian-student?student_id=${studentId}`),
+
+  // GET /guardian-student/:id   (อ่าน link รายแถว)
+  getLink: (id: number | string) => Get(`/guardian-student/${id}`),
+
+  // PUT /guardian-student/:id   (แก้บทบาท/ข้อมูลผู้ปกครองที่ลิงก์อยู่)
+  updateLink: (id: number | string, data: any) => Update(`/guardian-student/${id}`, data),
+
+  // DELETE /guardian-student/:id (ลบเฉพาะ link)
+  deleteLink: (id: number | string) => Delete(`/guardian-student/${id}`),
+};
+
+
+// ==== Address (ที่อยู่) ====
+// services/https (เฉพาะส่วน Address)
+
+type CreateAddressPayload = {
+  address_number: string | number; // รองรับ FlexString ของหลังบ้าน
+  road?: string;
+  // ส่งอย่างใดอย่างหนึ่งก็ได้: แนะนำส่ง thai_* ตรงๆ
+  thai_province_id?: number;
+  thai_district_id?: number;
+  thai_subdistrict_id?: number;
+
+  // เผื่อ FE เก่าส่งแบบนี้มา — จะถูกแมพเป็น thai_*
+  province_id?: number;
+  district_id?: number;
+  subdistrict_id?: number;
+};
+
+type UpdateAddressPayload = Partial<CreateAddressPayload>;
+
+// แปลง payload ให้เป็น thai_* เสมอ
+const normalizeAddressPayload = (data: CreateAddressPayload | UpdateAddressPayload) => {
+  const out: any = { ...data };
+
+  out.thai_province_id   = out.thai_province_id   ?? out.province_id;
+  out.thai_district_id   = out.thai_district_id   ?? out.district_id;
+  out.thai_subdistrict_id= out.thai_subdistrict_id?? out.subdistrict_id;
+
+  // ลบ alias เก่าออกเพื่อความสะอาด (ไม่บังคับ)
+  delete out.province_id;
+  delete out.district_id;
+  delete out.subdistrict_id;
+
+  return out;
+};
+
+export const addressCRUD_N = {
+  // POST /addresses
+  create: (data: CreateAddressPayload) =>
+    Post("/addressesN", normalizeAddressPayload(data)),
+
+  // GET /addresses  (รองรับส่ง query string เดิม)
+  list: (qs = "") => Get(`/addressesN${qs ? `?${qs}` : ""}`),
+
+  // GET /addresses/:id  ← ใช้ได้ต่อเมื่อเปิด route นี้แล้ว
+  get: (id: number | string) => Get(`/addressesN/${id}`),
+
+  // PUT /addresses/:id
+  update: (id: number | string, data: UpdateAddressPayload) =>
+    Update(`/addressesN/${id}`, normalizeAddressPayload(data)),
+
+  // DELETE /addresses/:id
+  delete: (id: number | string) => Delete(`/addressesN/${id}`),
+};
+
+
+
+export const gradeCRUD = {
+  list: (params?: any) => http.get("/grades", { params }),
+  // ถ้ายังใช้แบบแยกปี/ห้อง:
+  years: () => http.get("/gradeyears"),
+  classes: () => http.get("/gradeclasses"),
+  byYearAndClass: (year: number, classId: number) =>
+    http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
 };
 
