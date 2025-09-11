@@ -41,7 +41,7 @@ func main() {
 		
 		// Teacher routes
 		// router.GET("/teacher", controllers.GetNameTeacher)
-		router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
+		// router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
 
 		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		
@@ -120,9 +120,9 @@ func main() {
 		router.GET("/province", controllers.GetProvince)
 		router.GET("/province/:id", controllers.GetProvinceById)
 		
-		// Thai_Province routes
-		router.GET("/thaiprovince", controllers.GetThaiProvince)
-		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
+		// // Thai_Province routes
+		// router.GET("/thaiprovince", controllers.GetThaiProvince)
+		// router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
 
 		// District routes
 		router.GET("/district", controllers.GetDistrict)
@@ -170,8 +170,8 @@ func main() {
 		
 		
 		
-		// Course routes
-		router.GET("/courses", controllers.GetCourses)
+		// // Course routes
+		// router.GET("/courses", controllers.GetCourses)
 
 		//Payment routes
 		router.POST("/bills/create", controllers.CreateBillByStudentTerm)
@@ -189,7 +189,7 @@ func main() {
 	
 
 		// ส่งงาน
-		router.POST("/submit-assignment", controllers.AssignmentSubmit)
+		// router.POST("/submit-assignment", controllers.AssignmentSubmit)
 		
 		// Teacher: Education Records (คะแนนนักเรียน)
 		router.POST("/teacher/education-records", controllers.CreateEducationRecord)
@@ -228,7 +228,7 @@ func main() {
 	}
 
 	// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
-	r.Static("/uploads", "./uploads")
+	// r.Static("/uploads", "./uploads")
 	r.POST("/enrollments", controllers.CreateEnrollment)
 
 	// Login routes
