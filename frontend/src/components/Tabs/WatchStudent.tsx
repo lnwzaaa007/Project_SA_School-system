@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { useStudentCreate } from "../../pages/admin/ManageStudent/AddStudent/context";
 import { studentCRUD, gradeCRUD } from "../../services/https";
 import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -31,7 +32,7 @@ const fileToDataURL = (file: File) =>
     r.readAsDataURL(file);
   });
 
-export default function Edit() {
+export default function WatchtStudent() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -241,22 +242,12 @@ useEffect(() => {
           <div style={tabStyle}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
               <Title level={4} style={{ margin: 0 }}>ข้อมูลทั่วไป</Title>
-      <Button
-  type="primary"
-  loading={saving}
-  onClick={async () => {
-    try {
-      await form.validateFields();
-      const ok = await saveAll(editingStudentId); // ส่ง id ตอนแก้ไข
-      if (ok) {
-              setTimeout(() => {
-        navigate("/admin/ManageStudent");
-      }, 1200);
-      }
-    } catch (e) { /* ignore */ }
-  }}
+ <Button
+  type="default"
+  icon={<ArrowLeftOutlined />}
+  onClick={() => navigate(-1)}
 >
-  บันทึกทั้งหมด
+  กลับ
 </Button>
             </div>
 
@@ -425,20 +416,20 @@ useEffect(() => {
 
         {/* อัปโหลด/รูป */}
         <div style={outerBox}>
-          <div style={imageBox}>
-            {imageUrl ? (
-              <img src={imageUrl} alt="profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : editingStudentId ? (
-              <img
-                src={`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`}
-                onError={() => setImageUrl(null)}
-                alt="profile"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              "รูปภาพ"
-            )}
-          </div>
+         <div style={imageBox}>
+  {imageUrl ? (
+    <img src={imageUrl} alt="profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+  ) : editingStudentId ? (
+    <img
+      src={`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`}
+      onError={() => setImageUrl(null)}
+      alt="profile"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  ) : (
+    "รูปภาพ"
+  )}
+</div>
 
           <Space direction="vertical" size="middle" style={{ width: "100%", alignItems: "center" }}>
             {!isEditingImage ? (

@@ -4,6 +4,7 @@ import Loadable from "../components/third-patry/Loadable";
 import AdminLayout from "../layout/AdminLayout";
 import ApplyForStudy from "../pages/admin/ApplyForStudy";
 import AddStudent from "../components/Tabs/AddStudent";
+// import WatchStudent from "../components/Tabs/WatchStudent";
 // import EditStudent from "../components/Tabs/EditStudent";
 
 const MainPages = Loadable(lazy(() => import("../pages/authentication/Login")));
@@ -15,6 +16,7 @@ const Course = Loadable(lazy(() => import("../pages/admin/Course")));
 const Schedule = Loadable(lazy(() => import("../pages/admin/Schedule")));
 const Payment = Loadable(lazy(() => import("../pages/admin/Payment")));
 const EditStudent = Loadable(lazy(() => import("../pages/admin/ManageStudent/EditStudent")));
+const WatchStudent = Loadable(lazy(() => import("../pages/admin/ManageStudent/WatchStudent")));
 // const AcademicResult = Loadable(lazy(() => import("../pages/admin/ApplyForStudy")));
 // const AddSchedule = Loadable(lazy(() => import("../pages/admin/Schedule/AddSchedule")));
 
@@ -52,6 +54,7 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
           children:[
           {path:"AddStudent",element: <AddStudent/>},
           {path:"EditStudent/:id",element: <EditStudent/>},
+          {path:"WatchStudent/:id",element: <WatchStudent/>},
         ]
       },
       { path: "manageTeacher", element: <ManageTeacher />,

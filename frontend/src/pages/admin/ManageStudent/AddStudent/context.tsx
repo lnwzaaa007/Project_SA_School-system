@@ -295,7 +295,7 @@ export const StudentCreateProvider: React.FC<React.PropsWithChildren> = ({
 
       // ---------- โหมดสร้าง (เหมือนเดิม) ----------
       const { provincePk, districtPk, subPk } =
-        await resolveAddressIds(address);
+      await resolveAddressIds(address);
       const addrRes = await addressCRUD_N.create({
         address_number: String(address.address_number || "").trim(),
         road: String(address.road || "").trim(),
@@ -330,6 +330,36 @@ export const StudentCreateProvider: React.FC<React.PropsWithChildren> = ({
       if (!(stuRes?.status >= 200 && stuRes?.status < 300)) {
         throw new Error(stuRes?.data?.error || "สร้างนักเรียนไม่สำเร็จ");
       }
+
+      // หลังสร้าง student สำเร็จ
+const studentPk = pickId(unwrapData(stuRes));
+if (!studentPk) throw new Error("ไม่พบ student_id จากหลังบ้าน");
+
+// helper กันส่ง object ว่างล้วน ๆ
+const isEmptyPerson = (p?: any) =>
+  !p || Object.values(p).every(v => v == null || String(v).trim() === "");
+
+// มีข้อมูลพ่อ/แม่/ผู้ปกครองจริง ๆ หรือไม่
+const shouldSendGuardian =
+  !isEmptyPerson(guardian.father) ||
+  !isEmptyPerson(guardian.mother) ||
+  (guardian.living_with === "guardian" && !isEmptyPerson(guardian.guardian));
+
+if (shouldSendGuardian) {
+  const gRes = await guardianCRUD.createProfile({
+    student_id: Number(studentPk),
+    living_with: guardian.living_with || "parents",
+    father: isEmptyPerson(guardian.father) ? undefined : guardian.father,
+    mother: isEmptyPerson(guardian.mother) ? undefined : guardian.mother,
+    guardian:
+      guardian.living_with === "guardian"
+        ? (isEmptyPerson(guardian.guardian) ? undefined : guardian.guardian)
+        : undefined,
+  });
+  if (!(gRes?.status >= 200 && gRes?.status < 300)) {
+    throw new Error(gRes?.data?.error || "บันทึกข้อมูลผู้ปกครองไม่สำเร็จ");
+  }
+}
 
       msgApi.success("บันทึกข้อมูลสำเร็จ");
       setStudentState({});
