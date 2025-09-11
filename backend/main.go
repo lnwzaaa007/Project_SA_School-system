@@ -38,6 +38,9 @@ func main() {
 		router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
 		router.POST("/teacher", controllers.CreateTeacher)
+		router.GET("/teacher-detail",controllers.GetTeacherDetail)
+		router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
+		router.DELETE("/teacher/:id", controllers.DeleteTeacher)
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)

@@ -143,10 +143,12 @@ export const studentAPI = {
 export const teacherAPI = {
   // getNameTeacher: () => Get("/teacher"),
   getTeachar: (user_id: number) => Get(`/teachers/${user_id}`),
-  // getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
+  getNameTeacherById: (id: number | string) => Get(`/teacher/${id}`),
   createTeacher: (form: FormData) => Post(`/teacher`, form, true),
- 
   getNameTeacherAll: () => Get(`/teachers`),
+  getteacher :() => Get(`/teacher`),
+  getTeacherDetail: (id: number | string) => Get(`/teacher-detail/${id}`),
+  deleteTeacher: (id: number | string) => Delete(`/teacher/${id}`),
 };
 
 export const adminAPI = {
