@@ -1,5 +1,5 @@
 export interface DistrictInterface {
     id?: number;
-    Pname_th?: string;
-    province_id?: number;
+    thai_district_name?: string;
+    thai_province_id?: number;
 }

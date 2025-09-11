@@ -6,7 +6,6 @@ import "../../App.css";
 import {
   HomeOutlined,
   CalendarOutlined,
-  MenuOutlined,
   NotificationOutlined,
   ContainerOutlined,
   FileSearchOutlined,
@@ -18,7 +17,7 @@ import {
 // import PaymentIcon from "@mui/icons-material/Payment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Tooltip } from "antd";
-import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
+import { Breadcrumb, Layout, Menu, theme, message } from "antd";
 import { LeftOutlined } from "@ant-design/icons";
 import Home from "../../pages/admin/Home";
 import Announce from "../../pages/admin/Announce";
@@ -40,7 +39,7 @@ import AddStudent from "../../pages/admin/ManageStudent/AddStudent";
 
 
 import CreateCourse from "../../pages/admin/Course/CreateCourse";  //pangเพิ่มมา
-import DeleteCourse from "../../pages/admin/Course/Delete"; //pangเพิ่มมา
+// import DeleteCourse from "../../pages/admin/Course/Delete"; //pangเพิ่มมา
 import EditCourse from "../../pages/admin/Course/edit"; //pangเพิ่มมา
 import CreateAnnouncement from "../../pages/admin/Announce/CraeteAnnouncement";
 import EditAnnouncement from "../../pages/admin/Announce/EditAnnouncement";
@@ -375,8 +374,8 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/manageTeacher/EditTeacher/EditAddressTeacher" element={<EditAddressTeacher />} />
                 <Route path="/course" element={<Course />} />
                 <Route path="/course/CreateCourse" element={<CreateCourse/>}/> 
-                <Route path="/course/DeleteCourse" element={<DeleteCourse/>}/>
-                <Route path="/course/EditCourse" element={<EditCourse/>}/>
+                {/* <Route path="/course/DeleteCourse" element={<DeleteCourse/>}/> */}
+                <Route path="/course/EditCourse/:id" element={<EditCourse/>}/>
                 <Route path="/schedule" element={<Schedule />} />
                 {/* <Route path="/schedule/add" element={<AddSchedule />} /> */}
                 <Route path="/payment" element={<Payment />} />

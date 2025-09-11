@@ -49,7 +49,7 @@ const SelectProvince: React.FC<SelectProvinceP> = ({value, onChange }) => {
                   >
                   {ProvinceOptions.map((t) => (
                     <Option key={t.id} value={t.id}>
-                      {t.name_th}
+                      {t.thai_province_name}
                     </Option>
                   ))}
                 </Select>

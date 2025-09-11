@@ -35,8 +35,7 @@ const (
 type Teacher struct {
 	gorm.Model
 	Teacher_ID 				string			`gorm:"uniqueIndex" json:"teacher_id"`
-	TitleID uint
-	Title   *Title 							`gorm:"foreignKey:TitleID" json:"title_id"` 
+	TitleID 				uint 			`gorm:"foreignKey:TitleID" json:"title_id"` 
 	TFirst_Name 			string      	`json:"tfirst_name"`
 	TLast_Name    			string   		`json:"tlast_name"`
 	EFirst_Name 			string 			`json:"efirst_name"`
@@ -44,16 +43,16 @@ type Teacher struct {
 	Citizen_ID 				string 			`json:"citizen_id"`
 	Tel 					string 			`json:"tel"`
 	DateOfBirth 			time.Time 		`json:"dateofbirth"`
-	Gender 					Gendertype 		`json:"gender"`
+	GenderID 				uint 			`gorm:"foreignKey:GenderID" json:"gender_id"`
 	Nationality 			string 			`json:"nationality"`
 	Email 					string 			`json:"email"`
-	Teacher_image 			[]byte 			`json:"teacher_image"`
+	Teacher_image 			string 			`json:"teacher_image"`
 	Religious 				string 			`json:"religious"`
 	Qualification 			string 			`json:"qualification"`
-	Qualification_image 	[]byte 			`json:"qualification_image"`
+	Qualification_image 	string 			`json:"qualification_image"`
 
-	AddressID 				uint 			`json:"address_id" `
-	UsersID 				uint 			`json:"users_id"`
+	AddressID 				uint 			`gorm:"foreignKey:AddressID"json:"address_id" `
+	UsersID 				uint 			`gorm:"foreignKey:UsersID" json:"users_id"`
 	Schedules 				[]Schedules 	`gorm:"foreignKey:TeacherID" json:"schedules"`
 	Attendances 			[]Attendances 	`gorm:"foreignKey:TeacherID" json:"attendances"`
 	Grade 					Grade 

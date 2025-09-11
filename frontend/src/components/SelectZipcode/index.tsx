@@ -15,9 +15,9 @@ type zipcode = {
 };
 
 type Zipcode = { id: number; 
-    zip_code: number;
-    amphure_id: number;
-    Sname_th: string; };
+    thai_zip_code: number;
+    thai_district_id: number;
+    thai_subdistrict_name: string; };
 
 const SelectZipcode: React.FC<zipcode> = ({ subdistrictId, value, onChange, disabled }) => {
   const [options, setOptions] = useState<Zipcode[]>([]);
@@ -44,10 +44,13 @@ const SelectZipcode: React.FC<zipcode> = ({ subdistrictId, value, onChange, disa
       className="custom-select-zipcode"
         placeholder="รหัสไปรษณีย์"
         value={value ?? undefined}
-        onChange={(v) => onChange(v)}
+        onChange={(v) => {
+          console.log("เลือก:", v); // แสดงเฉพาะ id
+          onChange(v);
+        }}
         allowClear
         disabled={disabled || !subdistrictId}
-        options={options.map((d) => ({ value: d.id, label: d.zip_code }))}
+        options={options.map((d) => ({ value: d.id, label: d.thai_zip_code }))}
       />
     </>
   );

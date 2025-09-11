@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/controllers"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/middlewares"
-	"github.com/gin-gonic/gin"
 )
 
 const PORT = "8088"
@@ -16,17 +16,16 @@ func main() {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	// r.Use(middlewares.Authorizes())
+	r.MaxMultipartMemory = 32 << 20
 
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
-	
+
 	{
 		// student
 		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
-		
 
 		// router.GET("/student/:id", controllers.GetNameStudentById)
-		router.GET("/students/schedule",controllers.GetStudentSchedule) 
 
 
 		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
@@ -52,11 +51,14 @@ func main() {
 		router.DELETE("/addresses/:id", controllers.DeleteAddress)
 
 		// Teacher routes
-		// router.GET("/teacher", controllers.GetNameTeacher)
-		router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
-		router.GET("/teachers/schedule",controllers.GetTeacherschedule)
-		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
+		router.GET("/teacher", controllers.GetNameTeacher)
+		router.GET("/teachers/:user_id", controllers.GetTeacherAllById)
+		router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
+		router.POST("/teacher", controllers.CreateTeacher)
+		router.GET("/teacher-detail",controllers.GetTeacherDetail)
+		router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
+		router.DELETE("/teacher/:id", controllers.DeleteTeacher)
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
@@ -76,9 +78,20 @@ func main() {
 		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
 		router.GET("/schedule-times-end", controllers.GetTimeEndAll)
 		router.GET("/schedule-get-id", controllers.GetSchedulesByID) //schedule-get-all?grade=2&term=1
-		router.GET("/schedule-course/:id",controllers.GetCourse)
+		router.GET("/schedule-course/:id", controllers.GetCourse)
 		router.POST("/schedules", controllers.CreateSchedule)
-		router.DELETE("/schedules/:id",controllers.DeleteScheduleByID)
+		router.DELETE("/schedules/:id", controllers.DeleteScheduleByID)
+		router.GET("/students/schedule", controllers.GetStudentSchedule)
+		router.GET("/teachers/schedule", controllers.GetTeacherschedule)
+
+		//Attendances routes
+		router.GET("/attendances-course", controllers.GetCourseInSchedule)
+		router.GET("/attendances-student", controllers.GetStudentAllByGradeId)
+		router.POST("/attendances-record", controllers.CreateAttendance)
+		router.PUT("/attendances-record", controllers.UpdateAttendanceByDate)
+		router.GET("/attendances/student-history", controllers.GetAttendanceStudent)
+		router.GET("/attendances/teacher-history", controllers.GetAttendanceTeacher)
+		router.GET("/attendances-date", controllers.GetAttendanceByDate)
 
 		// User type route
 		router.GET("users/:id", controllers.GetUserTypeByID)
@@ -86,14 +99,15 @@ func main() {
 		// Province routes
 		router.GET("/province", controllers.GetProvince)
 		router.GET("/province/:id", controllers.GetProvinceById)
-
-		// Thai_Province routes
-		router.GET("/thaiprovince", controllers.GetThaiProvince)
-		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
-
 		// District routes
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
+
+		// Address routes
+		router.POST("/address", controllers.CreateAddress) //toto
+		// Thai_Province routes
+		router.GET("/thaiprovince", controllers.GetThaiProvince)
+		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
 
 		// Thai_District routes
 		router.GET("/thaidistrict", controllers.GetThaiDistrict)
@@ -112,13 +126,18 @@ func main() {
 		//Target Group routes
 		router.GET("/targetgroup", controllers.GetTargetGroupAll)
 
-		
-		
 		// Course routes
 		router.GET("/subjectgroup", controllers.GetSubjectGroupAll)
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
-		// router.GET("/courses/:id", controllers.GetCourseByID)	
+		// router.GET("/courses/:id", controllers.GetCourseByID)
+		// router.PUT("/course/:id", controllers.UpdateCourseByID)
+		router.DELETE("/course/:id", controllers.DeleteCourseByID)
+		router.GET("/gradeclass/allwithyear", controllers.GetGradeClassAllWithYear)	
+		router.GET("/coursesall", controllers.GetCourseAll) //ดึงข้อมูลวิชาทั้งหมด
+		router.PUT("/course/:id", controllers.UpdateCourseByID)
+		router.GET("/course/:id", controllers.GetCourseByID) //ดึงข้อมูลรายวิชาตาม ID
+
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
@@ -141,14 +160,31 @@ func main() {
 
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
-		router.GET("/coursesall", controllers.GetCourseAll) //ดึงข้อมูลวิชาทั้งหมด
-		
+
+
 		// ✅ ดาวน์โหลดตาม id
 		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
-	
+		// // สมัครเรียน
+		//  router.POST("/enrollments", controllers.CreateEnrollment)
+
+		// gender
+		router.GET("/gender", controllers.GetGender)
+		router.GET("/gender/:id", controllers.GetGenderById)
+
+		// title
+		router.GET("/title", controllers.GetTitle)
+		router.GET("/title/:id", controllers.GetTitleById)
+
+		// enrollment
+		router.GET("/enrollment", controllers.GetEnrollment)
+		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
+		router.DELETE("/enrollment/:id", controllers.DeleteEnrollment)
 
 	}
 
+	// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
+	r.Static("/uploads", "./uploads")
+	r.POST("/enrollments", controllers.CreateEnrollment)
 
 	// Login routes
 	r.POST("/auth", controllers.LoginUser)
@@ -156,6 +192,7 @@ func main() {
 
 	// Run the server go run main.go
 	r.Run("localhost:" + PORT)
+	// สมัครเรียน
 
 }
 
