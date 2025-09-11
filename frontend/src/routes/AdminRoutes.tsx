@@ -29,7 +29,7 @@ const EditDataTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher
 const EditAddressTeacher = Loadable(lazy(() => import("../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher")));
 const MoveAddStudent = Loadable(lazy(() => import("../pages/admin/ApplyForStudy/MoveAddStudent"))); //toto
 const CreateCourse = Loadable(lazy(() => import("../pages/admin/Course/CreateCourse"))); //pang edit หน้าสร้างรายวิชา
-const DeleteCourse = Loadable(lazy(() => import("../pages/admin/Course/Delete"))); //pang edit หน้าลบรายวิชา
+// const DeleteCourse = Loadable(lazy(() => import("../pages/admin/Course/Delete"))); //pang edit หน้าลบรายวิชา
 const EditCourse = Loadable(lazy(() => import("../pages/admin/Course/edit"))); //pang edit หน้าแก้ไขรายวิชา
 const CreateAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/CraeteAnnouncement"))); //pang เพิ่มหน้าสร้างประกาศ
 const EditAnnouncement = Loadable(lazy(() => import("../pages/admin/Announce/EditAnnouncement"))); //pang เพิ่มหน้าแก้ไขประกาศ
@@ -70,8 +70,8 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "course", element: <Course />,
         children: [
           {path : "CreateCourse", element: <CreateCourse/>},
-          {path : "DeleteCourse", element: <DeleteCourse/>},
-          {path : "EditCourse", element: <EditCourse/>}
+          // {path : "DeleteCourse", element: <DeleteCourse/>},
+          {path : "EditCourse/:id", element: <EditCourse/>}
         ]
        },
       { path: "schedule", element: <Schedule />,
