@@ -11,6 +11,8 @@ type Submit_status string
 const (
 	Success Submit_status = "ตรวจแล้ว"
 	Waiting Submit_status = "รอตรวจ"
+	NotSubmitted Submit_status = "ยังไม่ส่งงาน"
+	Submitted Submit_status = "ส่งงานแล้ว"
 )
 
 type AssignmentSubmit struct {
@@ -27,7 +29,6 @@ type AssignmentSubmit struct {
 	Submit_status 			Submit_status `json:"submit_status"`
 	CourseID         uint      `json:"course_id"` 
 
-	
 	GradeID uint
 	Grade   *Grade `gorm:"foreignKey:GradeID"`
 
