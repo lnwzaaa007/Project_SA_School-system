@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { studentAPI } from "../../services/https";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, Link, Navigate,Outlet } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
@@ -17,7 +17,6 @@ import Studentimg from "../../assets/student.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import { Outlet } from 'react-router-dom';
 import type {StudentInterface} from "../../interfaces/Student"
 
 

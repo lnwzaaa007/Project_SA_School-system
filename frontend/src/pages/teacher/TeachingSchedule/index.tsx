@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScheduleAPI } from "../../../services/https";
-import type { ScheduleInterface } from "../../../interfaces/Schedule";
+import type { ScheduleInterface, TeacherScheduleResponse } from "../../../interfaces/Schedule";
 import { Table, Card, message, List, Divider } from "antd";
 import type { ColumnsType } from "antd/es/table";
-// import "./index.css";
+import SelectTerm from "../../../components/SelectTerm";
 
 interface TimeTableRow {
   key: string;
@@ -82,7 +82,21 @@ const renderCell = (period: number) =>
     if (span === 0) return { children: null, props: { colSpan: 0 } };
     const room = getRoomFromCell(value);
     const style = getRoomColors(room);
-    return { children: value, props: { colSpan: span, style } };
+
+    // แสดงผลโดยจัดบรรทัด และทำให้รหัสวิชาใหญ่ขึ้น<<<<<<<<<<<<<<<<<<<<<<<
+    let children: React.ReactNode = value || null;
+    if (value) {
+      const [code, name, roomLabel] = value.split("\n");
+      children = (
+        <div style={{ lineHeight: 1.2 }}>
+          <div style={{ fontSize: 18, fontWeight: 700 }}>{code}</div>
+          {name && <div>{name}</div>}
+          {roomLabel && <div>{roomLabel}</div>}
+        </div>
+      );
+    }//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>
+
+    return { children, props: { colSpan: span, style } };
   };
 
 const ScheduleTeacher: React.FC = () => {
@@ -90,6 +104,8 @@ const ScheduleTeacher: React.FC = () => {
   const navigate = useNavigate();
 
   const [detailCourse, setDetailCourse] = useState<ScheduleInterface[]>([]);
+  const [selectedTerm, setSelectedTerm] = useState<number | null>(null);
+  const [currentTermId, setCurrentTermId] = useState<number | null>(null);
 
   // const [schedule, setSchedule] = useState<ScheduleInterface[]>([]);
   const [tableData, setTableData] = useState<TimeTableRow[]>(
@@ -224,13 +240,17 @@ const ScheduleTeacher: React.FC = () => {
         return;
       }
 
-      // เรียก API ตารางเรียนของนักเรียนตาม grade_id
-      const res: any = await ScheduleAPI.getTeacherSchedule(teacher_id);
-
-      // รูปแบบจาก backend: { data: [...], term_id, semester, academic_year }
+      // เรียก API ตารางสอนของครู ตาม term ที่เลือก (หรือไม่ส่งถ้าไม่เลือก)
+      let res: TeacherScheduleResponse;
+      if (selectedTerm != null) {
+        res = (await ScheduleAPI.getTeacherSchedule(teacher_id,selectedTerm)) as TeacherScheduleResponse;
+      } else {
+        res = (await ScheduleAPI.getTeacherSchedule(teacher_id)) as TeacherScheduleResponse;
+      }
+      
       const raw = (Array.isArray(res?.data) ? res.data : []) as ScheduleInterface[];
-      // console.log("dgadgasdfas", raw?.[0]?.id_schedule);
-
+      setCurrentTermId(res?.term_id ?? null);
+      
       setDetailCourse(raw);
       setTableData(buildTableData(raw));
     } catch (err) {
@@ -243,7 +263,7 @@ const ScheduleTeacher: React.FC = () => {
 
   useEffect(() => {
     fetchTeacherSchedule();
-  }, []);
+  }, [selectedTerm,currentTermId]);
 
   const handleCellClick = (row: TimeTableRow, period: number) => {
     const key = `time${period}` as TimeKey;
@@ -265,7 +285,7 @@ const ScheduleTeacher: React.FC = () => {
     // พยายามจับคู่ข้อมูลวิชาจริงจาก API ด้วย day และช่วงเวลา
     const match = detailCourse.find((it) => {
       const dayOk = (it.day ?? "") === row.day;
-      const s = (it as any).start_time ?? it.start_tinme;
+      const s = (it as any).start_time /*?? it.start_tinme*/;
       const e = it.end_time;
       const si = startIdx(s);
       const ei = endIdxExclusive(e);
@@ -288,7 +308,7 @@ const ScheduleTeacher: React.FC = () => {
       ? {
           id_schedule: (match as any).id_schedule,
           day: match.day,
-          start_time: (match as any).start_time ?? match.start_tinme,
+          start_time: (match as any).start_time /*?? match.start_tinme*/,
           end_time: match.end_time,
           course_code: match.course_code,
           course_name: match.course_name,
@@ -426,7 +446,13 @@ const ScheduleTeacher: React.FC = () => {
       >
         <Card style={{ width: "100%", border: "none", boxShadow: "none" }} bodyStyle={{ padding: "40px" }}>
           {/* ตารางเวลา */}
+         <SelectTerm value={selectedTerm ?? currentTermId} onChange={setSelectedTerm} />
           <div style={{ overflowX: "auto", paddingTop: "40px" }}>
+            <div
+              style={{color:"red",paddingBottom:"10px"}}
+            >
+              ***เช็คชื่อคลิกที่รายวิชา***
+            </div>
             <Table
               className="timetable"
               rowKey="key"
@@ -450,14 +476,14 @@ const ScheduleTeacher: React.FC = () => {
                     const dayA = a.day ?? "";
                     const dayB = b.day ?? "";
                     if (dayA !== dayB) return dayA.localeCompare(dayB, "th");
-                    const tA = ((a as any).start_time ?? a.start_tinme ?? "") as string;
-                    const tB = ((b as any).start_time ?? b.start_tinme ?? "") as string;
+                    const tA = ((a as any).start_time /*?? a.start_tinme ?? ""*/) as string;
+                    const tB = ((b as any).start_time /*?? b.start_tinme ?? ""*/) as string;
                     if (tA !== tB) return tA.localeCompare(tB);
                     return (a.course_code ?? "").localeCompare(b.course_code ?? "");
                   })}
                   renderItem={(item) => {
                     const fmtTime = (it: ScheduleInterface) => {
-                      const start = (it as any).start_time ?? it.start_tinme ?? "";
+                      const start = (it as any).start_time /*?? it.start_tinme ?? ""*/;
                       const end = it.end_time ?? "";
                       return start && end ? `${start}–${end}` : start || end || "-";
                     };
