@@ -1,19 +1,8 @@
 // components/Tabs/AddStudent/index.tsx
 import React, { useRef, useState, useEffect } from "react";
 import {
-  Form,
-  Input,
-  Select,
-  DatePicker,
-  Button,
-  Space,
-  Upload,
-  Row,
-  Col,
-  Typography,
-  AutoComplete,
-  message,
-  type AutoCompleteProps,
+  Form, Input, Select, DatePicker, Button, Space, Upload, Row, Col, Typography,
+  AutoComplete, message, type AutoCompleteProps
 } from "antd";
 import type { UploadProps } from "antd/es/upload";
 // import type { UploadFile } from "antd/es/upload/interface";
@@ -42,24 +31,22 @@ const fileToDataURL = (file: File) =>
     r.readAsDataURL(file);
   });
 
-export default function AddStudent() {
+export default function Edit() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  // ⬅️ ดึง imageBase64 ออกมาด้วย (เอาไว้ส่งให้ backend และใช้ตอน “บันทึกรูปภาพ”)
-  const { setStudent, imageBase64, setImageBase64, saveAll, saving } =
-    useStudentCreate();
+  const { id } = useParams<{ id?: string }>();
+  const editingStudentId = id ? Number(id) : undefined;
+
+   // ⬅️ ดึง imageBase64 ออกมาด้วย (เอาไว้ส่งให้ backend และใช้ตอน “บันทึกรูปภาพ”)
+  const { setStudent, imageBase64, setImageBase64, saveAll, saving } = useStudentCreate();
 
   //picture
-  const [imageUrl, setImageUrl] = useState<string | null>(null); // objectURL สำหรับพรีวิวทันที
+  const [imageUrl, setImageUrl] = useState<string | null>(null);   // objectURL สำหรับพรีวิวทันที
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
   const previewUrlRef = useRef<string | null>(null);
 
-  // const [yearOpts, setYearOpts] = useState<{value:number,label:string}[]>([]);
-  // const [classOpts, setClassOpts] = useState<{value:number,label:string}[]>([]);
-  // const [pickedYearId, setPickedYearId] = useState<number>();
-  // const [pickedClassId, setPickedClassId] = useState<number>();
 
   const [natOpen, setNatOpen] = useState(false);
 
@@ -67,10 +54,10 @@ export default function AddStudent() {
   const nationalityOptions = [
     { value: "ไทย" },
     { value: "ลาว" },
-    { value: "กัมพูชา" },
+    { value: "กัมพูชา" }
   ];
 
-  const [options, setOptions] = useState<AutoCompleteProps["options"]>([]);
+ const [options, setOptions] = useState<AutoCompleteProps["options"]>([]);
 
   // cleanup objectURL ตอน component unmount
   useEffect(() => {
@@ -79,61 +66,81 @@ export default function AddStudent() {
     };
   }, []);
 
-  // ดึงรายการ “ชั้น/ห้อง” ครั้งเดียวพอ
-  // useEffect(() => {
-  //     (async () => {
-  //       try {
-  //         const years = await gradeAPI.getGradesAll();    // ← years.data เป็น array
-  //         setYearOpts((years.data as any[]).map(y => ({
-  //           value: Number(y.id),
-  //           label: String(y.grade_year),
-  //         })));
+const [gradeOptions, setGradeOptions] = useState<{ value: number; label: string }[]>([]);
 
-  //         const classes = await gradeAPI.getClassesAll(); // ← classes.data เป็น array
-  //         setClassOpts((classes.data as any[]).map(c => ({
-  //           value: Number(c.id),
-  //           label: String(c.grade_class),
-  //         })));
-  //       } catch (e: any) {
-  //         message.error(e?.message || "โหลดชั้น/ห้องไม่สำเร็จ");
-  //       }
-  //     })();
-  //   }, []);
+useEffect(() => {
+  (async () => {
+    try {
+      const res = await gradeCRUD.list();
+      console.log("GET /grades ->", res.status, res.data); // <-- เช็คตรงนี้
+      const list = res?.data?.data ?? res?.data ?? [];
+      setGradeOptions(list.map((g: any) => ({
+        value: Number(g.id), 
+        label: `ม. ${g.grade_year} / ${g.grade_class}`,
+      })));
+    } catch (e: any) {
+      message.error(e?.message || "โหลดชั้น/ห้องไม่สำเร็จ");
+    }
+  })();
+}, []);
 
-  const [gradeOptions, setGradeOptions] = useState<
-    { value: number; label: string }[]
-  >([]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await gradeCRUD.list();
-        console.log("GET /grades ->", res.status, res.data); // <-- เช็คตรงนี้
-        const list = res?.data?.data ?? res?.data ?? [];
-        setGradeOptions(
-          list.map((g: any) => ({
-            value: Number(g.id),
-            label: `ม. ${g.grade_year} / ${g.grade_class}`,
-          }))
-        );
-      } catch (e: any) {
-        message.error(e?.message || "โหลดชั้น/ห้องไม่สำเร็จ");
+const hydratedRef = useRef(false);
+
+useEffect(() => {
+ if (!editingStudentId || hydratedRef.current) return;
+  hydratedRef.current = true;
+ (async () => {
+       try {
+      const res = await studentCRUD.getById(editingStudentId);
+      const s = res?.data?.data ?? res?.data;
+      if (!s) return;
+
+      setImageUrl(`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`);
+
+      form.setFieldsValue({
+          student_id: s.student_id,
+        title_id: s.title_id,
+        t_first_name: s.t_first_name,
+        t_last_name: s.t_last_name,
+        e_first_name: s.e_first_name,
+        e_last_name: s.e_last_name,
+        citizen_id: s.citizen_id,
+        tel: s.tel,
+        date_of_birth: s.date_of_birth ? dayjs(s.date_of_birth) : undefined,
+        age: s.date_of_birth ? calculateAge(new Date(s.date_of_birth)) : undefined,
+        gender: s.gender === "หญิง" ? "female" : s.gender === "ชาย" ? "male" : undefined,
+        nationality: s.nationality,
+        email: s.email,
+        religious: s.religious,
+        grade_id: s.grade_id,
+      });
+    setStudent({
+        student_id: s.student_id,
+        title_id: s.title_id,
+        t_first_name: s.t_first_name,
+        t_last_name: s.t_last_name,
+        e_first_name: s.e_first_name,
+        e_last_name: s.e_last_name,
+        citizen_id: s.citizen_id,
+        tel: s.tel,
+        date_of_birth: s.date_of_birth, // "YYYY-MM-DD"
+        gender: s.gender === "หญิง" ? "female" : s.gender === "ชาย" ? "male" : "",
+        nationality: s.nationality,
+        email: s.email,
+        religious: s.religious,
+        grade_id: s.grade_id,
+      });
+  } catch (e: any) {
+        message.error(e?.message || "โหลดข้อมูลนักเรียนไม่สำเร็จ");
       }
     })();
-  }, []);
+  }, [editingStudentId]);
 
-  // const res = await gradeCRUD.list();
-  // console.log("grades response:", res);
-
-  // const { setStudent } = useStudentCreate();
-
-  const params = useParams();
-  const editingStudentId = params.id ? Number(params.id) : undefined;
 
   // อัปโหลดรูป: พรีวิวทันทีด้วย objectURL + เก็บ base64 (dataURL) สำหรับส่งหลังบ้าน
   const handleUpload: UploadProps["onChange"] = async (info) => {
-    const file = (info.file.originFileObj ||
-      info.fileList[0]?.originFileObj) as File | undefined;
+    const file = (info.file.originFileObj || info.fileList[0]?.originFileObj) as File | undefined;
     if (!file) return;
 
     if (typeof file.type === "string" && !file.type.startsWith("image/")) {
@@ -166,14 +173,10 @@ export default function AddStudent() {
     if (editingStudentId) {
       try {
         setSavingImage(true);
-        await studentCRUD.update(editingStudentId, {
-          student_image: imageBase64,
-        }); // backend รองรับ base64/dataURL
+        await studentCRUD.update(editingStudentId, { student_image: imageBase64 }); // backend รองรับ base64/dataURL
         message.success("อัปเดตรูปนักเรียนสำเร็จ");
         // กัน cache เวลาดึงจาก backend
-        setImageUrl(
-          `${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`
-        );
+        setImageUrl(`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`);
         setIsEditingImage(false);
       } catch (e: any) {
         message.error(e?.message || "อัปเดตรูปไม่สำเร็จ");
@@ -187,19 +190,27 @@ export default function AddStudent() {
     setIsEditingImage(false);
   };
 
+//   const hydratedRef = React.useRef(false);
+useEffect(() => {
+  if (!editingStudentId || hydratedRef.current) return;
+  hydratedRef.current = true;
+  (async () => {
+    const res = await studentCRUD.getById(editingStudentId);
+    const s = res?.data?.data ?? res?.data;
+    if (!s) return;
+    form.setFieldsValue({ /* ...ใส่ค่าที่โหลดมา... */ });
+  })();
+}, [editingStudentId, form]);
+
   const handleSearch = (value: string) => {
     if (!value || value.includes("@")) return setOptions([]);
     const domains = ["gmail.com", "hotmail.com", "icloud.com"];
-    setOptions(
-      domains.map((d) => ({ label: `${value}@${d}`, value: `${value}@${d}` }))
-    );
+    setOptions(domains.map((d) => ({ label: `${value}@${d}`, value: `${value}@${d}` })));
   };
 
   // push ค่า form → context ตลอด (tab อื่นๆ กดไปมา ค่าไม่หาย)
-  const pushToContext = (_: any, all: any) => {
-    const dob = all?.date_of_birth
-      ? dayjs(all.date_of_birth).format("YYYY-MM-DD")
-      : undefined;
+   const pushToContext = (_: any, all: any) => {
+    const dob = all?.date_of_birth ? dayjs(all.date_of_birth).format("YYYY-MM-DD") : undefined;
     setStudent({
       student_id: String(all.student_id || "").trim(),
       title_id: all?.title_id ? Number(all.title_id) : undefined,
@@ -218,106 +229,66 @@ export default function AddStudent() {
     });
   };
 
+
   const tabStyle = { background: "#fff", padding: 24, borderRadius: 16 };
-  const outerBox: React.CSSProperties = {
-    width: 280,
-    minHeight: 360,
-    border: "1px solid #ccc",
-    borderRadius: 12,
-    padding: 16,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 16,
-    background: "#fff",
-  };
-  const imageBox: React.CSSProperties = {
-    width: 200,
-    aspectRatio: "1 / 1",
-    border: "1px solid #ccc",
-    borderRadius: "50%",
-    display: "flex",
-    margin: "30px 0 20px",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#717171",
-    overflow: "hidden",
-  };
+  const outerBox: React.CSSProperties = { width: 280, minHeight: 360, border: "1px solid #ccc", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", alignItems: "center", gap: 16, background: "#fff" };
+  const imageBox: React.CSSProperties = { width: 200, aspectRatio: "1 / 1", border: "1px solid #ccc", borderRadius: "50%", display: "flex", margin: "30px 0 20px", justifyContent: "center", alignItems: "center", background: "#717171", overflow: "hidden" };
 
   return (
     <div style={{ padding: 10 }}>
       <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
         <div style={{ flex: 1 }}>
           <div style={tabStyle}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <Title level={4} style={{ margin: 0 }}>
-                ข้อมูลทั่วไป
-              </Title>
-              <Button
-                type="primary"
-                loading={saving}
-                onClick={async () => {
-                  try {
-                    await form.validateFields();
-                    const ok = await saveAll(); // ⬅️ ปรับให้ saveAll คืน boolean (ดูด้านล่าง)
-                    if (ok) {
-                      setTimeout(() => {
-                        navigate("/admin/ManageStudent");
-                      }, 1500);
-                    }
-                  } catch {
-                    /* validate fail → ไม่ navigate */
-                  }
-                }}
-              >
-                บันทึกทั้งหมด
-              </Button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
+              <Title level={4} style={{ margin: 0 }}>ข้อมูลทั่วไป</Title>
+      <Button
+  type="primary"
+  loading={saving}
+  onClick={async () => {
+    try {
+      await form.validateFields();
+      const ok = await saveAll(editingStudentId); // ส่ง id ตอนแก้ไข
+      if (ok) {
+              setTimeout(() => {
+        navigate("/admin/ManageStudent");
+      }, 1200);
+      }
+    } catch (e) { /* ignore */ }
+  }}
+>
+  บันทึกทั้งหมด
+</Button>
             </div>
 
             <Form form={form} layout="vertical" onValuesChange={pushToContext}>
               <Row gutter={16} justify="center">
                 <Col span={20}>
-                  <Form.Item
-                    label="รหัสนักเรียน"
-                    name="student_id"
-                    rules={[{ required: true, message: "กรอก รหัสนักเรียน" }]}
-                  >
+                  <Form.Item label="รหัสนักเรียน" name="student_id" rules={[{ required: true, message: "กรอก รหัสนักเรียน" }]}>
                     <Input style={{ height: 35 }} />
                   </Form.Item>
                 </Col>
 
                 <Col span={10}>
-                  <Form.Item
-                    label="เลขบัตรประชาชน"
-                    name="citizen_id"
-                    normalize={(v) =>
-                      String(v ?? "")
-                        .replace(/\D/g, "")
-                        .slice(0, 13)
-                    }
-                    rules={[
-                      { required: true, message: "กรอก เลขบัตรประชาชน" },
-                      { pattern: /^\d+$/, message: "ต้องเป็นตัวเลขเท่านั้น" },
-                      { len: 13, message: "ต้องมีความยาว 13 หลัก" },
-                    ]}
-                  >
-                    <Input
-                      inputMode="numeric"
-                      maxLength={13}
-                      style={{ height: 35 }}
-                    />
-                  </Form.Item>
+                 <Form.Item
+  label="เลขบัตรประชาชน"
+  name="citizen_id"
+  normalize={(v) => String(v ?? "").replace(/\D/g, "").slice(0, 13)}
+  rules={[
+    { required: true, message: "กรอก เลขบัตรประชาชน" },
+    { pattern: /^\d+$/, message: "ต้องเป็นตัวเลขเท่านั้น" },
+    { len: 13, message: "ต้องมีความยาว 13 หลัก" },
+  ]}
+>
+  <Input
+    inputMode="numeric"
+    maxLength={13}
+    style={{ height: 35 }}
+  />
+</Form.Item>
                 </Col>
 
                 <Col span={10}>
-                  <Form.Item label="คำนำหน้า" name="title_id">
+                  <Form.Item label="คำนำหน้า" name="title_id" >
                     <Select style={{ height: 35 }}>
                       <Option value={1}>นาย</Option>
                       <Option value={2}>นางสาว</Option>
@@ -335,13 +306,13 @@ export default function AddStudent() {
                   </Form.Item>
                 </Col>
                 <Col span={10}>
-                  <Form.Item label="นามสกุล" name="t_last_name">
+                  <Form.Item label="นามสกุล" name="t_last_name" >
                     <Input style={{ height: 35 }} />
                   </Form.Item>
                 </Col>
 
                 <Col span={10}>
-                  <Form.Item label="วันเกิด" name="date_of_birth">
+                  <Form.Item label="วันเกิด" name="date_of_birth" >
                     <DatePicker
                       style={{ width: "100%", height: 35 }}
                       onChange={(date) => {
@@ -370,21 +341,17 @@ export default function AddStudent() {
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col span={10}>
-                  <Form.Item
-                    label="ชั้น/ห้อง"
-                    name="grade_id"
-                    rules={[{ required: true, message: "เลือกชั้น/ห้อง" }]}
-                  >
-                    <Select
-                      options={gradeOptions}
-                      style={{ height: 35 }}
-                      showSearch
-                      optionFilterProp="label"
-                      onChange={(pk: number) => setStudent({ grade_id: pk })} // ส่งเป็น PK id
-                    />
-                  </Form.Item>
-                </Col>
+               <Col span={10}>
+ <Form.Item label="ชั้น/ห้อง" name="grade_id" rules={[{ required: true, message: "เลือกชั้น/ห้อง" }]}>
+  <Select
+    options={gradeOptions}
+    style={{ height: 35 }}
+    showSearch
+    optionFilterProp="label"
+    onChange={(pk: number) => setStudent({ grade_id: pk })} // ส่งเป็น PK id
+  />
+</Form.Item>
+</Col>
 
                 <Col span={10}>
                   <Form.Item label="Firstname" name="e_first_name">
@@ -399,21 +366,19 @@ export default function AddStudent() {
 
                 <Col span={10}>
                   <Form.Item label="สัญชาติ" name="nationality">
-                    <AutoComplete
-                      style={{ width: "100%" }}
-                      options={nationalityOptions}
-                      // เปิด dropdown ทันทีเมื่อโฟกัส (ไม่ต้องพิมพ์ก่อน)
-                      open={natOpen}
-                      onFocus={() => setNatOpen(true)}
-                      onBlur={() => setNatOpen(false)}
-                      // กรองตัวเลือกตามที่พิมพ์ (แต่ยังพิมพ์ค่าอื่นที่ไม่มีในลิสต์ได้)
-                      filterOption={(input, option) =>
-                        (option?.value ?? "")
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                    />
-                  </Form.Item>
+  <AutoComplete
+    style={{ width: "100%" }}
+    options={nationalityOptions}
+    // เปิด dropdown ทันทีเมื่อโฟกัส (ไม่ต้องพิมพ์ก่อน)
+    open={natOpen}
+    onFocus={() => setNatOpen(true)}
+    onBlur={() => setNatOpen(false)}
+    // กรองตัวเลือกตามที่พิมพ์ (แต่ยังพิมพ์ค่าอื่นที่ไม่มีในลิสต์ได้)
+    filterOption={(input, option) =>
+      (option?.value ?? "").toLowerCase().includes(input.toLowerCase())
+    }
+  />
+</Form.Item>
                 </Col>
 
                 <Col span={10}>
@@ -430,35 +395,27 @@ export default function AddStudent() {
                 </Col>
 
                 <Col span={10}>
-                  <Form.Item
-                    label="เบอร์ติดต่อ"
-                    name="tel"
-                    normalize={(v) =>
-                      String(v ?? "")
-                        .replace(/\D/g, "")
-                        .slice(0, 10)
-                    }
-                    rules={[
-                      { required: true, message: "กรอก เบอร์ติดต่อ" },
-                      { pattern: /^\d+$/, message: "ต้องเป็นตัวเลขเท่านั้น" },
-                      { len: 10, message: "ต้องมีความยาว 10 หลัก" },
-                    ]}
-                  >
-                    <Input
-                      inputMode="numeric"
-                      maxLength={10}
-                      style={{ height: 35 }}
-                    />
-                  </Form.Item>
+                 <Form.Item
+  label="เบอร์ติดต่อ"
+  name="tel"
+   normalize={(v) => String(v ?? "").replace(/\D/g, "").slice(0, 10)}
+  rules={[
+    { required: true, message: "กรอก เบอร์ติดต่อ" },
+    { pattern: /^\d+$/, message: "ต้องเป็นตัวเลขเท่านั้น" },
+    { len: 10, message: "ต้องมีความยาว 10 หลัก" },
+  ]}
+>
+  <Input
+    inputMode="numeric"
+    maxLength={10}
+    style={{ height: 35 }}
+  />
+</Form.Item>
                 </Col>
 
                 <Col span={10}>
                   <Form.Item label="Email" name="email">
-                    <AutoComplete
-                      style={{ width: "100%" }}
-                      options={options}
-                      onSearch={handleSearch}
-                    />
+                    <AutoComplete style={{ width: "100%" }} options={options} onSearch={handleSearch} />
                   </Form.Item>
                 </Col>
               </Row>
@@ -470,11 +427,7 @@ export default function AddStudent() {
         <div style={outerBox}>
           <div style={imageBox}>
             {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt="profile"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+              <img src={imageUrl} alt="profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : editingStudentId ? (
               <img
                 src={`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`}
@@ -487,16 +440,9 @@ export default function AddStudent() {
             )}
           </div>
 
-          <Space
-            direction="vertical"
-            size="middle"
-            style={{ width: "100%", alignItems: "center" }}
-          >
+          <Space direction="vertical" size="middle" style={{ width: "100%", alignItems: "center" }}>
             {!isEditingImage ? (
-              <Button
-                style={{ width: 150, height: 32 }}
-                onClick={() => setIsEditingImage(true)}
-              >
+              <Button style={{ width: 150, height: 32 }} onClick={() => setIsEditingImage(true)}>
                 แก้ไขรูปภาพ
               </Button>
             ) : (
@@ -510,24 +456,17 @@ export default function AddStudent() {
                   <Button>อัปโหลดรูปภาพ</Button>
                 </Upload>
 
-                <Space
-                  direction="vertical"
-                  size="middle"
-                  style={{ width: "100%", alignItems: "center" }}
-                >
+                <Space direction="vertical" size="middle" style={{ width: "100%", alignItems: "center" }}>
                   <Button
                     type="primary"
                     loading={savingImage}
                     style={{ width: 150, height: 32 }}
                     onClick={handleSaveOnlyImage}
-                    disabled={!imageBase64} // ⬅️ ใช้ base64 เช็ค
+                    disabled={!imageBase64}  // ⬅️ ใช้ base64 เช็ค
                   >
                     บันทึกรูปภาพ
                   </Button>
-                  <Button
-                    style={{ width: 120, height: 32 }}
-                    onClick={() => setIsEditingImage(false)}
-                  >
+                  <Button style={{ width: 120, height: 32 }} onClick={() => setIsEditingImage(false)}>
                     ยกเลิก
                   </Button>
                 </Space>
