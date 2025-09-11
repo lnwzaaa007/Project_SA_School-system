@@ -115,7 +115,7 @@ const Attendance: React.FC = () => {
       title: "วันที่เช็คชื่อ",
       dataIndex: "date",
       key: "date",
-      width: 300,
+      width: 330,
       align: "center" as const,
     },
     {

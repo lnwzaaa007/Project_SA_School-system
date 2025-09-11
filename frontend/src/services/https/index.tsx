@@ -210,12 +210,23 @@ export const ScheduleAPI = {
   getTimeEnd: () => Get("/schedule-times-end"),
   getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
-  // requires auth to pass middleware
+
   postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`),
-  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
-  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
-
+  //ถ้ามีเทอมให้ส่งเทอม ถ้าไม่มีส่งแค่teacher_id
+  getStudentSchedule: (grade_id :number,term_id?: number) => {
+    const url = term_id != null
+    ?`/students/schedule?grade_id=${grade_id}&term_id=${term_id}`
+    :`/students/schedule?grade_id=${grade_id}`;
+    return Get(url);
+  },
+  //ถ้ามีเทอมให้ส่งเทอม ถ้าไม่มีส่งแค่teacher_id
+  getTeacherSchedule: (teacher_id: number, term_id?: number) => {
+    const url = term_id != null
+      ? `/teachers/schedule?teacher_id=${teacher_id}&term_id=${term_id}`
+      : `/teachers/schedule?teacher_id=${teacher_id}`;
+    return Get(url);
+  }, 
 };
 //แม็ก ระบบเช็คชื่อ
 export const AttendancesAPI ={
@@ -225,7 +236,7 @@ export const AttendancesAPI ={
   getAttendanceHistory: (schedule_id:number, student_id:number) => Get(`/attendances/student-history?schedule_id=${schedule_id}&student_id=${student_id}`),
   getAttendanceTeacher: (schedule_id:number) => Get(`/attendances/teacher-history?schedule_id=${schedule_id}`),
   getAttendanceByDate: (schedule_id:number, date:string) => Get(`/attendances-date?schedule_id=${schedule_id}&date=${date}`),
-  updateAttendance: (data: AttendanceInterface & { date: string }) => Update(`/attendances-record`, data, true),
+  updateAttendance: (data: AttendanceInterface /*& { date: string }*/) => Update(`/attendances-record`, data, true),
 };
 
 export const userTypeAPI = {
@@ -330,6 +341,7 @@ export const EnrollmentAPI = {
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
   deleteEnrollment: (id: number | string) => Delete(`/enrollment/${id}`),
 };
+
 
 
 
@@ -443,3 +455,4 @@ export const gradeCRUD = {
   byYearAndClass: (year: number, classId: number) =>
     http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
 };
+

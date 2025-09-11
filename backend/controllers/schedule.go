@@ -268,9 +268,11 @@ func DeleteScheduleByID(c *gin.Context) {
 }/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+//get ตารางเรียน โดยใช้ช่วงเวลาของเทอมนั้น
 func GetStudentSchedule (c *gin.Context){
     gradeIDStr := c.Query("grade_id")
+	term_id := c.Query("term_id")
+	
     if gradeIDStr == "" {
         c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ grade_id"})
         return
@@ -281,13 +283,22 @@ func GetStudentSchedule (c *gin.Context){
         return
     }
 
-    // หาเทอมปัจจุบันจากเวลาขณะนี้
-    now := time.Now()
     var term entity.Term
-    if err := config.DB().
-        Where("start_date <= ? AND end_date >= ?", now, now).
-        First(&term).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบเทอมปัจจุบัน"})
+    // var err error
+
+    if term_id != "" {
+        // ถ้าส่ง term_id มา  ค้นหา term จาก id
+        err = config.DB().First(&term, term_id).Error
+    } else {
+        // ถ้าไม่ส่ง term_id มา  หา term ปัจจุบันจากเวลา
+        now := time.Now()
+        err = config.DB().
+            Where("start_date <= ? AND end_date >= ?", now, now).
+            First(&term).Error
+    }
+
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูลเทอมที่ต้องการ"})
         return
     }
 
@@ -338,28 +349,35 @@ func GetStudentSchedule (c *gin.Context){
     c.JSON(http.StatusOK, gin.H{"data": responses, "term_id": term.ID, "semester": term.Semester, "academic_year": term.Academic_year})
 }//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//get ตารางสอนครู
+//get ตารางสอนครู ถ้ามีเทอมเข้ามาให้ค้นหาตามเทอม แต่ถ้าไม่มีให้ค้นหาช่วงเวลาปัจจุบัน
 func GetTeacherschedule(c *gin.Context){
 	teacher_id := c.Query("teacher_id")
+	term_id := c.Query("term_id")
+	
     if teacher_id == "" {
         c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุ grade_id"})
         return
     }
-    // gradeID, err := strconv.Atoi(teacher_id)
-    // if err != nil || gradeID <= 0 {
-    //     c.JSON(http.StatusBadRequest, gin.H{"error": "grade_id ไม่ถูกต้อง"})
-    //     return
-    // }
 
-    // หาเทอมปัจจุบันจากเวลาขณะนี้
-    now := time.Now()
     var term entity.Term
-    if err := config.DB().
-        Where("start_date <= ? AND end_date >= ?", now, now).
-        First(&term).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบเทอมปัจจุบัน"})
+    var err error
+
+    if term_id != "" {
+        // ถ้าส่ง term_id มา  ค้นหา term จาก id
+        err = config.DB().First(&term, term_id).Error
+    } else {
+        // ถ้าไม่ส่ง term_id มา  หา term ปัจจุบันจากเวลา
+        now := time.Now()
+        err = config.DB().
+            Where("start_date <= ? AND end_date >= ?", now, now).
+            First(&term).Error
+    }
+
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูลเทอมที่ต้องการ"})
         return
     }
+
 
     // ดึงตารางเรียนของ grade_id ที่อยู่ในเทอมปัจจุบัน
     var schedules []entity.Schedules
@@ -405,4 +423,4 @@ func GetTeacherschedule(c *gin.Context){
     }
 
     c.JSON(http.StatusOK, gin.H{"data": responses, "term_id": term.ID, "semester": term.Semester, "academic_year": term.Academic_year})
-}
+}//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
