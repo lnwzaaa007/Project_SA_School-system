@@ -3,6 +3,7 @@ import type { AxiosResponse, AxiosError } from "axios";
 import type {SignInInterface,} from "../../interfaces";
 import type {PostSchedule} from "../../interfaces/Schedule"
 import { useEffect } from "react";
+import type { UpdateCoursePayload } from "../../interfaces/course";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
@@ -191,6 +192,21 @@ export const courseAPI = {
    }) => Post("/new-course", course), 
   getCourseAll: () => Get("/coursesall"),
   getGradClassAllWithYear: () => Get(`/gradeclass/allwithyear`),
+  deleteCourse: (id: number) => Delete(`/course/${id}`),
+  updateCourse: (id: number, data: UpdateCoursePayload
+                // course:{
+                // course_code: string; 
+                // course_name: string; 
+                // subject_group_id: number; 
+                // credit_num: number;
+                // class_in_week: number; 
+                // grade_year: string; 
+                // grade_class: number; 
+                // teacher_id: number; 
+                // term_id: number; 
+                // grade_id: number;
+  ) => Update(`/course/${id}`,data ,true),
+  getCourseById: (id: number) => Get(`/course/${id}`),
   
 };
 export const ProvinceAPI ={

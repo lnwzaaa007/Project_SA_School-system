@@ -65,7 +65,7 @@ const CourseTable: React.FC = () => {
     setDeleteRecord(record);
     setIsDeleteModalOpen(true);
   };
-
+  //ปุ่มยืนยันลบ
   const handleDeleteOk = () => {
     // ใส่ฟังก์ชันลบข้อมูลที่นี่ เช่น ลบ deleteRecord ออกจาก data
     setIsDeleteModalOpen(false);
@@ -76,27 +76,52 @@ const CourseTable: React.FC = () => {
     console.log("setShowDeleteSuccess true");
     
   };
-
+//ปุ่มยกเลิก
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
     setDeleteRecord(null);
 
   };
-  
+  const handleDeleteConfirm = async () => {
+    if (!deleteRecord) {
+      messageApi.error({ content: 'ไม่มีข้อมูลที่จะลบ', duration: 2 });
+      return;
+    }
+    try {
+      await courseAPI.deleteCourse(deleteRecord.id);
 
+      
+      setData((prevData) => prevData.filter((item) => item.id !== deleteRecord.id));
+      messageApi.success({ content: 'ลบข้อมูลสำเร็จ', duration: 2 });
+    } catch (error) {
+      console.error('❌ ลบข้อมูลผิดพลาด:', error);
+      messageApi.error({ content: 'เกิดข้อผิดพลาดในการลบข้อมูล', duration: 2 });
+    }finally {
+      setIsDeleteModalOpen(false);
+      setDeleteRecord(null);
+    }
+  };
+  const [pagination, setPagination] = useState({
+  current: 1,
+  pageSize: 10,
+  });
+  
   const columns: TableProps<CourseDataType>['columns'] = [
-    {
-      title: 'ลำดับที่',
-      dataIndex: 'id',
-      key: 'id',
-      width: 100,
-      onHeaderCell: () => ({
-          style: {
-              background:"#f2f2f2",
+    
+    // {
+    //   title: 'ลำดับที่',
+    //   dataIndex: 'id',
+    //   key: 'id',
+    //   width: 100,
+      
+    //   onHeaderCell: () => ({
+    //       style: {
+    //           background:"#f2f2f2",
               
-          }
-      }), 
-    }, 
+    //       }
+    //   }), 
+    //   render: (text, record, index) => (pagination.current -1)*pagination.pageSize + index + 1 //จัดตามพrecord
+    // }, 
     {
       title: 'รหัสวิชา',
       dataIndex: 'course_code',
@@ -197,7 +222,7 @@ const CourseTable: React.FC = () => {
           }
       }),
       render: (_, record) => (
-        <Link to ='EditCourse'>
+        <Link to ={`EditCourse/${record.id}`}>
           <Button
                 icon = {<FormOutlined/>}
                 //type = 'primary'
@@ -233,6 +258,7 @@ const CourseTable: React.FC = () => {
                         borderColor:"#ff1818",
                 }}
                 onClick={() => showDeleteModal(record)}
+                // onClick={() => handleDeleteConfirm()}
                 >
                   
           </Button>
@@ -285,6 +311,17 @@ const CourseTable: React.FC = () => {
       
   //   },
   // ];
+  <Table
+  columns={columns}
+  dataSource={data}
+  rowKey="id"
+  loading={loading}
+  pagination={{
+    current: pagination.current,
+    pageSize: pagination.pageSize,
+    onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
+  }}
+/>
 
 
   return(
@@ -296,12 +333,13 @@ const CourseTable: React.FC = () => {
       pageSize: 10,   // จำนวน row ต่อหน้า
       // showSizeChanger: true,  // ให้เลือกเปลี่ยนจำนวน row/หน้า
       // pageSizeOptions: ['5', '10', '20', '50'], // ตัวเลือกจำนวน row ต่อหน้า
-      // showTotal: (total, range) => `${range[0]}-${range[1]} จากทั้งหมด ${total} รายการ`
+      showTotal: (total, range) => `ทั้งหมด ${total} รายการ`
+        // `${range[0]}-${range[1]} จากทั้งหมด ${total} รายการ`
     }}/>
     <Modal
         title="ยืนยันการลบ"
         open={isDeleteModalOpen}
-        onOk={handleDeleteOk}
+        onOk={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
         okText="ลบ"
         cancelText="ยกเลิก"

@@ -5,6 +5,7 @@ import(
 	"github.com/gin-gonic/gin"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
+	
 )
 //post บันทึกข้อมูล
 type CourseInput struct {
@@ -100,16 +101,7 @@ func CreateCourse(c *gin.Context) {
 		TermID: input.TermID,
 		TeacherID: input.TeacherID,
 	}
-	// var createdCourse entity.Course
-	// 	if err := config.DB().
-   	// 	Preload("Subject_Group").
-    // 	First(&createdCourse, course.ID).Error; err != nil {
-    // 	c.JSON(http.StatusInternalServerError, gin.H{"error": "โหลดข้อมูลไม่สำเร็จ"})
-    // 	return
-	// }
 	
-
-
 	//บันทึกข้อมูลรายวิชา
 	if err := config.DB().Create(&course).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกข้อมูลล้มเหลว"})
@@ -124,6 +116,7 @@ func CreateCourse(c *gin.Context) {
 
 //Get ดึงข้อมูลแสดงออกหน้าจอ
 type ResultByCourseID struct {
+	
 	ID				uint 	`json:"id"`
 	Course_Code		string 	`json:"course_code"` 
 	Course_Name		string 	`json:"course_name"`
@@ -134,7 +127,9 @@ type ResultByCourseID struct {
 	Grade_Year		string 	`json:"grade_year"`
 	Grade_Class 	uint	`json:"grade_class"`
 	TeacherName		string 	`json:"teacher_name"`
+	GradeID			uint	`json:"grade_id"`
 }
+//ดึงข้อมูลรายวิชาทั้งหมด
 func GetCourseAll (c *gin.Context){
 	courseID := c.Param("id")
 	var results []ResultByCourseID
@@ -144,12 +139,29 @@ func GetCourseAll (c *gin.Context){
 		Joins("LEFT JOIN subject_groups ON courses.subject_group_id = subject_groups.id").
 		Joins("LEFT JOIN grades ON courses.grade_id = grades.id").
 		Joins("LEFT JOIN teachers ON courses.teacher_id = teachers.id", courseID).
-		// Where("courses.id = ?", courseID).
+		Where("courses.deleted_at IS NULL"). //ช่องDeleteAt = null ให้ดึงไปแสดงที่จอ
 		Scan(&results).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลได้"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": results})
+}
+//ดึงข้อมูลรายวิชาตาม ID
+func GetCourseByID(c *gin.Context){
+	courseID := c.Param("id")
+	var result ResultByCourseID
+	if err := config.DB().
+		Table("courses").
+		Select("courses.id, courses.course_code, courses.course_name, subject_groups.subject_group_name, courses.credit_num, courses.class_in_week, courses.hours_of_term, grades.grade_year, grades.grade_class, teachers.t_first_name || ' ' || teachers.t_last_name AS teacher_name").
+		Joins("LEFT JOIN subject_groups ON courses.subject_group_id = subject_groups.id").
+		Joins("LEFT JOIN grades ON courses.grade_id = grades.id").
+		Joins("LEFT JOIN teachers ON courses.teacher_id = teachers.id").
+		Where("courses.id = ? AND courses.deleted_at IS NULL", courseID). //ช่องDeleteAt = null ให้ดึงไปแสดงที่จอ
+		Scan(&result).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลได้"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
 //ดึงข้อมูลระดับชั้นและห้อง ทั้งหมด
@@ -170,4 +182,63 @@ func GetGradeClassAllWithYear(c *gin.Context) {
         return
     }
     c.JSON(http.StatusOK, gradeClasses)
+}
+func DeleteCourseByID(c *gin.Context) {
+	courseID := c.Param("id")
+	var course entity.Course
+	//ค้นหาข้อมูลรายวิชาตาม ID ที่รับมา
+	if err := config.DB().Where("id = ?", courseID).First(&course).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูลรายวิชานี้"})
+		return
+	}
+	//ถ้าพบข้อมูลรายวิชาให้ลบข้อมูล
+	if err := config.DB().Delete(&course).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ลบข้อมูลไม่สำเร็จ"})
+		return
+	}
+	// ลบสำเร็จให้ ให้ส่งค่ากลับเป็น true
+	c.JSON(http.StatusOK, gin.H{"data": true})
+}
+
+//PUT แก้ไขข้อมูล /updatecourse/:id
+func UpdateCourseByID(c *gin.Context){
+	courseID := c.Param("id")
+	var course entity.Course
+	
+
+	//ค้นหาข้อมูลรายวิชาตาม ID ที่รับมา เพื่อเช็คว่ามีข้อมูลหรือไม่
+	if err := config.DB().Where("id = ?", courseID).First(&course).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูลรายวิชานี้"})
+		return
+	}
+	//รับข้อมูลที่แก้ไข
+	var input CourseInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var grade entity.Grade
+    if err := config.DB().Where("grade_year = ? AND grade_class = ?", input.Grade_Year, input.Grade_Class).First(&grade).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบข้อมูลระดับชั้นและห้องนี้ในระบบ"})
+        return
+    }
+	//คำนวณจำนวนชั่วโมงเรียนต่อเทอม
+	houres_of_term := int(input.Credit_Num * 40.0)
+	
+	course.Course_Code = input.Course_Code
+	course.Course_Name = input.Course_Name
+	course.SubjectGroupID = input.SubjectGroupID
+	course.Credit_Num = input.Credit_Num
+	course.Class_in_week = input.Class_in_week
+	course.Hours_of_term = houres_of_term
+	course.GradeID = grade.ID
+	course.TermID = input.TermID
+	course.TeacherID = input.TeacherID
+	//บันทึกข้อมูลที่แก้ไข
+	if err := config.DB().Save(&course).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "แก้ไขข้อมูลไม่สำเร็จ"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message":"อัปเดตรายวิชาสำเร็จ", "data": course})
+
 }

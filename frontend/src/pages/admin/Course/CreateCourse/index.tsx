@@ -225,14 +225,14 @@ const CreateCourse:React.FC = () => {
             name="course_code"
             rules={[{ required: true, message: "กรุณากรอกรหัสวิชา" }]}
             >
-            <Input placeholder="เช่น 101101" style={{height:'48px'}}/>
+            <Input placeholder="เช่น ค21101" style={{height:'48px'}}/>
             </Form.Item>
             <Form.Item
             label={<span style={{ fontSize: "18px" }}>ชื่อวิชา</span>}
             name="course_name"
             rules={[{ required: true, message: "กรุณากรอกชื่อวิชา" }]}
             >
-            <Input placeholder="เช่น คณิตศาสตร์พื้นฐาน" style={{height:'48px'}}/>
+            <Input placeholder="เช่น คณิตศาสตร์พื้นฐาน 1" style={{height:'48px'}}/>
             </Form.Item>
 
             <Form.Item
@@ -247,7 +247,7 @@ const CreateCourse:React.FC = () => {
                     }}>
                     {teacher.map((t) => (
                         <Option key={t.id} value={t.id}>
-                        {t.tfirst_name} {t.tlast_name} 
+                        {t.t_first_name} {t.t_last_name} 
                         {/* {JSON.stringify(t)} */}
                         </Option>
                     ))}
@@ -282,12 +282,12 @@ const CreateCourse:React.FC = () => {
                 <Select placeholder="เลือกชั้นปี" style={{ width: "100%" ,height:'48px' }}
                         value={selectedGradeYear ?? undefined}
                         onChange={(value) => setSelectedGradeYear(value)}
-                        // onSelect={(value) => {
-                        // console.log("เลือก:", value);
-                // }}
+                        onSelect={(value) => {
+                        console.log("เลือก:", value);
+                }}
                 >
                 {grades.map((g,) => (
-                    <Option key={g.id ?? g.id} value={String(g.id)}>
+                    <Option key={g.id ?? g.id} value={String(g.grade_year)}>
                         มัธยมศึกษาปีที่ {g.grade_year}
                     </Option>
                 ))}
@@ -305,9 +305,9 @@ const CreateCourse:React.FC = () => {
                         value={selectedGradeClass ?? undefined}
                         onChange={(value) => setSelectedGradeClass(value)}
                         //
-                        // onChange={(value) => {
-                        // console.log("เลือก:", value);
-                // }}
+                        onSelect={(value) => {
+                        console.log("เลือก:", value);
+                }}
                 >
                 {/* {class_.map((g,) => (
                     <Option key={g.id ?? g.id} value={g.grade_class}>
