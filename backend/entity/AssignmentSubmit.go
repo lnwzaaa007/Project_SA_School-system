@@ -29,7 +29,6 @@ type AssignmentSubmit struct {
 	Submit_status 			Submit_status `json:"submit_status"`
 	CourseID         uint      `json:"course_id"` 
 
-	
 	GradeID uint
 	Grade   *Grade `gorm:"foreignKey:GradeID"`
 

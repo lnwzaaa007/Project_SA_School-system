@@ -22,8 +22,10 @@ func main() {
 	r.POST("/upload", controllers.UploadFileOnly)
 	r.MaxMultipartMemory = 64 << 20
 	// ✅ วางสองบรรทัดนี้ตรงนี้ (นอก group / ไม่ต้องมี auth)
-	_ = os.MkdirAll("uploads", 0755)                  // สร้างโฟลเดอร์หลัก หากยังไม่มี
-	r.StaticFS("/uploads", http.Dir("uploads"))       // เสิร์ฟไฟล์ใน /uploads เป็นสาธารณะ
+	  _ = os.MkdirAll("uploads", 0755)        
+	_ = os.MkdirAll("uploads/qr", 0755)
+	r.StaticFS("/uploads", http.Dir("uploads"))     // เสิร์ฟไฟล์ใน /uploads เป็นสาธารณะ
+	r.GET("/dev/seed/tuition", controllers.SeedTuition)
 
 
 	router := r.Group("/")
@@ -63,7 +65,7 @@ func main() {
 		router.DELETE("/schedules/:id",controllers.DeleteScheduleByID)
 
 		// User type route
-		router.GET("users/:id", controllers.GetUserTypeByID)
+		router.GET("/users/:id", controllers.GetUserTypeByID)
 
 		// Province routes
 		router.GET("/province", controllers.GetProvince)
@@ -111,7 +113,16 @@ func main() {
 		
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
+
+		//Payment routes
+		router.POST("/bills/create", controllers.CreateBillByStudentTerm)
 		
+		router.GET("/bills/student/:id", controllers.ListStudentBills) // alias
+		router.GET("/bills/summary", controllers.BillsSummary)
+		router.POST("/payments/upload", controllers.UploadPaymentSlip)
+		router.POST("/payments/:id/verify", controllers.VerifyPayment)
+		router.GET("/payments/options/:student_id", controllers.GetStudentTuitionOptions)
+				
 	
 
 	}

@@ -34,7 +34,9 @@ type Student struct {
 
 	UsersID uint 	`json:"users_id"`
 	AddressID uint	`json:"address_id"`
-	GradeID uint	`json:"grade_id"`
-	Grade *Grade `gorm:"foreignKey:GradeID" json:"grade"`
+	GradeID uint   `json:"grade_id"`
+    Grade   *Grade `gorm:"foreignKey:GradeID;references:ID" json:"grade"`
+	TermID uint	`json:"term_id"`
+	Term   *Term `gorm:"foreignKey:TermID;references:ID" json:"semester"`
 	
 }

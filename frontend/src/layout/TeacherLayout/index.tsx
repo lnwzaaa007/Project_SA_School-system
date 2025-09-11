@@ -12,6 +12,7 @@ import {
   MenuOutlined,
   SolutionOutlined,
   FileAddOutlined,
+  LeftOutlined,
 } from "@ant-design/icons";
 
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -133,9 +134,8 @@ const TeacherFullLayout: React.FC = () => {
               padding: 16,
             }}
           >
-            <Button
-              type="text"
-              icon={<MenuOutlined style={{ fontSize: "20px" }} />}
+           <LeftOutlined
+              rotate={collapsed ? 180 : 0}
               onClick={() => setCollapsed(!collapsed)}
               style={{ fontSize: 20, color: "#000000" }}
             />
