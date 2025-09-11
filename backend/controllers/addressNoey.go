@@ -1,156 +1,175 @@
 package controllers
 
 import (
-	"errors"
+	"encoding/json"
+	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 )
 
-// ---------- DTO ----------
-type CreateAddressReq struct {
-	AddressNumber string `json:"address_number" binding:"required"` // รายละเอียดบ้าน/หมู่ที่/เลขที่
-	Road          string `json:"road"`
+// ---- helper: ยอมรับเลขหรือสตริง แล้วแปลงเป็น string ----
+type FlexString string
 
-	ProvinceID    uint `json:"province_id" binding:"required"`
-	DistrictID    uint `json:"district_id" binding:"required"`
-	SubdistrictID uint `json:"subdistrict_id" binding:"required"`
-	ZipcodeID     uint `json:"zipcode_id" binding:"required"`
+func (s *FlexString) UnmarshalJSON(b []byte) error {
+	// ลองเป็น string ก่อน
+	var str string
+	if err := json.Unmarshal(b, &str); err == nil {
+		*s = FlexString(strings.TrimSpace(str))
+		return nil
+	}
+	// ลองเป็น number → แปลงเป็นสตริง
+	var num json.Number
+	if err := json.Unmarshal(b, &num); err == nil {
+		*s = FlexString(num.String())
+		return nil
+	}
+	return fmt.Errorf("must be string or number")
+}
+
+// ========= Create / Update payload =========
+
+type CreateAddressReq struct {
+	AddressNumber FlexString `json:"address_number" binding:"required"`
+	Road          string     `json:"road"`
+
+	// รองรับได้ทั้งคู่: thai_* หรือไม่มี thai_ ก็ได้
+	ProvinceID      uint `json:"province_id"`
+	DistrictID      uint `json:"district_id"`
+	SubdistrictID   uint `json:"subdistrict_id"`
+	ThaiProvinceID  uint `json:"thai_province_id"`
+	ThaiDistrictID  uint `json:"thai_district_id"`
+	ThaiSubdistictID uint `json:"thai_subdistrict_id"`
+}
+
+func (r *CreateAddressReq) normalize() (prov, dist, sub uint) {
+	prov = r.ProvinceID
+	dist = r.DistrictID
+	sub  = r.SubdistrictID
+	if r.ThaiProvinceID != 0 {
+		prov = r.ThaiProvinceID
+	}
+	if r.ThaiDistrictID != 0 {
+		dist = r.ThaiDistrictID
+	}
+	if r.ThaiSubdistictID != 0 {
+		sub = r.ThaiSubdistictID
+	}
+	return
 }
 
 type UpdateAddressReq struct {
-	AddressNumber *string `json:"address_number"`
-	Road          *string `json:"road"`
+	AddressNumber *FlexString `json:"address_number"`
+	Road          *string     `json:"road"`
 
-	ProvinceID    *uint `json:"province_id"`
-	DistrictID    *uint `json:"district_id"`
-	SubdistrictID *uint `json:"subdistrict_id"`
-	ZipcodeID     *uint `json:"zipcode_id"`
+	ProvinceID       *uint `json:"province_id"`
+	DistrictID       *uint `json:"district_id"`
+	SubdistrictID    *uint `json:"subdistrict_id"`
+	ThaiProvinceID   *uint `json:"thai_province_id"`
+	ThaiDistrictID   *uint `json:"thai_district_id"`
+	ThaiSubdistrictID *uint `json:"thai_subdistrict_id"`
 }
 
-// ---------- CREATE ----------
-func CreateAddress(c *gin.Context) {
+func pickUint(primary, alt *uint) *uint {
+	if primary != nil && *primary != 0 {
+		return primary
+	}
+	return alt
+}
+
+// ========= Handlers =========
+
+// POST /addresses
+func CreateAddressN(c *gin.Context) {
 	var req CreateAddressReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	a := entity.Address{
-		Address_Number: req.AddressNumber,
-		Road:           req.Road,
-		ProvinceID:     req.ProvinceID,
-		DistrictID:     req.DistrictID,
-		SubdistrictID:  req.SubdistrictID,
-		ZipcodeID:      req.ZipcodeID,
+	prov, dist, sub := req.normalize()
+	if prov == 0 || dist == 0 || sub == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "thai_province_id, thai_district_id และ thai_subdistrict_id ต้องไม่เป็นศูนย์"})
+		return
 	}
-	if err := config.DB().Create(&a).Error; err != nil {
+
+	addr := entity.Address{
+		Address_Number:   string(req.AddressNumber),
+		Road:             strings.TrimSpace(req.Road),
+		Thai_ProvinceID:  prov,
+		Thai_DistrictID:  dist,
+		Thai_SubdistrictID: sub,
+	}
+	if err := config.DB().Create(&addr).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"data": a})
+	c.JSON(http.StatusCreated, gin.H{"data": gin.H{
+		"id":                 addr.ID,
+		"address_number":     addr.Address_Number,
+		"road":               addr.Road,
+		"thai_province_id":   addr.Thai_ProvinceID,
+		"thai_district_id":   addr.Thai_DistrictID,
+		"thai_subdistrict_id": addr.Thai_SubdistrictID,
+	}})
 }
 
-// ---------- LIST (ค้นหา/กรอง/แบ่งหน้า) ----------
-func ListAddresses(c *gin.Context) {
-	db := config.DB()
-
-	q := strings.TrimSpace(c.Query("q"))
-	provinceIDStr := strings.TrimSpace(c.Query("province_id"))
-	districtIDStr := strings.TrimSpace(c.Query("district_id"))
-	subdistrictIDStr := strings.TrimSpace(c.Query("subdistrict_id"))
-	zipcodeIDStr := strings.TrimSpace(c.Query("zipcode_id"))
-
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if page < 1 {
-		page = 1
-	}
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-	if pageSize <= 0 || pageSize > 100 {
-		pageSize = 20
-	}
-
-	base := db.Model(&entity.Address{})
-	if q != "" {
-		like := "%" + q + "%"
-		base = base.Where("address_number LIKE ? OR road LIKE ?", like, like)
-	}
-	// กรองตามรหัสพื้นที่ (ถ้ามี)
-	if provinceIDStr != "" {
-		if v, err := strconv.Atoi(provinceIDStr); err == nil && v > 0 {
-			base = base.Where("province_id = ?", v)
-		}
-	}
-	if districtIDStr != "" {
-		if v, err := strconv.Atoi(districtIDStr); err == nil && v > 0 {
-			base = base.Where("district_id = ?", v)
-		}
-	}
-	if subdistrictIDStr != "" {
-		if v, err := strconv.Atoi(subdistrictIDStr); err == nil && v > 0 {
-			base = base.Where("subdistrict_id = ?", v)
-		}
-	}
-	if zipcodeIDStr != "" {
-		if v, err := strconv.Atoi(zipcodeIDStr); err == nil && v > 0 {
-			base = base.Where("zipcode_id = ?", v)
-		}
-	}
-
-	var total int64
-	if err := base.Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// GET /addresses
+func ListAddressesN(c *gin.Context) {
+	var out []entity.Address
+	if err := config.DB().
+		Order("id ASC").
+		Find(&out).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 
-	var rows []entity.Address
-	if err := base.
-		Order("id DESC").
-		Limit(pageSize).
-		Offset((page - 1) * pageSize).
-		Find(&rows).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	// map เป็นรูปแบบที่ FE คาด
+	result := make([]gin.H, 0, len(out))
+	for _, a := range out {
+		result = append(result, gin.H{
+			"id":                 a.ID,
+			"address_number":     a.Address_Number,
+			"road":               a.Road,
+			"thai_province_id":   a.Thai_ProvinceID,
+			"thai_district_id":   a.Thai_DistrictID,
+			"thai_subdistrict_id": a.Thai_SubdistrictID,
+			"created_at":         a.CreatedAt,
+			"updated_at":         a.UpdatedAt,
+		})
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"data":      rows,
-		"page":      page,
-		"page_size": pageSize,
-		"total":     total,
-	})
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
-// ---------- GET BY ID ----------
-func GetAddressByID(c *gin.Context) {
+// GET /addresses/:id
+func GetAddressN(c *gin.Context) {
+	id := c.Param("id")
 	var a entity.Address
-	if err := config.DB().First(&a, c.Param("id")).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+	if err := config.DB().First(&a, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": a})
+	c.JSON(http.StatusOK, gin.H{"data": gin.H{
+		"id":                 a.ID,
+		"address_number":     a.Address_Number,
+		"road":               a.Road,
+		"thai_province_id":   a.Thai_ProvinceID,
+		"thai_district_id":   a.Thai_DistrictID,
+		"thai_subdistrict_id": a.Thai_SubdistrictID,
+		"created_at":         a.CreatedAt,
+		"updated_at":         a.UpdatedAt,
+	}})
 }
 
-// ---------- UPDATE ----------
-func UpdateAddress(c *gin.Context) {
+// PUT /addresses/:id
+func UpdateAddressN(c *gin.Context) {
+	id := c.Param("id")
 	var a entity.Address
-	if err := config.DB().First(&a, c.Param("id")).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+	if err := config.DB().First(&a, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
 
@@ -162,22 +181,21 @@ func UpdateAddress(c *gin.Context) {
 
 	updates := map[string]any{}
 	if req.AddressNumber != nil {
-		updates["address_number"] = strings.TrimSpace(*req.AddressNumber)
+		updates["address_number"] = string(*req.AddressNumber)
 	}
 	if req.Road != nil {
 		updates["road"] = strings.TrimSpace(*req.Road)
 	}
-	if req.ProvinceID != nil {
-		updates["province_id"] = *req.ProvinceID
+
+	// รองรับทั้งคู่ (เลือกอันที่มีค่า)
+	if v := pickUint(req.ThaiProvinceID, req.ProvinceID); v != nil {
+		updates["thai_province_id"] = *v
 	}
-	if req.DistrictID != nil {
-		updates["district_id"] = *req.DistrictID
+	if v := pickUint(req.ThaiDistrictID, req.DistrictID); v != nil {
+		updates["thai_district_id"] = *v
 	}
-	if req.SubdistrictID != nil {
-		updates["subdistrict_id"] = *req.SubdistrictID
-	}
-	if req.ZipcodeID != nil {
-		updates["zipcode_id"] = *req.ZipcodeID
+	if v := pickUint(req.ThaiSubdistrictID, req.SubdistrictID); v != nil {
+		updates["thai_subdistrict_id"] = *v
 	}
 
 	if len(updates) == 0 {
@@ -192,11 +210,12 @@ func UpdateAddress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": a})
 }
 
-// ---------- DELETE ----------
-func DeleteAddress(c *gin.Context) {
-	if err := config.DB().Delete(&entity.Address{}, c.Param("id")).Error; err != nil {
+// DELETE /addresses/:id
+func DeleteAddressN(c *gin.Context) {
+	id := c.Param("id")
+	if err := config.DB().Delete(&entity.Address{}, id).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusOK, gin.H{"data": true})
 }
