@@ -15,4 +15,6 @@ type GuardianStudent struct {
 
 	StudentID uint
 	Student   *Student `gorm:"foreignKey:StudentID"`
+
+	Relation	string 	`json:"relation"`
 }
