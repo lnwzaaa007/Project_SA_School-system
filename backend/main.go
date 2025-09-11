@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+	"os"
 	"github.com/gin-gonic/gin"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/controllers"
@@ -16,16 +18,33 @@ func main() {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	// r.Use(middlewares.Authorizes())
-	r.MaxMultipartMemory = 32 << 20
+	r.POST("/submit-assignment", controllers.AssignmentSubmit)
+	r.POST("/upload", controllers.UploadFileOnly)
+	r.MaxMultipartMemory = 64 << 20
+	// ✅ วางสองบรรทัดนี้ตรงนี้ (นอก group / ไม่ต้องมี auth)
+	  _ = os.MkdirAll("uploads", 0755)        
+	_ = os.MkdirAll("uploads/qr", 0755)
+	r.StaticFS("/uploads", http.Dir("uploads"))     // เสิร์ฟไฟล์ใน /uploads เป็นสาธารณะ
+	r.GET("/dev/seed/tuition", controllers.SeedTuition)
+
 
 	router := r.Group("/")
 	router.Use(middlewares.Authorizes())
-
+	
+	
 	{
 		// student
 		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
 
 		// router.GET("/student/:id", controllers.GetNameStudentById)
+		
+		
+		// Teacher routes
+		// router.GET("/teacher", controllers.GetNameTeacher)
+		router.GET("/teachers/:user_id",controllers.GetTeacherAllById)
+
+		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
+		
 
 
 		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
@@ -63,7 +82,7 @@ func main() {
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
-
+		
 		// Grade routes
 		router.GET("/gradeyears", controllers.GetGradeYearAll)
 		router.GET("/gradeclasses", controllers.GetGradeClassAll)
@@ -73,7 +92,7 @@ func main() {
 
 		// New routes for terms and schedule
 		router.GET("/terms", controllers.GetTermAll)
-
+		
 		// Schedule routes
 		router.GET("/schedule-days", controllers.GetDaysAll)
 		router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
@@ -95,11 +114,16 @@ func main() {
 		router.GET("/attendances-date", controllers.GetAttendanceByDate)
 
 		// User type route
-		router.GET("users/:id", controllers.GetUserTypeByID)
+		router.GET("/users/:id", controllers.GetUserTypeByID)
 
 		// Province routes
 		router.GET("/province", controllers.GetProvince)
 		router.GET("/province/:id", controllers.GetProvinceById)
+		
+		// Thai_Province routes
+		router.GET("/thaiprovince", controllers.GetThaiProvince)
+		router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
+
 		// District routes
 		router.GET("/district", controllers.GetDistrict)
 		router.GET("/district/:id", controllers.GetDistrictById)
@@ -123,7 +147,7 @@ func main() {
 		router.POST("/new-announcement", controllers.CreateAnnouncement)
 		// router.GET("/announcements", controllers.ListAnnouncements)
 		// router.GET("/announcements/:id", controllers.GetAnnouncementByID)
-
+		
 		//Target Group routes
 		router.GET("/targetgroup", controllers.GetTargetGroupAll)
 
@@ -143,6 +167,26 @@ func main() {
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
 		router.GET("/assignment/:id", controllers.GetAllAssignment)
+		
+		
+		
+		// Course routes
+		router.GET("/courses", controllers.GetCourses)
+
+		//Payment routes
+		router.POST("/bills/create", controllers.CreateBillByStudentTerm)
+		
+		router.GET("/bills/student/:id", controllers.ListStudentBills) // alias
+		router.GET("/bills/summary", controllers.BillsSummary)
+		// Admin can list payment slips (waiting/complete)
+		router.GET("/payments", controllers.ListPaymentSlipsForAdmin)
+        // Student can view their payment results
+        router.GET("/payments/student/:id", controllers.ListStudentPayments)
+		router.POST("/payments/upload", controllers.UploadPaymentSlip)
+		router.POST("/payments/:id/verify", controllers.VerifyPayment)
+		router.GET("/payments/options/:student_id", controllers.GetStudentTuitionOptions)
+				
+	
 
 		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
@@ -164,7 +208,7 @@ func main() {
 
 
 		// ✅ ดาวน์โหลดตาม id
-		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
+		// router.GET("/submissions/:id/download", controllers.DownloadSubmission)
 		// // สมัครเรียน
 		//  router.POST("/enrollments", controllers.CreateEnrollment)
 

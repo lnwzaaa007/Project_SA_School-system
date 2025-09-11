@@ -1,14 +1,4 @@
-// export interface AssignmentInterface {
-//     course_id: number;
-//     ID:number;
-//     assignment_title: string;
-//     description: string;
-//     time_start: string;
-//     time_end: string;
-//     submit_point_all: number;
-//     student_comment: string;
-//     file: string;
-// }
+
 export interface AssignmentInterface {
     ID: number;
     course_id: number;
@@ -33,8 +23,4 @@ export interface AssignmentFormData {
   feedback: string;
 }
 
-// export interface CreateAssignment {
-//     Course_id: number;
-    
-// }
 

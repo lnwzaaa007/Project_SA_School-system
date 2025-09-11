@@ -42,16 +42,28 @@ func CreateHomeWork(c *gin.Context) {
 		TimeStart:        input.TimeStart,
 		TimeEnd:          input.TimeEnd,
 		Submit_Point_all: input.Submit_Point_all,
+
+		// ✅ ตั้งค่าเริ่มต้น (ยังไม่ส่ง, ยังไม่มีไฟล์/เวลา)
+		Submit_status:   entity.NotSubmitted,
+		Assignment_file: "",
+		Submit_at:       time.Time{}, // zero
 	}
 
-	if assignment.Assignment_title == "" || assignment.Description == "" || assignment.TimeStart.IsZero() || assignment.TimeStart.IsZero() || assignment.Submit_Point_all == 0 {
+	// ✅ แก้ validation: เช็ค TimeEnd ให้ถูกฟิลด์
+	if assignment.Assignment_title == "" ||
+		assignment.Description == "" ||
+		assignment.TimeStart.IsZero() ||
+		assignment.TimeEnd.IsZero() ||
+		assignment.Submit_Point_all == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณากรอกข้อมูลให้ครบถ้วน"})
 		return
 	}
+
 	if err := config.DB().Create(&assignment).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": assignment})
+	// แนะนำ: ใช้ 201 Created
+	c.JSON(http.StatusCreated, gin.H{"data": assignment})
 }

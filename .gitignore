@@ -22,6 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-*.env
+# *.db
 *.db
-backend/sa.db
+*.env
+
+# ─────────────────────────────────────────────────
+# User uploads (ไม่ต้อง track บน Git)
+# กรณีคุณรัน backend จากโฟลเดอร์ backend/
+backend/uploads/
+
+# กันเผื่อกรณีรันจาก root แล้วโฟลเดอร์ uploads อยู่ที่ root
+/uploads/
+
+# ถ้าอยากให้มีโฟลเดอร์ว่าง ๆ อยู่ใน repo แต่ไม่เอาไฟล์ข้างใน
+# ให้ใช้กฎแบบนี้แทน (เอา comment ออก 4 บรรทัดล่าง และสร้าง .gitkeep)
+# backend/uploads/*
+# !backend/uploads/.gitkeep
+# /uploads/*
+# !/uploads/.gitkeep
+# ─────────────────────────────────────────────────
+

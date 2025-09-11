@@ -311,9 +311,14 @@ export const DistrictAPI ={
 export const AssignmentAPI = {
   getCourses: () => Get(`/courses`),
   getAssignments: (id:number) => Get(`/assignments/${id}`),
-  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
-  
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`), 
 
+}
+
+export async function submitAssignment(fd: FormData) {
+  const res = await fetch("http://localhost:8088/submit-assignment", { method: "POST", body: fd });
+  if (!res.ok) throw new Error(`Submit failed ${res.status}`);
+  return res.json();
 }
 
 export const GetBinary = async (
