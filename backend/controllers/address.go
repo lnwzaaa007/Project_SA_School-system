@@ -97,3 +97,4 @@ func CreateAddress(c *gin.Context) {
 		"data":    addr,
 	})
 }
+
