@@ -190,17 +190,37 @@ export const StudentCreateProvider: React.FC<React.PropsWithChildren> = ({
       if (editingId) {
         // 1) โหลด student เดิม เพื่อดึง address_id ปัจจุบัน
         const cur = await studentCRUD.getById(editingId);
-
-        // ✅ ต้องแกะแบบนี้
         const current = cur?.data?.data ?? cur?.data;
+
+        console.log("Current student data:", current);
+
+  
+
         const currentAddressId: number | undefined = current?.address_id;
         if (!currentAddressId) throw new Error("ไม่พบ address_id ของนักเรียน");
+         console.log("No address_id found, creating new address...");
 
         // 2) map id จังหวัด/อำเภอ/ตำบล → PK จริง
         const { provincePk, districtPk, subPk } =
           await resolveAddressIds(address);
 
-        // 3) UPDATE address → แนะนำส่ง thai_* ตรง ๆ ให้ชัวร์
+          const newAddrRes = await addressCRUD_N.create({
+      address_number: String(address.address_number || "").trim(),
+      road: String(address.road || "").trim(),
+      province_id: provincePk,
+      district_id: districtPk,
+      subdistrict_id: subPk,
+    });
+    
+    if (newAddrRes?.data?.error || newAddrRes?.error) {
+      throw new Error(
+        newAddrRes?.data?.error ||
+        newAddrRes?.error ||
+        "สร้างที่อยู่ใหม่ไม่สำเร็จ"
+      );
+    }
+
+     // 3) UPDATE address → แนะนำส่ง thai_* ตรง ๆ ให้ชัวร์
         const addrUpdRes = await addressCRUD_N.update(currentAddressId, {
           address_number: String(address.address_number || "").trim(),
           road: String(address.road || "").trim(),
