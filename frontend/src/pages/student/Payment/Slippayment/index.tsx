@@ -8,7 +8,7 @@ type SummaryResp = {
   items: SummaryItem[];
   total: number;
   paymentRef: string;
-  qrImageUrl?: string; // e.g. "/uploads/qr/promptpay.jpg"
+  qrUrl?: string; // optional - from backend
 };
 
 const RAW_API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
@@ -47,6 +47,7 @@ const PaymentCheckoutPage: React.FC = () => {
   const [summary, setSummary] = useState<SummaryResp | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [qrUrl, setQrUrl] = useState<string>("");
+  const [isGeneratingQR, setIsGeneratingQR] = useState<boolean>(false);
 
   // กันยิงซ้ำ
   const fetchKey = useMemo(
@@ -54,6 +55,113 @@ const PaymentCheckoutPage: React.FC = () => {
     [billIds]
   );
   const fetchedKeyRef = useRef<string>("");
+
+  // ฟังก์ชันสำหรับสร้าง PromptPay QR Code
+  const generatePromptPayQR = async (phoneNumber: string, amount: number): Promise<string> => {
+    try {
+      console.log("[QR] Generating QR for phone:", phoneNumber, "amount:", amount);
+      
+      // Method 1: Try using promptpay-qr library
+      try {
+        const { default: generatePayload } = await import("promptpay-qr");
+        const { toDataURL } = await import("qrcode");
+        
+        const payload = generatePayload(phoneNumber, amount > 0 ? { amount } : undefined);
+        console.log("[QR] Generated payload:", payload);
+        
+        const qrDataUrl = await toDataURL(payload, { 
+          width: 300, 
+          margin: 2,
+          errorCorrectionLevel: 'M'
+        });
+        
+        console.log("[QR] Successfully generated QR with library");
+        return qrDataUrl;
+        
+      } catch (libError) {
+        console.warn("[QR] Library method failed, trying manual method:", libError);
+        
+        // Method 2: Manual PromptPay QR generation
+        return await generateManualPromptPayQR(phoneNumber, amount);
+      }
+      
+    } catch (error) {
+      console.error("[QR] All QR generation methods failed:", error);
+      throw error;
+    }
+  };
+
+  // Manual PromptPay QR generation fallback
+  const generateManualPromptPayQR = async (phoneNumber: string, amount: number): Promise<string> => {
+    try {
+      const { toDataURL } = await import("qrcode");
+      
+      // Clean phone number
+      const cleanPhone = phoneNumber.replace(/[^0-9]/g, '');
+      
+      // Format amount
+      const formatAmount = (amt: number) => {
+        if (amt <= 0) return "";
+        const amtStr = amt.toFixed(2);
+        const len = amtStr.length.toString().padStart(2, '0');
+        return `54${len}${amtStr}`;
+      };
+      
+      // Build PromptPay EMV payload manually
+      let payload = "000201"; // Payload Format Indicator
+      payload += "010212"; // Point of Initiation Method
+      
+      // Merchant Account Information (Tag 29)
+      let tag29 = "0016A000000677010112"; // GUI
+      tag29 += "01" + cleanPhone.length.toString().padStart(2, '0') + cleanPhone;
+      payload += "29" + tag29.length.toString().padStart(2, '0') + tag29;
+      
+      payload += "5303764"; // Transaction Currency (THB = 764)
+      
+      if (amount > 0) {
+        payload += formatAmount(amount);
+      }
+      
+      payload += "5802TH"; // Country Code
+      payload += "6304"; // CRC placeholder
+      
+      // Calculate CRC16 (simple implementation)
+      const crc16 = calculateCRC16(payload.slice(0, -4));
+      const finalPayload = payload.slice(0, -4) + crc16.toString(16).toUpperCase().padStart(4, '0');
+      
+      console.log("[QR] Manual payload:", finalPayload);
+      
+      const qrDataUrl = await toDataURL(finalPayload, {
+        width: 300,
+        margin: 2,
+        errorCorrectionLevel: 'M'
+      });
+      
+      console.log("[QR] Successfully generated QR manually");
+      return qrDataUrl;
+      
+    } catch (error) {
+      console.error("[QR] Manual generation failed:", error);
+      throw error;
+    }
+  };
+
+  // Simple CRC16 calculation for PromptPay
+  const calculateCRC16 = (data: string): number => {
+    let crc = 0xFFFF;
+    for (let i = 0; i < data.length; i++) {
+      crc ^= data.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        if (crc & 0x8000) {
+          crc = (crc << 1) ^ 0x1021;
+        } else {
+          crc <<= 1;
+        }
+        crc &= 0xFFFF;
+      }
+    }
+    return crc;
+  };
 
   useEffect(() => {
     if (!fetchKey) return;
@@ -72,28 +180,41 @@ const PaymentCheckoutPage: React.FC = () => {
         });
 
         setSummary(res.data);
+        
+        let finalQrUrl = "";
 
-        // ประกอบ URL รูปให้เป็น absolute + ใส่ cache buster
-        if (res.data.qrImageUrl) {
+        // 1) ถ้า backend ส่ง qrUrl มา ใช้ของ backend
+        if (res.data.qrUrl) {
           const base = API_URL + (API_URL.endsWith("/") ? "" : "/");
-          const absolute = res.data.qrImageUrl.startsWith("http")
-            ? res.data.qrImageUrl
-            : new URL(res.data.qrImageUrl.replace(/^\/+/, ""), base).toString();
-          const bust = `${absolute}${absolute.includes("?") ? "&" : "?"}v=${encodeURIComponent(
-            res.data.paymentRef || Date.now().toString()
-          )}`;
-          setQrUrl(bust);
-          console.log("[QR] composed URL =", bust);
+          const absolute = res.data.qrUrl.startsWith("http")
+            ? res.data.qrUrl
+            : new URL(res.data.qrUrl.replace(/^\/+/, ""), base).toString();
 
-          // debug: HEAD เช็คว่ามีจริง
-          fetch(absolute, { method: "HEAD" })
-            .then(r => console.log("[QR] HEAD status", r.status, absolute))
-            .catch(e => console.warn("[QR] HEAD error", e));
-        } else {
-          setQrUrl("");
+          finalQrUrl = `${absolute}${absolute.includes("?") ? "&" : "?"}v=${encodeURIComponent(res.data.paymentRef || Date.now().toString())}`;
+          
+          console.log("[QR] Using backend QR URL:", finalQrUrl);
+        } 
+        // 2) ถ้าไม่มี ให้สร้างเอง
+        else {
+          setIsGeneratingQR(true);
+          try {
+            const amount = Number(res.data.total || 0);
+            finalQrUrl = await generatePromptPayQR("0942439557", amount);
+            console.log("[QR] Generated local QR successfully");
+          } catch (qrError) {
+            console.error("[QR] Failed to generate QR:", qrError);
+            message.error("ไม่สามารถสร้าง QR Code ได้");
+          } finally {
+            setIsGeneratingQR(false);
+          }
         }
+
+        setQrUrl(finalQrUrl);
+        console.log("[QR] Final URL set:", finalQrUrl ? "Success" : "Failed");
+        
       } catch (e: any) {
         if (e?.name !== "CanceledError") {
+          console.error("[API] Error:", e);
           message.error(e?.response?.data?.error || "โหลดสรุปยอดไม่สำเร็จ");
         }
       }
@@ -135,6 +256,15 @@ const PaymentCheckoutPage: React.FC = () => {
     }
   };
 
+  const handleQRError = () => {
+    console.error("[QR] Image failed to load:", qrUrl);
+    message.error("ไม่สามารถโหลด QR Code ได้");
+  };
+
+  const handleQRLoad = () => {
+    console.log("[QR] Image loaded successfully:", qrUrl);
+  };
+
   return (
     <div style={{ padding: 24 }}>
       <Typography.Title level={4} style={{ marginBottom: 16 }}>
@@ -144,42 +274,11 @@ const PaymentCheckoutPage: React.FC = () => {
       {summary && (
         <Flex gap={24} align="stretch" wrap="wrap">
           <Card style={{ flex: "1 1 360px", minWidth: 360, textAlign: "center" }}>
-            {qrUrl ? (
-              <>
-                <img
-                  key={qrUrl} // บังคับ re-render เวลา URL เปลี่ยน
-                  src={qrUrl}
-                  alt="PromptPay QR"
-                  width={240}
-                  height={240}
-                  style={{ objectFit: "contain", border: "1px solid #eee", borderRadius: 8 }}
-                  crossOrigin="anonymous"
-                  referrerPolicy="no-referrer"
-                  onLoad={() => console.log("[QR] loaded OK:", qrUrl)}
-                  onError={(e) => {
-                    console.error("[QR] image onError for:", qrUrl);
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                    message.error("โหลดรูป QR ไม่สำเร็จ (ลองกดเปิดลิงก์ตรวจสอบด้านล่าง)");
-                  }}
-                />
-                <div style={{ marginTop: 8 }}>
-                  <a
-                    href={qrUrl.replace(/\?.*$/, "")}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    เปิดรูป QR ในแท็บใหม่
-                  </a>
-                  <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
-                    URL: {qrUrl}
-                  </div>
-                </div>
-              </>
-            ) : (
+            {isGeneratingQR ? (
               <div
                 style={{
-                  width: 240,
-                  height: 240,
+                  width: 300,
+                  height: 300,
                   margin: "0 auto",
                   background: "#f2f2f2",
                   display: "flex",
@@ -188,11 +287,55 @@ const PaymentCheckoutPage: React.FC = () => {
                   borderRadius: 8,
                 }}
               >
-                <span style={{ color: "#888" }}>ไม่มีรูป QR</span>
+                <span style={{ color: "#666" }}>กำลังสร้าง QR Code...</span>
+              </div>
+            ) : qrUrl ? (
+              <>
+                <img
+                  key={qrUrl} // บังคับ re-render เวลา URL เปลี่ยน
+                  src={qrUrl}
+                  alt="PromptPay QR"
+                  width={300}
+                  height={300}
+                  style={{ 
+                    objectFit: "contain", 
+                    border: "1px solid #eee", 
+                    borderRadius: 8,
+                    maxWidth: "100%"
+                  }}
+                  onLoad={handleQRLoad}
+                  onError={handleQRError}
+                />
+                <Typography.Text style={{ display: "block", marginTop: 8, fontSize: 12, color: "#666" }}>
+                  สแกน QR Code เพื่อชำระเงิน {new Intl.NumberFormat("th-TH").format(summary.total)} บาท
+                </Typography.Text>
+                {/* Debug info - ลบออกใน production */}
+                <details style={{ marginTop: 8, textAlign: "left", fontSize: 10 }}>
+                  <summary style={{ cursor: "pointer", color: "#999" }}>Debug Info</summary>
+                  <div style={{ color: "#888", wordBreak: "break-all" }}>
+                    Amount: {summary.total}<br/>
+                    QR URL: {qrUrl.substring(0, 100)}...
+                  </div>
+                </details>
+              </>
+            ) : (
+              <div
+                style={{
+                  width: 300,
+                  height: 300,
+                  margin: "0 auto",
+                  background: "#f2f2f2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 8,
+                }}
+              >
+                <span style={{ color: "#888" }}>ไม่สามารถสร้าง QR Code ได้</span>
               </div>
             )}
 
-            <Typography.Paragraph style={{ marginTop: 12 }}>
+            <Typography.Paragraph style={{ marginTop: 20 }}>
               หลักฐานการชำระ
             </Typography.Paragraph>
 
@@ -203,7 +346,7 @@ const PaymentCheckoutPage: React.FC = () => {
 
           <Card style={{ flex: "1 1 360px", minWidth: 360 }}>
             <Typography.Title level={2} style={{ textAlign: "center" }}>
-              {new Intl.NumberFormat("th-TH").format(summary.total)} THB
+              {new Intl.NumberFormat("th-TH").format(summary.total)} บาท
             </Typography.Title>
 
             <Table

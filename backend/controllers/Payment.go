@@ -233,13 +233,12 @@ func BillsSummary(c *gin.Context) {
 	
 
 	// ✅ ส่ง path รูป static กลับไป (ให้ frontend prefix ด้วย API_URL)
-    qrImageUrl := "/uploads/qr/promptpay.jpg"
 
 	c.JSON(http.StatusOK, gin.H{
 		"items":      items,
 		"total":      total,
 		"paymentRef": paymentRef,
-		"qrImageUrl": qrImageUrl, 
+		
 	})
 }
 
