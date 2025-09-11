@@ -1,37 +1,44 @@
-//การสมัครสมัคร
+// การสมัครสมัคร
 package entity
 
 import (
+	
+
+	//"golang.org/x/tools/go/analysis/unitchecker"
 	"gorm.io/gorm"
 	"time"
+	
 )
 
 
 type Enrollment struct {
 	gorm.Model
-	TitleTH  TitleNameTH
-	TFirst_Name string
-	TLast_Name    string
-	TitleENG TitleNameENG
-	EFirst_Name string
-	ELast_Name    string
-	Citizen_ID string
-	Tel string
-	DateOfBirth time.Time
-	Gender Gendertype
-	Nationality string
-	Email string
-	Religious string
-	Address string
-	Guardian string
-	Grade_ID int
-	Transcript_of_Records []byte
-	Household_Registration_Certificate []byte
-	Copy_Citizen_ID []byte
-	Student_image []byte
+	TitleID uint `gorm:"foreignKey:TitleID;not null" json:"title_id"`
+	TFirst_Name string `gorm:"not null" json:"t_first_name"`
+	TLast_Name    string `gorm:"not null" json:"t_last_name"`
+	EFirst_Name string `gorm:"not null" json:"e_first_name"`
+	ELast_Name    string `gorm:"not null" json:"e_last_name"`
+	Citizen_ID string `gorm:"not null" json:"citizen_id"`
+	Tel string `gorm:"not null" json:"tel"`
+	DateOfBirth time.Time `gorm:"not null" json:"date_of_birth"`
+	GenderID uint `gorm:"foreignKey:GenderID;not null" json:"gender_id"`
+	Nationality string `gorm:"not null" json:"nationality"`
+	Email string `gorm:"not null" json:"email"`
+	Age int `json:"age"`
+	Religious *string ` json:"religious"`
+	Address string `gorm:"not null" json:"address"`
+	Guardian string `gorm:"not null" json:"guardian"`
+	Grade_Year int `gorm:"not null" json:"grade_year"`
+	Grade_Class int `gorm:"not null" json:"grade_class"`
+	Transcript_of_Records string ` json:"transcript_of_records"`
+	Household_Registration_Certificate string ` json:"household_registration_certificate"`
+	Copy_Citizen_ID string ` json:"copy_citizen_id"`
+	Student_image string ` json:"student_image"`
 
-	AdminID uint
+	AdminID uint `json:"admin_id"`
 	Admin_User   *Admin_User `gorm:"foreignKey:AdminID"`
+
+	
 
 	Announcement []Announcement `gorm:"foreignKey:EnrollmentID"`
 }

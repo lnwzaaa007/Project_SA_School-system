@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { teacherAPI } from "../../services/https";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, Link, Navigate,Outlet } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
@@ -19,15 +19,15 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import Teacher from "../../assets/teacher.jpeg";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import Home from "../../pages/teacher/Home";
-import AttendanceRecord from "../../pages/teacher/AttendanceRecord";
-import CreateWork from "../../pages/teacher/CreateWork";
-import EnterScore from "../../pages/teacher/EnterScore";
-import ListOfStudent from "../../pages/teacher/ListOfStudent";
-import TeachProfile from "../../pages/teacher/TeachProfile";
-import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
-import EditProfile from "../../pages/teacher/TeachProfile/EditProfile";
-import CheckHomework from "../../pages/teacher/CreateWork/CheckWork";
+// import Home from "../../pages/teacher/Home";
+// import AttendanceRecord from "../../pages/teacher/AttendanceRecord";
+// import CreateWork from "../../pages/teacher/CreateWork";
+// import EnterScore from "../../pages/teacher/EnterScore";
+// import ListOfStudent from "../../pages/teacher/ListOfStudent";
+// import TeachProfile from "../../pages/teacher/TeachProfile";
+// import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
+// import EditProfile from "../../pages/teacher/TeachProfile/EditProfile";
+// import CheckHomework from "../../pages/teacher/CreateWork/CheckWork";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -254,7 +254,7 @@ const TeacherFullLayout: React.FC = () => {
                 <span>สร้างงาน</span>
               </Link>
             </Menu.Item>
-            <Menu.Item
+            {/* <Menu.Item
               key="บันทึกเข้าเรียน"
               onClick={() => setCurrentPage("บันทึกเข้าเรียน")}
               style={{ marginBottom: 8 }}
@@ -270,7 +270,7 @@ const TeacherFullLayout: React.FC = () => {
 
                 <span>บันทึกเข้าเรียน</span>
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
           </Menu>
         </Sider>
 
@@ -354,7 +354,8 @@ const TeacherFullLayout: React.FC = () => {
           <Content
             style={{
               margin: "0 5px",
-              marginTop: "60px",
+              marginTop: "80px",
+              marginLeft: "25px",
               // height: "calc(100vh - 60px)", // 64px คือความสูงของ Header
               // overflowY: "auto",            // ✅ ให้ scroll เฉพาะเนื้อหา
             }}
@@ -362,14 +363,15 @@ const TeacherFullLayout: React.FC = () => {
             <Breadcrumb style={{ margin: "16px 0" }} />
 
             <div
-              style={{
+               style={{
                 padding: 24,
                 borderRadius: "16px",
                 minHeight: "calc(100vh - 60px)",
                 background: colorBgContainer,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
             >
-              <Routes>
+              {/* <Routes>
                 <Route path="/" element={<Home />} />
                 <Route
                   path="/attendanceRecord"
@@ -383,7 +385,8 @@ const TeacherFullLayout: React.FC = () => {
                 <Route path="/profile" element={<TeachProfile />} />
                 <Route path="/profile/EditProfile" element={<EditProfile />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+              </Routes> */}
+              <Outlet/>
             </div>
           </Content>
         </Layout>

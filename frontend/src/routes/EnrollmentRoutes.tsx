@@ -17,9 +17,7 @@ const EnrollmentRoutes = (isLoggedIn: boolean): RouteObject => {
             ]
         }
     ],
-
-    
-    
+ 
   };
 };
 

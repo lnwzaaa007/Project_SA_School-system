@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { studentAPI } from "../../services/https";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, Link, Navigate,Outlet } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
@@ -11,14 +11,12 @@ import {
   EditOutlined,
   UploadOutlined,
   CreditCardOutlined,
-  MenuOutlined,
   LeftOutlined,
 } from "@ant-design/icons";
 import Studentimg from "../../assets/student.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import { Outlet } from 'react-router-dom';
 import type {StudentInterface} from "../../interfaces/Student"
 
 
@@ -50,7 +48,7 @@ const StudentFullLayout: React.FC = () => {
 
         if (res && res.student_id) {
           localStorage.setItem("grade_id", String(res.grade_id));
-          localStorage.setItem("ID", String(res.ID));
+          localStorage.setItem("IDstudent", String(res.ID));
           localStorage.setItem("student_id", String(res.student_id))
         }
         // console.log("student_id", localStorage.getItem("student_id"))

@@ -31,6 +31,9 @@ type Announcement struct {
 
 	EnrollmentID uint
 	Enrollment *Enrollment `gorm:"foreignKey:EnrollmentID" json:"enrollment"`
+
+	EnrollmentsID uint
+	Enrollments *Enrollments `gorm:"foreignKey:EnrollmentsID" json:"enrollments"`
 	Users []Users `gorm:"many2many:notifications" json:"users"` // many to many กับ Users ผ่านตาราง Notifications
 }
 func GetCurrentTime() time.Time {

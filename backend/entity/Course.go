@@ -15,13 +15,13 @@ type Course struct {
 	SubjectGroupID uint `json:"subjectGroupID"`
 	Subject_Group  *Subject_Group `gorm:"foreignKey:SubjectGroupID; references:ID"`
 
-	GradeID uint
-	Grade   *Grade `gorm:"foreignKey:GradeID" json:"grade"`
+	GradeID  uint 	`json:"grade_id"`
+	Grade   *Grade 	`gorm:"foreignKey:GradeID" json:"grade"`
 
 	TermID uint
 	Term   *Term
 
-	TeacherID uint 		`json:teacher_id`
+	TeacherID uint 		`json:"teacher_id"`
 	Teacher   *Teacher	`gorm:"foreignKey:TeacherID" json:"teacher"`
 
 	Schedules []Schedules `gorm:"foreignKey:CourseID"`

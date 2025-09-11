@@ -5,7 +5,7 @@ import SelectYear from '../../../components/SelectYear';
 import SelectTerm from '../../../components/SelectTerm';
 import CourseTable from '../../../components/CourseTable';
 import CreateCourse from './CreateCourse';
-import DeleteCourse from './Delete';
+
 import EditCourse from './edit';
 import  {courseAPI} from '../../../services/https'
 import {
@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 //import { Margin, Spa } from '@mui/icons-material';
 const Course:React.FC = () => {
-  const [SelectedTerm, setSelectedTerm] = useState<string | null>(null);
+  const [SelectedTerm, setSelectedTerm] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -41,13 +41,18 @@ const Course:React.FC = () => {
     navigate('/admin/course');
   };
   return (
-    <div style = {{
+    <div 
+    style = {{
       background:"#fff",
       minHeight:"100vh",
       marginLeft:"6px",
       marginRight:"6px",
       borderRadius:"6px",
-      }}>
+      display:"flex",
+      
+
+      }}
+    >
       
       <Col style={{
         width:'100%',
@@ -119,7 +124,7 @@ const Course:React.FC = () => {
         </div>
 
         {/* ตารางแสดงข้อมูลรายวิชา */}
-        <div style = {{height:"100px",padding:'16px',}}>
+        <div style = {{padding:'16px',display:'center'}}>
           <Divider/> 
             <CourseTable />
         </div>
@@ -134,7 +139,7 @@ const Course:React.FC = () => {
       {/* Add your schedule content here */}
       <Routes>
         <Route path='/CreateCourse' element={<CreateCourse/>}/>
-        <Route path='/DeleteCourse' element={<DeleteCourse/>}/>
+        
       </Routes>
     </div>
   );

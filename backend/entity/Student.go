@@ -32,11 +32,14 @@ type Student struct {
 	AssignmentSubmit []AssignmentSubmit `gorm:"foreignKey:StudentID" json:"assignment_submit"`
 	Bill []Bill `gorm:"foreignKey:StudentID" json:"bill"`
 
-	UsersID uint 	`json:"users_id"`
-	AddressID uint	`json:"address_id"`
-	GradeID uint   `json:"grade_id"`
-    Grade   *Grade `gorm:"foreignKey:GradeID;references:ID" json:"grade"`
+
 	TermID uint	`json:"term_id"`
 	Term   *Term `gorm:"foreignKey:TermID;references:ID" json:"semester"`
+
+	UsersID uint 	`gorm:"foreignKey:UsersID" json:"users_id"`
+	AddressID uint	`gorm:"foreignKey:AddressID" json:"address_id"`
+	GradeID uint	`json:"grade_id"`
+	Grade *Grade `gorm:"foreignKey:GradeID" json:"grade"`
+
 	
 }

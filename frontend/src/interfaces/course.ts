@@ -10,7 +10,7 @@ export interface courseInterface {
     id?:         number;
     course_name?: string;
     subject_group_id?: subjectGroupInterface;
-    // subjectGroupID?: number;
+    
     credit_num?: number;
     class_in_week?: number;
     hours_of_term?: number;
@@ -20,9 +20,20 @@ export interface courseInterface {
     // level?: string;
     // period?: number;
     teacher?: string;
-    teacherID?: number;
-    gradeID?: number;
-    termID?: number;
+    teacher_id?: number;
+    grade_id?: number;
+    term_id?: number;
     
 }
-// export inter
+export interface UpdateCoursePayload {
+  course_code?: string;
+  course_name?: string;
+  credit_num?: number;
+  teacher_id?: number;
+  subject_group_id?: number;
+  grade_class?: string;
+  grade_year?: string;
+  class_in_week?: number;
+    term_id?: number;
+    grade_id?: number;
+}
