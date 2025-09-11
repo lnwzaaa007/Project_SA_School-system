@@ -348,7 +348,7 @@ type UpdateStudentReq struct {
 	ELastName    *string   `json:"e_last_name"`
 	CitizenID    *string   `json:"citizen_id"`
 	Tel          *string   `json:"tel"`
-	DateOfBirth  *time.Time `json:"date_of_birth" time_format:"2006-01-02"`
+	DateOfBirth  *string `json:"date_of_birth" time_format:"2006-01-02"`
 	Gender       *string   `json:"gender"`
 	Nationality  *string   `json:"nationality"`
 	Email        *string   `json:"email"`

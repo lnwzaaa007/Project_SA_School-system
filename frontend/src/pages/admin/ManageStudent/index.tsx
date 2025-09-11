@@ -227,11 +227,12 @@ const onDelete = async (id: number) => {
                 <Button
                   type="primary"
                   icon={<EditOutlined />}
-                  onClick={() => navigate(`/ManageStudent/EditStudent/${record.ID}`)}
+                  onClick={() => navigate(`/admin/manageStudent/EditStudent/${record.ID}`)}
                   style={{ marginRight: 20, backgroundColor: "#fff", color: "#005e98ff", border: "1px solid #ccc" }}
                 >
                   แก้ไขข้อมูล
                 </Button>
+
                <Popconfirm
   title="ลบนักเรียนคนนี้?"
   description="การลบจะไม่สามารถย้อนกลับได้"

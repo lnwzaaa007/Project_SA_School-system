@@ -42,9 +42,12 @@ const fileToDataURL = (file: File) =>
     r.readAsDataURL(file);
   });
 
-export default function AddStudent() {
+export default function Edit() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+
+  const { id } = useParams<{ id?: string }>();
+  const editingStudentId = id ? Number(id) : undefined;
 
   // ⬅️ ดึง imageBase64 ออกมาด้วย (เอาไว้ส่งให้ backend และใช้ตอน “บันทึกรูปภาพ”)
   const { setStudent, imageBase64, setImageBase64, saveAll, saving } =
@@ -55,11 +58,6 @@ export default function AddStudent() {
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
   const previewUrlRef = useRef<string | null>(null);
-
-  // const [yearOpts, setYearOpts] = useState<{value:number,label:string}[]>([]);
-  // const [classOpts, setClassOpts] = useState<{value:number,label:string}[]>([]);
-  // const [pickedYearId, setPickedYearId] = useState<number>();
-  // const [pickedClassId, setPickedClassId] = useState<number>();
 
   const [natOpen, setNatOpen] = useState(false);
 
@@ -78,27 +76,6 @@ export default function AddStudent() {
       if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     };
   }, []);
-
-  // ดึงรายการ “ชั้น/ห้อง” ครั้งเดียวพอ
-  // useEffect(() => {
-  //     (async () => {
-  //       try {
-  //         const years = await gradeAPI.getGradesAll();    // ← years.data เป็น array
-  //         setYearOpts((years.data as any[]).map(y => ({
-  //           value: Number(y.id),
-  //           label: String(y.grade_year),
-  //         })));
-
-  //         const classes = await gradeAPI.getClassesAll(); // ← classes.data เป็น array
-  //         setClassOpts((classes.data as any[]).map(c => ({
-  //           value: Number(c.id),
-  //           label: String(c.grade_class),
-  //         })));
-  //       } catch (e: any) {
-  //         message.error(e?.message || "โหลดชั้น/ห้องไม่สำเร็จ");
-  //       }
-  //     })();
-  //   }, []);
 
   const [gradeOptions, setGradeOptions] = useState<
     { value: number; label: string }[]
@@ -122,13 +99,67 @@ export default function AddStudent() {
     })();
   }, []);
 
-  // const res = await gradeCRUD.list();
-  // console.log("grades response:", res);
+  const hydratedRef = useRef(false);
 
-  // const { setStudent } = useStudentCreate();
+  useEffect(() => {
+    if (!editingStudentId || hydratedRef.current) return;
+    hydratedRef.current = true;
+    (async () => {
+      try {
+        const res = await studentCRUD.getById(editingStudentId);
+        const s = res?.data?.data ?? res?.data;
+        if (!s) return;
 
-  const params = useParams();
-  const editingStudentId = params.id ? Number(params.id) : undefined;
+        setImageUrl(
+          `${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`
+        );
+
+        form.setFieldsValue({
+          student_id: s.student_id,
+          title_id: s.title_id,
+          t_first_name: s.t_first_name,
+          t_last_name: s.t_last_name,
+          e_first_name: s.e_first_name,
+          e_last_name: s.e_last_name,
+          citizen_id: s.citizen_id,
+          tel: s.tel,
+          date_of_birth: s.date_of_birth ? dayjs(s.date_of_birth) : undefined,
+          age: s.date_of_birth
+            ? calculateAge(new Date(s.date_of_birth))
+            : undefined,
+          gender:
+            s.gender === "หญิง"
+              ? "female"
+              : s.gender === "ชาย"
+                ? "male"
+                : undefined,
+          nationality: s.nationality,
+          email: s.email,
+          religious: s.religious,
+          grade_id: s.grade_id,
+        });
+        setStudent({
+          student_id: s.student_id,
+          title_id: s.title_id,
+          t_first_name: s.t_first_name,
+          t_last_name: s.t_last_name,
+          e_first_name: s.e_first_name,
+          e_last_name: s.e_last_name,
+          citizen_id: s.citizen_id,
+          tel: s.tel,
+          date_of_birth: s.date_of_birth, // "YYYY-MM-DD"
+          gender:
+            s.gender === "หญิง" ? "female" : s.gender === "ชาย" ? "male" : "",
+          nationality: s.nationality,
+          email: s.email,
+          religious: s.religious,
+          grade_id: s.grade_id,
+        });
+      } catch (e: any) {
+        message.error(e?.message || "โหลดข้อมูลนักเรียนไม่สำเร็จ");
+      }
+    })();
+  }, [editingStudentId]);
 
   // อัปโหลดรูป: พรีวิวทันทีด้วย objectURL + เก็บ base64 (dataURL) สำหรับส่งหลังบ้าน
   const handleUpload: UploadProps["onChange"] = async (info) => {
@@ -186,6 +217,20 @@ export default function AddStudent() {
     message.info("รูปจะถูกบันทึกเมื่อกด 'บันทึกทั้งหมด'");
     setIsEditingImage(false);
   };
+
+  //   const hydratedRef = React.useRef(false);
+  useEffect(() => {
+    if (!editingStudentId || hydratedRef.current) return;
+    hydratedRef.current = true;
+    (async () => {
+      const res = await studentCRUD.getById(editingStudentId);
+      const s = res?.data?.data ?? res?.data;
+      if (!s) return;
+      form.setFieldsValue({
+        /* ...ใส่ค่าที่โหลดมา... */
+      });
+    })();
+  }, [editingStudentId, form]);
 
   const handleSearch = (value: string) => {
     if (!value || value.includes("@")) return setOptions([]);
@@ -266,14 +311,14 @@ export default function AddStudent() {
                 onClick={async () => {
                   try {
                     await form.validateFields();
-                    const ok = await saveAll(); // ⬅️ ปรับให้ saveAll คืน boolean (ดูด้านล่าง)
+                    const ok = await saveAll(editingStudentId); // ส่ง id ตอนแก้ไข
                     if (ok) {
                       setTimeout(() => {
                         navigate("/admin/ManageStudent");
-                      }, 1500);
+                      }, 1200);
                     }
-                  } catch {
-                    /* validate fail → ไม่ navigate */
+                  } catch (e) {
+                    /* ignore */
                   }
                 }}
               >
