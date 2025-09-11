@@ -28,10 +28,28 @@ func main() {
 		// router.GET("/student/:id", controllers.GetNameStudentById)
 		router.GET("/students/schedule",controllers.GetStudentSchedule) 
 
+
 		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
 		router.PUT("/student/:id", controllers.UpdateStudent)          // แก้ไขนักเรียนตาม PK id
-		router.GET("/student/:id/image", controllers.GetStudentImage)  // ดึงรูปนักเรียน (ไบต์จาก BLOB)
-		// router.DELETE("/students/:id", control..lers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
+		// List + ค้นหา + แบ่งหน้า + กรอง
+		router.GET("/student", controllers.ListStudents)	// อ่านทีละคน (เลี่ยงชนกับ /students/:user_id เดิม)
+		router.GET("/student/:id", controllers.GetStudentByID)		// รูป (มีแล้ว / หรือใส่ตามนี้ให้ชัวร์)
+		router.GET("/student/:id/image", controllers.GetStudentImage)		
+		router.DELETE("/students/:id", controllers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
+
+		//Guardian routes ผู้ปกครอง
+		router.POST("/guardian-student", controllers.CreateGuardianProfile)
+		router.GET("/guardian-student", controllers.ListGuardiansByStudent)    // ?student_id=123
+		router.GET("/guardian-student/:id", controllers.GetGuardianLinkByID)
+		router.PUT("/guardian-student/:id", controllers.UpdateGuardianLink)
+		router.DELETE("/guardian-student/:id", controllers.DeleteGuardianLink)
+
+		// Address routes (CRUD)
+		router.POST("/addresses", controllers.CreateAddress)
+		router.GET("/addresses", controllers.ListAddresses)
+		router.GET("/addresses/:id", controllers.GetAddressByID)
+		router.PUT("/addresses/:id", controllers.UpdateAddress)
+		router.DELETE("/addresses/:id", controllers.DeleteAddress)
 
 		// Teacher routes
 		// router.GET("/teacher", controllers.GetNameTeacher)
@@ -47,6 +65,8 @@ func main() {
 		router.GET("/gradeyears", controllers.GetGradeYearAll)
 		router.GET("/gradeclasses", controllers.GetGradeClassAll)
 		router.GET("/gradeclassID", controllers.GetGradesByYearAndClass)
+
+		router.GET("/grades", controllers.ListGrades)
 
 		// New routes for terms and schedule
 		router.GET("/terms", controllers.GetTermAll)
@@ -107,6 +127,18 @@ func main() {
 		// ส่งงาน
 		router.POST("/submit-assignment", controllers.AssignmentSubmit)
 		
+		// Teacher: Education Records (คะแนนนักเรียน)
+		router.POST("/teacher/education-records", controllers.CreateEducationRecord)
+		router.PUT("/teacher/education-records/:id", controllers.UpdateEducationRecord)
+		router.DELETE("/teacher/education-records/:id", controllers.DeleteEducationRecord)
+		router.GET("/teacher/education-records/:id", controllers.GetEducationRecordByID)
+		router.GET("/teacher/education-records", controllers.ListEducationRecords)
+
+		// Student self-view: นักเรียนดูคะแนนตัวเอง
+		router.GET("/student/education-records", controllers.ListMyEducationRecords)
+		router.GET("/student/education-records/:id", controllers.GetMyEducationRecordByID)
+		router.GET("/student/education-record", controllers.GetMyEducationRecordByTermCourse)
+
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
 		router.GET("/coursesall", controllers.GetCourseAll) //ดึงข้อมูลวิชาทั้งหมด
