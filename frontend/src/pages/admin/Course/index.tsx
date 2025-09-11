@@ -5,7 +5,7 @@ import SelectYear from '../../../components/SelectYear';
 import SelectTerm from '../../../components/SelectTerm';
 import CourseTable from '../../../components/CourseTable';
 import CreateCourse from './CreateCourse';
-import DeleteCourse from './Delete';
+
 import EditCourse from './edit';
 import  {courseAPI} from '../../../services/https'
 import {
@@ -139,7 +139,7 @@ const Course:React.FC = () => {
       {/* Add your schedule content here */}
       <Routes>
         <Route path='/CreateCourse' element={<CreateCourse/>}/>
-        <Route path='/DeleteCourse' element={<DeleteCourse/>}/>
+        
       </Routes>
     </div>
   );

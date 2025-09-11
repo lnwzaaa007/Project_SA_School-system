@@ -111,6 +111,13 @@ func main() {
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
 		// router.GET("/courses/:id", controllers.GetCourseByID)
+		// router.PUT("/course/:id", controllers.UpdateCourseByID)
+		router.DELETE("/course/:id", controllers.DeleteCourseByID)
+		router.GET("/gradeclass/allwithyear", controllers.GetGradeClassAllWithYear)	
+		router.GET("/coursesall", controllers.GetCourseAll) //ดึงข้อมูลวิชาทั้งหมด
+		router.PUT("/course/:id", controllers.UpdateCourseByID)
+		router.GET("/course/:id", controllers.GetCourseByID) //ดึงข้อมูลรายวิชาตาม ID
+
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
@@ -121,11 +128,10 @@ func main() {
 
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
-		router.GET("/coursesall", controllers.GetCourseAll) //ดึงข้อมูลวิชาทั้งหมด
+
 
 		// ✅ ดาวน์โหลดตาม id
 		router.GET("/submissions/:id/download", controllers.DownloadSubmission)
-
 		// // สมัครเรียน
 		//  router.POST("/enrollments", controllers.CreateEnrollment)
 
