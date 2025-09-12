@@ -79,6 +79,7 @@ func main() {
 		router.GET("/teacher-detail",controllers.GetTeacherDetail)
 		router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
 		router.DELETE("/teacher/:id", controllers.DeleteTeacher)
+		router.PUT("/teacher/:id", controllers.UpdateTeacher) //toto
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)

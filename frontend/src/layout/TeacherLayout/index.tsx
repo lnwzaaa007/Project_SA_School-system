@@ -28,7 +28,10 @@ import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
 // import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
 // import EditProfile from "../../pages/teacher/TeachProfile/EditProfile";
 // import CheckHomework from "../../pages/teacher/CreateWork/CheckWork";
-
+// ด้านบนไฟล์ (ใต้ import)
+const API_HOST = import.meta.env.VITE_API_KEY || "http://localhost:8088";
+const toUrl = (p?: string) =>
+  p ? (/^https?:\/\//i.test(p) ? p : `${API_HOST}/${p.replace(/^\/+/, "")}`) : "";
 const { Header, Content, Footer, Sider } = Layout;
 
 const TeacherFullLayout: React.FC = () => {
@@ -331,18 +334,21 @@ const TeacherFullLayout: React.FC = () => {
               <Link to="/teacher/profile" 
                 onClick={() => setCurrentPage("ประวัติ")}
               >
-                <Tooltip title="ข้อมูลส่วนตัว" 
-                  overlayStyle={{ zIndex: 6000}}
-                >
+                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000 }}>
                   <img
-                    src={Teacher}
-                    alt="React Logo"
+                    src={teacher?.teacher_image ? toUrl(teacher.teacher_image) : Teacher}
+                    alt="รูปครู"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;           // กันลูป onError
+                      e.currentTarget.src = Teacher;            // รูป default ถ้าโหลดไม่สำเร็จ
+                    }}
                     style={{
-                      width: "40px",
-                      height: "40px",
-                      marginLeft: "8px",
-                      marginTop: `30px`,
+                      width: 40,
+                      height: 40,
+                      marginLeft: 8,
+                      marginTop: 30,
                       borderRadius: "50%",
+                      objectFit: "cover",
                     }}
                   />
                 </Tooltip>
@@ -366,7 +372,7 @@ const TeacherFullLayout: React.FC = () => {
                style={{
                 padding: 24,
                 borderRadius: "16px",
-                minHeight: "calc(100vh - 60px)",
+                minHeight: "auto",
                 background: colorBgContainer,
                 boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
