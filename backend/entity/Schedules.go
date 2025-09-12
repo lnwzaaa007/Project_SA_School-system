@@ -7,7 +7,6 @@ import (
 	// "time"
 )
 
-
 type Schedules struct {
 	gorm.Model
 

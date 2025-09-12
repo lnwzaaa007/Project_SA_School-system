@@ -454,3 +454,57 @@ export const gradeCRUD = {
     http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
 };
 
+// export const StudentAPI = {
+//   list: (params: {
+//     grade_id?: number | string;
+//     class_id?: number | string; // หรือ room_no ตามหลังบ้าน
+//     page_size?: number;
+//   }) => {
+//     const qs = new URLSearchParams();
+//     if (params.grade_id) qs.set("grade_id", String(params.grade_id));
+//     if (params.class_id) qs.set("class_id", String(params.class_id)); // ถ้าหลังบ้านใช้ room_no ให้เปลี่ยนชื่อคีย์
+//     qs.set("page_size", String(params.page_size ?? 1000));
+//     return Get(`/student?${qs.toString()}`); // ✅ ใช้ Get แทน axios.get
+//   },
+// };
+
+// export const EduRecordAPI = {
+//   list: (params: { term_id: number|string; course_id: number|string; page_size?: number }) => {
+//     const qs = new URLSearchParams();
+//     qs.set("term_id", String(params.term_id));
+//     qs.set("course_id", String(params.course_id));
+//     qs.set("page_size", String(params.page_size ?? 1000));
+//     return axios.get(`/teacher/education-records?${qs.toString()}`);
+//   },
+//   create: (payload: {
+//     term_id: number; course_id: number; teacher_id: number; student_id: number;
+//     point?: number; mid_point?: number; final_point?: number;
+//     grade_point?: number; behavior_point?: number; assign_id?: number;
+//   }) => axios.post(`/teacher/education-records`, payload),
+//   update: (id: number, payload: {
+//     point?: number; mid_point?: number; final_point?: number;
+//     grade_point?: number; behavior_point?: number; teacher_id?: number; assign_id?: number;
+//   }) => axios.put(`/teacher/education-records/${id}`, payload),
+// };
+
+export const StudentAPI = {
+  list: (params: { grade_id?: number|string; class_id?: number|string; page_size?: number }) => {
+    const qs = new URLSearchParams();
+    if (params.grade_id) qs.set("grade_id", String(params.grade_id));
+    if (params.class_id) qs.set("class_id", String(params.class_id)); // ถ้า BE ใช้ room_no ให้เปลี่ยนตรงนี้
+    qs.set("page_size", String(params.page_size ?? 1000));
+    return Get(`/student?${qs.toString()}`);
+  },
+};
+
+export const EduRecordAPI = {
+  list: (params: { term_id?: number|string; course_id?: number|string; page_size?: number }) => {
+    const qs = new URLSearchParams();
+    if (params.term_id) qs.set("term_id", String(params.term_id));
+    if (params.course_id) qs.set("course_id", String(params.course_id));
+    qs.set("page_size", String(params.page_size ?? 1000));
+    return Get(`/teacher/education-records?${qs.toString()}`);
+  },
+  create: (data: any) => Post("/teacher/education-records", data),
+  update: (id: number|string, data: any) => Update(`/teacher/education-records/${id}`, data),
+};

@@ -224,7 +224,7 @@ const StudentFullLayout: React.FC = () => {
                 <span>ผลการเรียน</span>
               </Link>
             </Menu.Item>
-            <Menu.Item
+            {/* <Menu.Item
               key="การเข้าเรียน"
               onClick={() => setCurrentPage("การเข้าเรียน")}
               style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
@@ -240,7 +240,7 @@ const StudentFullLayout: React.FC = () => {
 
                 <span>การเข้าเรียน</span>
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item
               key="ส่งงาน"
               onClick={() => setCurrentPage("ส่งงาน")}
