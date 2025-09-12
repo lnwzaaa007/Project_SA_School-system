@@ -132,7 +132,11 @@ export const Update = async (
   data: any,
   requireAuth: boolean = true
 ): Promise<AxiosResponse | any> => {
-  const config = requireAuth ? getConfig() : getConfigWithoutAuth();
+  const config = isFormData(data)
+    ? getFormConfig(requireAuth)  // ❗️อย่าตั้ง content-type เองถ้าเป็น FormData
+    : requireAuth
+    ? getConfig()
+    : getConfigWithoutAuth();
   return await axios
     .put(`${API_URL}${url}`, data, config)
     .then((res) => res.data)
@@ -188,6 +192,8 @@ export const teacherAPI = {
   getteacher :() => Get(`/teacher`),
   getTeacherDetail: (id: number | string) => Get(`/teacher-detail/${id}`),
   deleteTeacher: (id: number | string) => Delete(`/teacher/${id}`),
+  updateTeacher: (id: number | string, data: any) => Update(`/teacher/${id}`, data, true),
+  
 };
 
 export const adminAPI = {

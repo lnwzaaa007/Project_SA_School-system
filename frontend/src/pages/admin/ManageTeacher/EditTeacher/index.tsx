@@ -13,7 +13,7 @@ import SelectGender from "../../../../components/SelectGender";
 import SelectTitleENG from "../../../../components/SelectTitleENG";
 import SelectTitleTH from "../../../../components/SelectTitleTH";
 
-import { teacherAPI, AddressAPI } from "../../../../services/https";
+import { teacherAPI, AddressAPI, addressCRUD_N } from "../../../../services/https";
 
 type ValidateResult = { missing: string[]; invalid: string[]; firstId: string | null };
 
@@ -75,6 +75,7 @@ const ManageTeacher: React.FC = () => {
   const [qualification, setQualification] = useState("");
 
   // address (UI)
+  const [addressId, setAddressId] = useState<number | null>(null);
   const [addrNumber, setAddrNumber] = useState("");
   const [road, setRoad] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
@@ -135,6 +136,7 @@ const ManageTeacher: React.FC = () => {
 
         
         // address
+        setAddressId(pick(data, ["address_id", "AddressID"]) ?? null);
         setAddrNumber(pick(data, ["address_number"]) || "");
         setRoad(pick(data, ["road"]) || "");
         const prov = pick(data, ["thai_province_id"]);
@@ -253,32 +255,44 @@ const ManageTeacher: React.FC = () => {
 
   // ---------- Submit (ยังคงทำงานโหมดสร้าง/อัปเดตตามที่คุณจะต่อเพิ่ม) ----------
   const onSave = async () => {
-    const { missing, invalid, firstId } = validate();
-    if (missing.length > 0) {
-      modal.error({
-        title: "กรอกข้อมูลไม่ครบ",
-        content: <ul style={{ marginLeft: 18 }}>{missing.map((m, i) => <li key={i}>{m}</li>)}</ul>,
-        okText: "ตรวจสอบอีกครั้ง",
-        width: 560,
-      });
-      setTimeout(() => scrollAndFocus(firstId), 0);
-      return;
-    }
-    if (invalid.length > 0) {
-      modal.error({
-        title: "รูปแบบข้อมูลไม่ถูกต้อง",
-        content: <ul style={{ marginLeft: 18 }}>{invalid.map((m, i) => <li key={i}>{m}</li>)}</ul>,
-        okText: "แก้ไข",
-        width: 560,
-      });
-      setTimeout(() => scrollAndFocus(firstId), 0);
-      return;
-    }
+  const { missing, invalid, firstId } = validate();
+  if (missing.length > 0) {
+    modal.error({ title: "กรอกข้อมูลไม่ครบ", content: <ul style={{ marginLeft: 18 }}>{missing.map((m,i)=><li key={i}>{m}</li>)}</ul> });
+    setTimeout(() => scrollAndFocus(firstId), 0);
+    return;
+  }
+  if (invalid.length > 0) {
+    modal.error({ title: "รูปแบบข้อมูลไม่ถูกต้อง", content: <ul style={{ marginLeft: 18 }}>{invalid.map((m,i)=><li key={i}>{m}</li>)}</ul> });
+    setTimeout(() => scrollAndFocus(firstId), 0);
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // โหมดสร้าง (ถ้ายังไม่มี PK id) — คง logic เดิมของคุณไว้
+    // ---------- สร้าง payload ครู: เลือก JSON หรือ FormData ----------
+    const asJSON = !(teacherImage || qualImage); // ไม่มีไฟล์ -> JSON, มีไฟล์ -> multipart
+    let teacherPayload: any;
+
+    if (asJSON) {
+      teacherPayload = {
+        teacher_id: teacherId,
+        title_id: Number(titleThId),
+        t_first_name: tFirst,
+        t_last_name: tLast,
+        e_first_name: eFirst,
+        e_last_name: eLast,
+        citizen_id: citizenId,
+        tel: tel,
+        date_of_birth: (dob ?? dayjs()).format("YYYY-MM-DD"),
+        gender_id: Number(genderId),
+        nationality,
+        email,
+        religious,
+        qualification,
+        // address_id ไม่ต้องเซ็ตที่นี่ (จัดการ Address แยก)
+      };
+    } else {
       const fd = new FormData();
       fd.append("teacher_id", teacherId);
       fd.append("title_id", String(titleThId));
@@ -294,56 +308,113 @@ const ManageTeacher: React.FC = () => {
       fd.append("email", email);
       fd.append("religious", religious);
       fd.append("qualification", qualification);
-      if (teacherImage) fd.append("teacher_image", teacherImage);
-      if (qualImage) fd.append("qualification_image", qualImage);
+      if (teacherImage)     fd.append("teacher_image", teacherImage);
+      if (qualImage)        fd.append("qualification_image", qualImage);
+      teacherPayload = fd;
+    }
 
-      const resTeacher = await teacherAPI.createTeacher(fd);
-      if (!(resTeacher?.status >= 200 && resTeacher?.status < 300)) {
-        const msg =
-          resTeacher?.data?.detail ||
-          resTeacher?.data?.error ||
-          resTeacher?.data?.message ||
-          resTeacher?.statusText ||
-          "สร้างครูไม่สำเร็จ";
-        throw new Error(msg);
-      }
+    // ---------- โหมด "แก้ไข" เมื่อมี viewId ----------
+    if (viewId) {
+      // 1) อัปเดตครู
+      const up = await teacherAPI.updateTeacher(viewId, teacherPayload);
+      if (up?.error) throw new Error(up?.error || "อัปเดนครูไม่สำเร็จ");
 
-      const teacherObj = resTeacher.data?.teacher || resTeacher.data;
-      const newTeacherId: number | undefined = teacherObj?.ID ?? teacherObj?.id;
-      if (!newTeacherId) throw new Error("ไม่ได้รับรหัสครู (teacher.id) จากเซิร์ฟเวอร์");
-
-      const resAddress = await AddressAPI.createAddress({
+      // 2) อัปเดตที่อยู่ (มี addressId ถึงจะอัปเดต, ถ้าไม่มีให้สร้างใหม่)
+      const addrPayload = {
         address_number: addrNumber,
         road: road || "",
         thai_province_id: Number(selectedProvince),
         thai_district_id: Number(selectedDistrict),
         thai_subdistrict_id: Number(selectedSubdistrict),
-        teacher_id: newTeacherId,
-      });
+      };
 
-      if (!(resAddress?.status >= 200 && resAddress?.status < 300)) {
-        const msg =
-          resAddress?.data?.detail ||
-          resAddress?.data?.error ||
-          resAddress?.data?.message ||
-          resAddress?.statusText ||
-          "สร้างที่อยู่ไม่สำเร็จ";
-        throw new Error(`สร้างครูสำเร็จ แต่สร้างที่อยู่ล้มเหลว: ${msg}`);
+      if (addressId) {
+        const upAddr = await addressCRUD_N.update(addressId, addrPayload);
+        if (upAddr?.error) throw new Error(upAddr?.error || "อัปเดตที่อยู่ไม่สำเร็จ");
+      } else {
+        // เผื่อครูยังไม่มี address — ให้สร้างใหม่แล้วหลังบ้านไปผูก teacher.address_id เองตามที่คุณออกแบบไว้
+        await AddressAPI.createAddress({ ...addrPayload, teacher_id: Number(viewId) });
       }
 
       setLoading(false);
       modal.success({
-        title: "บันทึกสำเร็จ",
-        content: "ระบบได้บันทึกข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
+        title: "อัปเดตสำเร็จ",
+        content: "บันทึกการแก้ไขข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
         okText: "กลับ",
         onOk: () => navigate(-1),
         afterClose: () => navigate(-1),
       });
-    } catch (e: any) {
-      setLoading(false);
-      modal.error({ title: "บันทึกไม่สำเร็จ", content: e?.message || "เกิดข้อผิดพลาดขณะบันทึก", okText: "ปิด" });
+      return;
     }
-  };
+
+    // ---------- โหมด "สร้างใหม่" (เดิม) ----------
+    // (เหมือนเดิมทุกอย่าง)
+    const fd = new FormData();
+    fd.append("teacher_id", teacherId);
+    fd.append("title_id", String(titleThId));
+    fd.append("t_first_name", tFirst);
+    fd.append("t_last_name", tLast);
+    fd.append("e_first_name", eFirst);
+    fd.append("e_last_name", eLast);
+    fd.append("citizen_id", citizenId);
+    fd.append("tel", tel);
+    fd.append("date_of_birth", (dob ?? dayjs()).format("YYYY-MM-DD"));
+    fd.append("gender_id", String(genderId));
+    fd.append("nationality", nationality);
+    fd.append("email", email);
+    fd.append("religious", religious);
+    fd.append("qualification", qualification);
+    if (teacherImage) fd.append("teacher_image", teacherImage);
+    if (qualImage)    fd.append("qualification_image", qualImage);
+
+    const resTeacher = await teacherAPI.createTeacher(fd);
+    if (!(resTeacher?.status >= 200 && resTeacher?.status < 300)) {
+      const msg =
+        resTeacher?.data?.detail ||
+        resTeacher?.data?.error ||
+        resTeacher?.data?.message ||
+        resTeacher?.statusText ||
+        "สร้างครูไม่สำเร็จ";
+      throw new Error(msg);
+    }
+
+    const teacherObj = resTeacher.data?.teacher || resTeacher.data;
+    const newTeacherId: number | undefined = teacherObj?.ID ?? teacherObj?.id;
+    if (!newTeacherId) throw new Error("ไม่ได้รับรหัสครู (teacher.id) จากเซิร์ฟเวอร์");
+
+    const resAddress = await AddressAPI.createAddress({
+      address_number: addrNumber,
+      road: road || "",
+      thai_province_id: Number(selectedProvince),
+      thai_district_id: Number(selectedDistrict),
+      thai_subdistrict_id: Number(selectedSubdistrict),
+      teacher_id: newTeacherId,
+    });
+
+    if (!(resAddress?.status >= 200 && resAddress?.status < 300)) {
+      const msg =
+        resAddress?.data?.detail ||
+        resAddress?.data?.error ||
+        resAddress?.data?.message ||
+        resAddress?.statusText ||
+        "สร้างที่อยู่ไม่สำเร็จ";
+      throw new Error(`สร้างครูสำเร็จ แต่สร้างที่อยู่ล้มเหลว: ${msg}`);
+    }
+
+    setLoading(false);
+    modal.success({
+      title: "บันทึกสำเร็จ",
+      content: "ระบบได้บันทึกข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
+      okText: "กลับ",
+      onOk: () => navigate(-1),
+      afterClose: () => navigate(-1),
+    });
+  } catch (e: any) {
+    setLoading(false);
+    modal.error({ title: "บันทึกไม่สำเร็จ", content: e?.message || "เกิดข้อผิดพลาดขณะบันทึก", okText: "ปิด" });
+  }
+};
+
 
   return (
     <div>

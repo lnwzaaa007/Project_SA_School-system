@@ -10,6 +10,7 @@ import { Content } from 'antd/es/layout/layout';
 import ModalDelete from "../../../components/ModalDelete";
 import UploadImages from "../../../components/UploadImages";
 import TableApplyForStudy from '../../../components/TableApplyForStudy';
+import SelectGrade from "../../../components/SelectGrade";
 type SearchProps = GetProps<typeof Input.Search>;
 
 const { Search } = Input;
@@ -24,6 +25,7 @@ const suffix = (
 );
 const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value);
 const ApplyForStudy = () => {
+  const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
    
   return (
     <div style={{ padding: "20px", backgroundColor: "#ffffffff", minHeight: "100vh" }}>
@@ -54,19 +56,15 @@ const ApplyForStudy = () => {
           <Row gutter={[24, 12]} style={{ marginTop: "5px",marginBottom: "5px",}}>
             <Col xs ={24} md={6} >
               <label>ชื่อผู้สมัคร</label>
-              <Input style={{ width: "100%" }} placeholder="ค้นหาชื่อผู้สมัคร" 
+              <Input style={{ width: "100%",height:"45px"  }} placeholder="ค้นหาชื่อผู้สมัคร" 
               />
             </Col>
             <Col xs ={24} md={6}>
-              <label>ระดับชั้น</label>
-                <Select placeholder="เลือก" style={{ width: "100%",height:"45px" }}>
-                  <Option value="มัธยมศึกษาปีที่ 1">มัธยมศึกษาปีที่ 1</Option>
-                  <Option value="มัธยมศึกษาปีที่ 2">มัธยมศึกษาปีที่ 2</Option>
-                  <Option value="มัธยมศึกษาปีที่ 3">มัธยมศึกษาปีที่ 3</Option>
-                  <Option value="มัธยมศึกษาปีที่ 4">มัธยมศึกษาปีที่ 4</Option>
-                  <Option value="มัธยมศึกษาปีที่ 5">มัธยมศึกษาปีที่ 5</Option>
-                  <Option value="มัธยมศึกษาปีที่ 6">มัธยมศึกษาปีที่ 6</Option>
-                </Select>
+              <div  style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                <label>ระดับชั้น</label>
+                <SelectGrade value={selectedGrade} onChange={setSelectedGrade} />
+                </div>
+              
             </Col>
             <Col xs ={24} md={6}>
               <label>สถานะ</label>
@@ -85,7 +83,7 @@ const ApplyForStudy = () => {
             </Row>
         </div>
       </div>
-      <div style={{  marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(100vh - 60px)", width: "100%",  }}>
+      <div style={{  marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "auto", width: "100%",  }}>
         
         <TableApplyForStudy />
       </div>
