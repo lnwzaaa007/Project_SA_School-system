@@ -11,10 +11,11 @@ import {
   message,
   InputNumber,
 } from "antd";
-import { Link } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import type { Moment } from "moment";
 import moment from "moment";
 import { Get, Post, createAssignment } from "../../../services/https";
+import { useNavigate } from "react-router-dom";
 
 type Homework = {
   id: number;
@@ -36,6 +37,10 @@ const CreateWork: React.FC = () => {
   const [pointAll, setPointAll] = useState<number>(0);
   const [courses, setCourses] = useState<{ id: number; name: string }[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+
+  const location = useLocation();                      // ✅ ใช้เพื่อตรวจ path
+  const isCheckPage = location.pathname.includes("checkHomework");
+
 
   const { Title, Text } = Typography;
 
@@ -63,26 +68,26 @@ const CreateWork: React.FC = () => {
   };
 
   // โหลดการบ้านทั้งหมด
-const fetchAssignments = async () => {
-  try {
-    const res = await Get("/assignments");
-    if (Array.isArray(res.data)) {
-      setHomeworks(
-        res.data.map((hw: any) => ({
-          id: hw.ID,
-          course_name: hw.Course?.course_name || "-",
-          assignment_title: hw.assignment_title,
-          description: hw.description,
-          time_start: hw.time_start,
-          time_end: hw.time_end,
-          submit_point_all: hw.submit_Point_all ?? 0,
-        }))
-      );
+  const fetchAssignments = async () => {
+    try {
+      const res = await Get("/assignments");
+      if (Array.isArray(res.data)) {
+        setHomeworks(
+          res.data.map((hw: any) => ({
+            id: hw.ID,
+            course_name: hw.Course?.course_name || "-",
+            assignment_title: hw.assignment_title,
+            description: hw.description,
+            time_start: hw.time_start,
+            time_end: hw.time_end,
+            submit_point_all: hw.submit_Point_all ?? 0,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("❌ โหลดการบ้านผิดพลาด:", err);
     }
-  } catch (err) {
-    console.error("❌ โหลดการบ้านผิดพลาด:", err);
-  }
-};
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -126,9 +131,13 @@ const fetchAssignments = async () => {
       Modal.error({ title: "เกิดข้อผิดพลาดในการบันทึก" });
     }
   };
-
+  // <Outlet />
   return (
     <div style={{ padding: 32 }}>
+      <Outlet />
+      {/* ✅ ซ่อน UI ปกติเมื่ออยู่หน้า checkHomework */}
+      {!isCheckPage && (
+        <>
       <Title level={3}>📘 จัดการการบ้าน</Title>
 
       <Button
@@ -226,7 +235,7 @@ const fetchAssignments = async () => {
                 <Text strong>คะแนนเต็ม: {hw.submit_point_all}</Text>
               </Space>
               <div style={{ marginTop: 16 }}>
-                <Link to="checkHomework">
+                <Link to={`/teacher/createWork/checkHomework/${hw.id}`}>
                   <Button type="primary">ตรวจงาน</Button>
                 </Link>
               </div>
@@ -234,6 +243,8 @@ const fetchAssignments = async () => {
           ))
         )}
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -21,7 +21,7 @@ const TeachingSchedule = Loadable(
 );
 const EditProfile = Loadable(lazy(() => import("../pages/teacher/TeachProfile/EditProfile")));
 
-const CheckHomework = Loadable(lazy(() => import("../pages/teacher/CreateWork/CheckWork")));
+const CheckHomework = Loadable(lazy(() => import("../pages/teacher/CreateWork/CheckWork/index")));
 
 const TeacherRoutes = (isLoggedIn: boolean): RouteObject => {
   return {
@@ -39,7 +39,7 @@ const TeacherRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "enterScore", element: <EnterScore /> },
       { path: "createWork", element: <CreateWork /> ,
         children:[
-          {path: "checkHomework", element: <CheckHomework/>},
+          { path: "checkHomework/:id", element: <CheckHomework/> },
         ]},
       { path: "attendanceRecord", element: <AttendanceRecord /> },
     ],
