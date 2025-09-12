@@ -40,7 +40,7 @@ export default function WatchtStudent() {
   const editingStudentId = id ? Number(id) : undefined;
 
    // ⬅️ ดึง imageBase64 ออกมาด้วย (เอาไว้ส่งให้ backend และใช้ตอน “บันทึกรูปภาพ”)
-  const { setStudent, imageBase64, setImageBase64, saveAll, saving } = useStudentCreate();
+  const { setStudent, imageBase64, setImageBase64 } = useStudentCreate();
 
   //picture
   const [imageUrl, setImageUrl] = useState<string | null>(null);   // objectURL สำหรับพรีวิวทันที

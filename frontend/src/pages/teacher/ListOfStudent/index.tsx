@@ -3,11 +3,12 @@ import "./index.css";
 import React, { useEffect, useState } from "react";
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
-import { SearchOutlined, PlusCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
-import { Space, Table, Button, message, Popconfirm } from "antd";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { SearchOutlined, PlusCircleOutlined, EyeOutlined } from "@ant-design/icons";
+import { Space, Table, Button, message } from "antd";
+import { Link, useNavigate, useLocation , Outlet} from "react-router-dom";
 import { studentCRUD } from "../../../services/https";
 import { gradeCRUD } from "../../../services/https"; 
+//import { test     } from "../../teacher/ListOfStudent/WatchStudent/index";
 
 const { Column } = Table;
 
@@ -34,7 +35,7 @@ const TITLE_MAP: Record<number, string> = {
   6: "-",
 };
 
-const ManageStudent: React.FC = () => {
+const ListOfStudent: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [rows, setRows] = useState<DataType[]>([]);
@@ -152,31 +153,6 @@ const findGradeIdByYearRoom = (
     fetchList();
   };
 
-
-// const onDelete = async (id: number) => {
-//   try {
-//     setLoading(true);
-//     const res = await studentCRUD.remove(id);
-
-//     // ถ้าผิดพลาด helper จะคืน error.response ซึ่งมี status
-//     if (res?.status && res.status >= 400) {
-//       if (res.status === 409) {
-//         messageApi.error("ลบไม่ได้: มีข้อมูลที่อ้างอิงอยู่ (foreign key)");
-//       } else {
-//         messageApi.error(res?.data?.error || "ลบไม่สำเร็จ");
-//       }
-//       return;
-//     }
-
-//     messageApi.success("ลบสำเร็จ");
-//     await fetchList(); // โหลดใหม่เพื่อรีเลขที่ (No) ให้เรียงต่อเนื่อง
-//   } catch (e: any) {
-//     messageApi.error(e?.message || "ลบไม่สำเร็จ");
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
   return (
     <div>
       {contextHolder}
@@ -224,18 +200,21 @@ const findGradeIdByYearRoom = (
             key="action"
             render={(record: DataType) => (
               <Space size="middle">
+            
 <Button 
-icon={<EyeOutlined /> }
-onClick={() => navigate(`/admin/manageStudent/WatchStudent/${record.ID}`)}
+                  icon={<EyeOutlined /> }
+                  onClick={() => navigate(`/teacher/ListOfStudent/WatchStudent/${record.ID}`)}
                   style={{ marginRight: 20, backgroundColor: "#fff", color: "#00db12ff", border: "1px solid #ccc" }}
 ></Button>
+
               </Space>
             )}
           />
         </Table>
       </div>
+      <Outlet />
     </div>
   );
 };
 
-export default ManageStudent;
+export default ListOfStudent;

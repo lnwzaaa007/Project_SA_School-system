@@ -18,11 +18,13 @@ import (
 // ---------- View / DTO ----------
 
 type EducationRecordView struct {
-	ID            uint      `json:"id"`
-	TermID        uint      `json:"term_id"`
-	CourseID      uint      `json:"course_id"`
-	TeacherID     uint      `json:"teacher_id"`
-	StudentID     uint      `json:"student_id"`
+	ID                uint      `json:"id"`
+	TermID            uint      `json:"term_id"`
+	CourseID          uint      `json:"course_id"`
+	TeacherID         uint      `json:"teacher_id"`
+	StudentID         uint      `json:"student_id"`
+	AssignmentSubmitID uint     `json:"assign_id"`
+
 	Point         int       `json:"point"`
 	MidPoint      float32   `json:"mid_point"`
 	FinalPoint    float32   `json:"final_point"`
@@ -34,11 +36,13 @@ type EducationRecordView struct {
 
 func toEduView(r entity.EducationRecords) EducationRecordView {
 	return EducationRecordView{
-		ID:            r.ID,
-		TermID:        r.TermID,
-		CourseID:      r.CourseID,
-		TeacherID:     r.TeacherID,
-		StudentID:     r.StudentID,
+		ID:                 r.ID,
+		TermID:             r.TermID,
+		CourseID:           r.CourseID,
+		TeacherID:          r.TeacherID,
+		StudentID:          r.StudentID,
+		AssignmentSubmitID: r.AssignmentSubmitID,
+
 		Point:         r.Point,
 		MidPoint:      r.Mid_Point,
 		FinalPoint:    r.Final_Point,
@@ -52,21 +56,22 @@ func toEduView(r entity.EducationRecords) EducationRecordView {
 // ---------- Create (เพิ่ม) ----------
 
 type CreateEducationRecordReq struct {
-	TermID    uint `json:"term_id" binding:"required"`
-	CourseID  uint `json:"course_id" binding:"required"`
-	TeacherID uint `json:"teacher_id" binding:"required"`
-	StudentID uint `json:"student_id" binding:"required"`
+    TermID    uint `json:"term_id" binding:"required"`
+    CourseID  uint `json:"course_id" binding:"required"`
+    TeacherID uint `json:"teacher_id" binding:"required"`
+    StudentID uint `json:"student_id" binding:"required"`
 
-	// ค่าคะแนน (ไม่ใส่ = เริ่มที่ 0)
-	Point         *int     `json:"point"`
-	MidPoint      *float32 `json:"mid_point"`
-	FinalPoint    *float32 `json:"final_point"`
-	GradePoint    *float32 `json:"grade_point"`
-	BehaviorPoint *float32 `json:"behavior_point"`
+    AssignmentSubmitID *uint `json:"assign_id"`
+
+    Point         *int     `json:"point"          binding:"omitempty,gte=0,lte=100"`
+    MidPoint      *float32 `json:"mid_point"      binding:"omitempty,gte=0,lte=100"`
+    FinalPoint    *float32 `json:"final_point"    binding:"omitempty,gte=0,lte=100"`
+    GradePoint    *float32 `json:"grade_point"    binding:"omitempty,gte=0,lte=4"`
+    BehaviorPoint *float32 `json:"behavior_point" binding:"omitempty,gte=0,lte=100"`
 }
 
+
 // POST /teacher/education-records
-// สร้าง record ใหม่สำหรับ (term, course, student) — ถ้ามีอยู่แล้ว จะคืน 409
 func CreateEducationRecord(c *gin.Context) {
 	var req CreateEducationRecordReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -76,7 +81,7 @@ func CreateEducationRecord(c *gin.Context) {
 
 	// 🔒 กันชนกันที่คีย์ (term,course,student)
 	key := fmt.Sprintf("edurec:%d:%d:%d", req.TermID, req.CourseID, req.StudentID)
-	unlock := studentKeyLock.Lock(key)
+	unlock := studentKeyLock.Lock(key) // ถ้าไม่มีตัวแปรนี้ในโปรเจกต์ ให้คอมเมนต์ทิ้งได้
 	defer unlock()
 
 	db := config.DB()
@@ -86,6 +91,7 @@ func CreateEducationRecord(c *gin.Context) {
 		return
 	}
 
+	// กันซ้ำ (unique: term+course+student)
 	var exists entity.EducationRecords
 	if err := tx.Where("term_id = ? AND course_id = ? AND student_id = ?",
 		req.TermID, req.CourseID, req.StudentID).
@@ -104,6 +110,9 @@ func CreateEducationRecord(c *gin.Context) {
 		CourseID:  req.CourseID,
 		TeacherID: req.TeacherID,
 		StudentID: req.StudentID,
+	}
+	if req.AssignmentSubmitID != nil {
+		rec.AssignmentSubmitID = *req.AssignmentSubmitID
 	}
 	if req.Point != nil {
 		rec.Point = *req.Point
@@ -127,13 +136,12 @@ func CreateEducationRecord(c *gin.Context) {
 		return
 	}
 
-	// สร้าง mapping ใน StudentRecords (ถ้าต้องการลิงก์ไว้)
+	// ลิงก์ StudentRecords (ถ้าระบบคุณใช้)
 	link := entity.StudentRecords{
-		StudentID:          req.StudentID,
+		StudentID:          rec.StudentID,
 		EducationRecordsID: rec.ID,
 	}
 	if err := tx.Create(&link).Error; err != nil {
-		// ไม่ถือเป็น fatal ต่อผู้ใช้ แต่ rollback เพื่อความสอดคล้องของข้อมูล
 		tx.Rollback()
 		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to link student record"})
 		return
@@ -149,79 +157,55 @@ func CreateEducationRecord(c *gin.Context) {
 // ---------- Update (แก้ไข) ----------
 
 type UpdateEducationRecordReq struct {
-	// แก้คะแนนเฉพาะฟิลด์ที่ส่งมา (pointer = optional)
 	Point         *int     `json:"point"`
 	MidPoint      *float32 `json:"mid_point"`
 	FinalPoint    *float32 `json:"final_point"`
 	GradePoint    *float32 `json:"grade_point"`
 	BehaviorPoint *float32 `json:"behavior_point"`
 
-	// อนุญาตให้เปลี่ยนครูผู้สอนได้
-	TeacherID *uint `json:"teacher_id"`
+	TeacherID         *uint `json:"teacher_id"`
+	AssignmentSubmitID *uint `json:"assign_id"`
 }
 
 // PUT /teacher/education-records/:id
 func UpdateEducationRecord(c *gin.Context) {
-	id := c.Param("id")
+    id := c.Param("id")
+    db := config.DB()
 
-	var rec entity.EducationRecords
-	db := config.DB()
-	if err := db.First(&rec, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
-		return
-	}
+    var rec entity.EducationRecords
+    if err := db.First(&rec, id).Error; err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            c.JSON(http.StatusNotFound, gin.H{"error": "not found"}); return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"}); return
+    }
 
-	var req UpdateEducationRecordReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    var req UpdateEducationRecordReq
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}); return
+    }
 
-	updates := map[string]any{}
-	if req.Point != nil {
-		updates["point"] = *req.Point
-	}
-	if req.MidPoint != nil {
-		updates["mid_point"] = *req.MidPoint
-	}
-	if req.FinalPoint != nil {
-		updates["final_point"] = *req.FinalPoint
-	}
-	if req.GradePoint != nil {
-		updates["grade_point"] = *req.GradePoint
-	}
-	if req.BehaviorPoint != nil {
-		updates["behavior_point"] = *req.BehaviorPoint
-	}
-	if req.TeacherID != nil {
-		updates["teacher_id"] = *req.TeacherID
-	}
+    updates := map[string]interface{}{}
+    if req.Point != nil { updates["point"] = *req.Point }
+    if req.MidPoint != nil { updates["mid_point"] = *req.MidPoint }
+    if req.FinalPoint != nil { updates["final_point"] = *req.FinalPoint }
+    if req.GradePoint != nil { updates["grade_point"] = *req.GradePoint }
+    if req.BehaviorPoint != nil { updates["behavior_point"] = *req.BehaviorPoint }
+    if req.TeacherID != nil { updates["teacher_id"] = *req.TeacherID }
+    if req.AssignmentSubmitID != nil { updates["assignment_submit_id"] = *req.AssignmentSubmitID }
 
-	if len(updates) == 0 {
-		c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
-		return
-	}
+    if len(updates) == 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"}); return
+    }
 
-	// NOTE:
-	// ชื่อ column ใน DB คือ Point, Mid_Point, Final_Point, Grade_Point, Behavior_Point
-	// ถ้า GORM ใช้ default naming snake_case จะกลายเป็น point, mid_point, ...
-	// ถ้า schema ของคุณตั้งชื่อ column ไม่ตรง ให้เปลี่ยน key ใน updates ให้ตรง column จริง
-	if err := db.Model(&rec).Updates(updates).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+    if err := db.Model(&rec).Updates(updates).Error; err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}); return
+    }
 
-	// reload
-	if err := db.First(&rec, id).Error; err == nil {
-		c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
+    db.First(&rec, id)
+    c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
 }
+
 
 // ---------- Delete (ลบ) ----------
 
@@ -235,7 +219,7 @@ func DeleteEducationRecord(c *gin.Context) {
 		return
 	}
 
-	// ลบ mapping ใน StudentRecords ก่อน (กัน FK/ซากข้อมูล)
+	// ลบ mapping ใน StudentRecords ก่อน
 	if err := tx.Where("education_records_id = ?", id).Delete(&entity.StudentRecords{}).Error; err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -265,7 +249,12 @@ func DeleteEducationRecord(c *gin.Context) {
 func GetEducationRecordByID(c *gin.Context) {
 	id := c.Param("id")
 	var rec entity.EducationRecords
-	if err := config.DB().First(&rec, id).Error; err != nil {
+if err := config.DB().
+    Preload("Term").
+    Preload("Course").
+    Preload("Teacher").
+    Preload("Student").
+    First(&rec, id).Error; err != nil  {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
@@ -276,7 +265,7 @@ func GetEducationRecordByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
 }
 
-// GET /teacher/education-records?term_id=&course_id=&student_id=&teacher_id=&page=&page_size=
+// GET /teacher/education-records?term_id=&course_id=&student_id=&teacher_id=&assign_id=&page=&page_size=
 func ListEducationRecords(c *gin.Context) {
 	db := config.DB()
 
@@ -284,6 +273,7 @@ func ListEducationRecords(c *gin.Context) {
 	qCourse := strings.TrimSpace(c.Query("course_id"))
 	qStudent := strings.TrimSpace(c.Query("student_id"))
 	qTeacher := strings.TrimSpace(c.Query("teacher_id"))
+	qAssign := strings.TrimSpace(c.Query("assign_id"))
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 {
@@ -306,6 +296,9 @@ func ListEducationRecords(c *gin.Context) {
 	}
 	if qTeacher != "" {
 		base = base.Where("teacher_id = ?", qTeacher)
+	}
+	if qAssign != "" {
+		base = base.Where("assignment_submit_id = ?", qAssign)
 	}
 
 	var total int64
@@ -336,10 +329,9 @@ func ListEducationRecords(c *gin.Context) {
 	})
 }
 
-//Student
+// ---------- "ของฉัน" (Student) ----------
+
 func currentUserID(c *gin.Context) (uint, bool) {
-	// ปกติ middlewares.Authorizes() มัก set ค่าไว้ใน context เช่น "user_id" หรือ "id"
-	// รองรับหลายรูปแบบไว้ให้
 	if v, ok := c.Get("user_id"); ok {
 		switch x := v.(type) {
 		case uint:
@@ -348,7 +340,7 @@ func currentUserID(c *gin.Context) (uint, bool) {
 			if x >= 0 { return uint(x), true }
 		case int64:
 			if x >= 0 { return uint(x), true }
-		case float64: // JWT numeric -> float64
+		case float64:
 			if x >= 0 { return uint(x), true }
 		case string:
 			if n, err := strconv.ParseUint(x, 10, 64); err == nil {
@@ -356,7 +348,7 @@ func currentUserID(c *gin.Context) (uint, bool) {
 			}
 		}
 	}
-	if v, ok := c.Get("id"); ok { // เผื่อบางโปรเจ็กต์ใช้ key "id"
+	if v, ok := c.Get("id"); ok {
 		switch x := v.(type) {
 		case uint:
 			return x, true
@@ -383,8 +375,7 @@ func findStudentIDByUsersID(db *gorm.DB, usersID uint) (uint, error) {
 	return s.ID, nil
 }
 
-// ----- 1) รายการคะแนนของ "ฉัน" (กรอง + แบ่งหน้า) -----
-// GET /me/education-records?term_id=&course_id=&page=&page_size=
+// GET /me/education-records?term_id=&course_id=&assign_id=&page=&page_size=
 func ListMyEducationRecords(c *gin.Context) {
 	userID, ok := currentUserID(c)
 	if !ok {
@@ -405,6 +396,7 @@ func ListMyEducationRecords(c *gin.Context) {
 
 	qTerm := strings.TrimSpace(c.Query("term_id"))
 	qCourse := strings.TrimSpace(c.Query("course_id"))
+	qAssign := strings.TrimSpace(c.Query("assign_id"))
 
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if page < 1 { page = 1 }
@@ -417,6 +409,9 @@ func ListMyEducationRecords(c *gin.Context) {
 	}
 	if qCourse != "" {
 		base = base.Where("course_id = ?", qCourse)
+	}
+	if qAssign != "" {
+		base = base.Where("assignment_submit_id = ?", qAssign)
 	}
 
 	var total int64
@@ -445,7 +440,6 @@ func ListMyEducationRecords(c *gin.Context) {
 	})
 }
 
-// ----- 2) ดูคะแนนเรคอร์ดเดียวของ "ฉัน" -----
 // GET /me/education-records/:id
 func GetMyEducationRecordByID(c *gin.Context) {
 	userID, ok := currentUserID(c)
@@ -477,7 +471,6 @@ func GetMyEducationRecordByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
 }
 
-// ----- 3) (ตัวเลือก) ดูคะแนนของฉันตาม term+course ตรง ๆ -----
 // GET /me/education-record?term_id=&course_id=
 func GetMyEducationRecordByTermCourse(c *gin.Context) {
 	userID, ok := currentUserID(c)
@@ -514,4 +507,17 @@ func GetMyEducationRecordByTermCourse(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": toEduView(rec)})
+}
+
+func gradeFromTotal(t float32) float32 {
+    switch {
+    case t >= 80: return 4.0
+    case t >= 75: return 3.5
+    case t >= 70: return 3.0
+    case t >= 65: return 2.5
+    case t >= 60: return 2.0
+    case t >= 55: return 1.5
+    case t >= 50: return 1.0
+    default:      return 0.0
+    }
 }

@@ -350,7 +350,7 @@ type UpdateStudentReq struct {
 	ELastName    *string   `json:"e_last_name"`
 	CitizenID    *string   `json:"citizen_id"`
 	Tel          *string   `json:"tel"`
-	DateOfBirth  *time.Time `json:"date_of_birth" time_format:"2006-01-02"`
+	DateOfBirth  *string `json:"date_of_birth" time_format:"2006-01-02"`
 	Gender       *string   `json:"gender"`
 	Nationality  *string   `json:"nationality"`
 	Email        *string   `json:"email"`
@@ -536,7 +536,7 @@ func ListStudents(c *gin.Context) {
         ELast_Name   string
         Citizen_ID   string
         Tel          string
-        DateOfBirth  time.Time
+        DateOfBirth  string
         Gender       entity.Gendertype
         Nationality  string
         Email        string
@@ -572,7 +572,7 @@ func ListStudents(c *gin.Context) {
             TFirstName: r.TFirst_Name, TLastName: r.TLast_Name,
             EFirstName: r.EFirst_Name, ELastName: r.ELast_Name,
             CitizenID: r.Citizen_ID, Tel: r.Tel,
-            DateOfBirth: r.DateOfBirth.Format("2006-01-02"),
+            DateOfBirth: r.DateOfBirth,
             Gender: r.Gender, Nationality: r.Nationality, Email: r.Email, Religious: r.Religious,
             UsersID: r.UsersID,
         	AddressID: r.AddressID, GradeID: r.GradeID,
@@ -605,7 +605,7 @@ func GetStudentByID(c *gin.Context) {
         ELast_Name   string
         Citizen_ID   string
         Tel          string
-        DateOfBirth  time.Time
+        DateOfBirth  string
         Gender       entity.Gendertype
         Nationality  string
         Email        string
@@ -641,7 +641,7 @@ func GetStudentByID(c *gin.Context) {
         TFirstName: r.TFirst_Name, TLastName: r.TLast_Name,
         EFirstName: r.EFirst_Name, ELastName: r.ELast_Name,
         CitizenID: r.Citizen_ID, Tel: r.Tel,
-        DateOfBirth: r.DateOfBirth.Format("2006-01-02"),
+        DateOfBirth: r.DateOfBirth,
         Gender: r.Gender, Nationality: r.Nationality, Email: r.Email, Religious: r.Religious,
         UsersID: r.UsersID,
        	AddressID: r.AddressID, GradeID: r.GradeID,
