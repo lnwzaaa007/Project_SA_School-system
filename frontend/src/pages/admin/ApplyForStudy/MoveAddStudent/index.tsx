@@ -128,11 +128,94 @@ const FilePreview: React.FC<{
 
   const [loading, setLoading] = useState(false);
 
+  // ---------- Modal states ----------
+  const [showSaveConfirmModal, setShowSaveConfirmModal] = useState(false);
+
   // ---------- file path states ----------
   const [fileTranscript, setFileTranscript] = useState<string>("");
   const [fileHousehold, setFileHousehold]   = useState<string>("");
   const [fileCopyCid, setFileCopyCid]       = useState<string>("");
   const [fileImage, setFileImage]           = useState<string>("");
+
+  const [newTranscript, setNewTranscript] = useState<File | null>(null);
+  const [newHousehold, setNewHousehold]   = useState<File | null>(null);
+  const [newCopyCid, setNewCopyCid]       = useState<File | null>(null);
+  const [newImage, setNewImage]           = useState<File | null>(null);
+  
+  // แสดง Modal ยืนยันการบันทึก
+  const handleShowSaveModal = () => {
+    setShowSaveConfirmModal(true);
+  };
+
+  // ยืนยันการบันทึก
+  const handleConfirmSave = async () => {
+    setShowSaveConfirmModal(false);
+    await handleSave();
+  };
+
+  // ยกเลิกการบันทึก
+  const handleCancelSave = () => {
+    setShowSaveConfirmModal(false);
+  };
+
+  const handleSave = async () => {
+  if (!viewId) return;
+
+  try {
+    setLoading(true);
+
+    // ส่งเป็น FormData เสมอ (backend PUT รองรับทั้งข้อความ/ไฟล์)
+    const fd = new FormData();
+
+    // ใส่เฉพาะค่าาที่มีจริง เพื่อไม่ไปทับด้วยค่าว่างโดยไม่ตั้งใจ
+    const appendIf = (k: string, v: any) => {
+      if (v !== undefined && v !== null && `${v}` !== "") fd.append(k, String(v));
+    };
+
+    appendIf("title_id", thTitleId);
+    appendIf("t_first_name", thFirst);
+    appendIf("t_last_name", thLast);
+    appendIf("e_first_name", enFirst);
+    appendIf("e_last_name", enLast);
+    appendIf("citizen_id", citizenId);
+    appendIf("tel", tel);
+    appendIf("email", email);
+    appendIf("nationality", nationality);
+    // religious: ส่ง "" เพื่อล้างค่าได้ ตาม controller ที่เขียนไว้
+    fd.append("religious", religious ?? "");
+    appendIf("gender_id", genderId);
+    appendIf("grade_year", gradeYear);
+    appendIf("grade_class", gradeClass);
+    appendIf("guardian", guardian);
+    appendIf("address", address);
+
+    if (dob) {
+      fd.append("date_of_birth", dob.format("YYYY-MM-DD"));
+      // ส่ง age ไปด้วยก็ได้ แต่ถ้าเปลี่ยนวันเกิด backend จะคำนวณใหม่ให้เอง
+      if (age != null) appendIf("age", age);
+    }
+
+    // ---------- แนบไฟล์เฉพาะที่เลือกใหม่ ----------
+    if (newTranscript) fd.append("transcript_of_records", newTranscript);
+    if (newHousehold)  fd.append("household_registration_certificate", newHousehold);
+    if (newCopyCid)    fd.append("copy_citizen_id", newCopyCid);
+    if (newImage)      fd.append("student_image", newImage);
+
+    const res = await EnrollmentAPI.updateEnrollment(viewId, fd);
+
+    if (!res || (res as any).error) {
+      message.error((res as any)?.error || "อัปเดตไม่สำเร็จ");
+      return;
+    }
+    message.success("บันทึกข้อมูลสำเร็จ");
+    // กลับไปหน้าเดิม
+    navigate(-1);
+  } catch (e: any) {
+    message.error(e?.message || "อัปเดตไม่สำเร็จ");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const pick = (o: any, ...keys: string[]) => {
     for (const k of keys) if (o?.[k] !== undefined && o?.[k] !== null) return o[k];
@@ -345,30 +428,85 @@ const FilePreview: React.FC<{
   <Col xs={24} md={6}>
     <label>ปพ.1 (ไฟล์เดิม)</label>
     <div><FilePreview path={fileTranscript} /></div>
+    <div style={{ marginTop: 8 }}>
+    <input
+      type="file"
+      accept=".pdf,image/*"
+      onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}
+      disabled={loading}
+    />
+  </div>
   </Col>
 
   <Col xs={24} md={6}>
     <label>สำเนาทะเบียนบ้าน (ไฟล์เดิม)</label>
     <div><FilePreview path={fileHousehold} /></div>
+    <div style={{ marginTop: 8 }}>
+    <input
+      type="file"
+      accept=".pdf,image/*"
+      onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}
+      disabled={loading}
+    />
+  </div>
   </Col>
 
   <Col xs={24} md={6}>
     <label>สำเนาบัตรประชาชน (ไฟล์เดิม)</label>
     <div><FilePreview path={fileCopyCid} /></div>
+    <div style={{ marginTop: 8 }}>
+    <input
+      type="file"
+      accept=".pdf,image/*"
+      onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}
+      disabled={loading}
+    />
+  </div>
   </Col>
 
   <Col xs={24} md={6}>
     <label>รูปภาพนักเรียน (ไฟล์เดิม)</label>
     <div><FilePreview path={fileImage} /></div>
+    <div style={{ marginTop: 8 }}>
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => setNewImage(e.target.files?.[0] || null)}
+      disabled={loading}
+    />
+    </div>
   </Col>
 </Row>
 
-      <div style={{ display: "flex", justifyContent: "end", marginLeft: "calc(44% + 24px)" }}>
-        <Space>
-          <ModalSave />
-          <MadalCancel />
-        </Space>
-      </div>
+      {/* Modal ยืนยันการบันทึก */}
+      <Modal
+        title="ยืนยันการแก้ไข"
+        open={showSaveConfirmModal}
+        onCancel={handleCancelSave}
+        width={400}
+        footer={[
+           <Button key="confirm" type="primary" onClick={handleConfirmSave} loading={loading}>
+            ยืนยัน
+          </Button>,
+          <Button key="cancel" onClick={handleCancelSave}>
+            ยกเลิก
+          </Button>
+        ]}
+        centered
+        maskClosable={false}
+      >
+        <p>คุณต้องการแก้ไขข้อมูลนี้หรือไม่?</p>
+      </Modal>
+
+  <div style={{ display: "flex", justifyContent: "end", marginLeft: "calc(44% + 24px)" }}>
+      <Space>
+        <Button type="primary" loading={loading} onClick={handleShowSaveModal} style={{ marginTop: '16px' }}>
+          บันทึก
+        </Button>
+        <MadalCancel />
+      </Space>
+</div>
+
     </div>
   );
 };

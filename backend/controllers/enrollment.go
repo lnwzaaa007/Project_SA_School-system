@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -215,4 +216,205 @@ func DeleteEnrollment(c *gin.Context) {
 		"deleted": id,
 	})
 }
+func saveUploadedEnrollment(c *gin.Context, field, uploadDir string) (string, error) {
+	// ถ้าไม่ใช่ multipart ก็ไม่ต้องพยายามอ่านไฟล์
+	ct := c.Request.Header.Get("Content-Type")
+	if !strings.HasPrefix(ct, "multipart/form-data") {
+		return "", nil
+	}
+	f, err := c.FormFile(field)
+	if err != nil {
+		if errors.Is(err, http.ErrMissingFile) {
+			return "", nil
+		}
+		return "", err
+	}
+	if f == nil {
+		return "", nil
+	}
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		return "", err
+	}
+	name := filepath.Base(f.Filename)
+	name = field + "_" + time.Now().Format("20060102150405.000000000") + "_" + name
+	path := filepath.Join(uploadDir, name)
+	if err := c.SaveUploadedFile(f, path); err != nil {
+		return "", err
+	}
+	return strings.ReplaceAll(path, "\\", "/"), nil
+}
 
+func safeRemoveEnrollment(path string) {
+	if path == "" {
+		return
+	}
+	_ = os.Remove(filepath.Clean(path))
+}
+
+func UpdateEnrollment(c *gin.Context) {
+	id := c.Param("id")
+
+	var en entity.Enrollment
+	if err := config.DB().First(&en, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "enrollment not found"})
+		return
+	}
+
+	// ใช้ pointer fields เพื่อรู้ว่า client ส่งอะไรมาอัปเดตบ้าง
+	type Req struct {
+		TitleID     *uint   `json:"title_id"     form:"title_id"`
+		TFirstName  *string `json:"t_first_name" form:"t_first_name"`
+		TLastName   *string `json:"t_last_name"  form:"t_last_name"`
+		EFirstName  *string `json:"e_first_name" form:"e_first_name"`
+		ELastName   *string `json:"e_last_name"  form:"e_last_name"`
+		CitizenID   *string `json:"citizen_id"   form:"citizen_id"`
+		Tel         *string `json:"tel"          form:"tel"`
+		DateOfBirth *string `json:"date_of_birth" form:"date_of_birth"` // YYYY-MM-DD
+		GenderID    *uint   `json:"gender_id"    form:"gender_id"`
+		Nationality *string `json:"nationality"  form:"nationality"`
+		Email       *string `json:"email"        form:"email"`
+		Religious   *string `json:"religious"    form:"religious"`
+		Address     *string `json:"address"      form:"address"`
+		Age         *int    `json:"age"          form:"age"`
+		Guardian    *string `json:"guardian"     form:"guardian"`
+		GradeYear   *int    `json:"grade_year"   form:"grade_year"`
+		GradeClass  *int    `json:"grade_class"  form:"grade_class"`
+		AdminID     *uint   `json:"admin_id"     form:"admin_id"`
+		Status      *string `json:"status"       form:"status"`
+	}
+
+	var req Req
+	ct := c.Request.Header.Get("Content-Type")
+	if strings.HasPrefix(ct, "multipart/form-data") {
+		if err := c.ShouldBindWith(&req, binding.FormMultipart); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "bad form-data", "detail": err.Error()})
+			return
+		}
+	} else {
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "bad json", "detail": err.Error()})
+			return
+		}
+	}
+
+	// -------- map เฉพาะฟิลด์ที่ส่งมา --------
+	if req.TitleID != nil {
+		en.TitleID = *req.TitleID
+	}
+	if req.TFirstName != nil {
+		en.TFirst_Name = *req.TFirstName
+	}
+	if req.TLastName != nil {
+		en.TLast_Name = *req.TLastName
+	}
+	if req.EFirstName != nil {
+		en.EFirst_Name = *req.EFirstName
+	}
+	if req.ELastName != nil {
+		en.ELast_Name = *req.ELastName
+	}
+	if req.CitizenID != nil {
+		en.Citizen_ID = *req.CitizenID
+	}
+	if req.Tel != nil {
+		en.Tel = *req.Tel
+	}
+	if req.GenderID != nil {
+		en.GenderID = *req.GenderID
+	}
+	if req.Nationality != nil {
+		en.Nationality = *req.Nationality
+	}
+	if req.Email != nil {
+		en.Email = *req.Email
+	}
+	if req.Address != nil {
+		en.Address = *req.Address
+	}
+	if req.Guardian != nil {
+		en.Guardian = *req.Guardian
+	}
+	if req.GradeYear != nil {
+		en.Grade_Year = *req.GradeYear
+	}
+	if req.GradeClass != nil {
+		en.Grade_Class = *req.GradeClass
+	}
+	if req.AdminID != nil {
+		en.AdminID = *req.AdminID
+	}
+	if req.Religious != nil {
+		// อนุญาตให้ส่ง "" เพื่อล้างค่า
+		if strings.TrimSpace(*req.Religious) == "" {
+			en.Religious = nil
+		} else {
+			en.Religious = req.Religious
+		}
+	}
+	if req.Status != nil {
+		// ถ้าต้องการจำกัดค่าที่รับ ให้ตรวจสอบที่นี่
+		// allowed := map[string]bool{"waiting":true, "completed":true, "unsuccessful":true, "cancel":true}
+		// if !allowed[*req.Status] { ... }
+		en.Status = *req.Status
+	}
+
+	// วันเกิด + อายุ
+	if req.DateOfBirth != nil && strings.TrimSpace(*req.DateOfBirth) != "" {
+		dob, err := time.Parse("2006-01-02", *req.DateOfBirth)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "date_of_birth must be YYYY-MM-DD"})
+			return
+		}
+		en.DateOfBirth = dob
+		// คำนวณอายุใหม่ หาก client ไม่ได้ส่ง age มาเอง
+		if req.Age == nil {
+			en.Age = calcAge(dob, time.Now())
+		}
+	}
+	if req.Age != nil {
+		en.Age = *req.Age
+	}
+
+	// -------- อัปโหลดไฟล์ (เฉพาะกรณี multipart และส่งไฟล์มา) --------
+	if strings.HasPrefix(ct, "multipart/form-data") {
+		// ปพ.1
+		if p, err := saveUploadedEnrollment(c, "transcript_of_records", "uploads/transcripts"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "upload transcript_of_records failed", "detail": err.Error()})
+			return
+		} else if p != "" {
+			safeRemoveEnrollment(en.Transcript_of_Records)
+			en.Transcript_of_Records = p
+		}
+		// สำเนาทะเบียนบ้าน
+		if p, err := saveUploadedEnrollment(c, "household_registration_certificate", "uploads/households"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "upload household_registration_certificate failed", "detail": err.Error()})
+			return
+		} else if p != "" {
+			safeRemoveEnrollment(en.Household_Registration_Certificate)
+			en.Household_Registration_Certificate = p
+		}
+		// สำเนาบัตรประชาชน
+		if p, err := saveUploadedEnrollment(c, "copy_citizen_id", "uploads/citizens"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "upload copy_citizen_id failed", "detail": err.Error()})
+			return
+		} else if p != "" {
+			safeRemoveEnrollment(en.Copy_Citizen_ID)
+			en.Copy_Citizen_ID = p
+		}
+		// รูปนักเรียน
+		if p, err := saveUploadedEnrollment(c, "student_image", "uploads/images"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "upload student_image failed", "detail": err.Error()})
+			return
+		} else if p != "" {
+			safeRemoveEnrollment(en.Student_image)
+			en.Student_image = p
+		}
+	}
+
+	if err := config.DB().Save(&en).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed", "detail": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "updated", "enrollment": en})
+}

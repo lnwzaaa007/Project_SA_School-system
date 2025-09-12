@@ -225,6 +225,8 @@ func main() {
 		router.GET("/enrollment", controllers.GetEnrollment)
 		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
 		router.DELETE("/enrollment/:id", controllers.DeleteEnrollment)
+		router.PUT("/enrollment/:id", controllers.UpdateEnrollment)
+
 
 	}
 

@@ -24,12 +24,13 @@ type NameOnlyTeacher struct {
 	TLast_Name  string `json:"t_last_name"`
     Qualification string `json:"qualification"`
 	Teacher_image string `json:"teacher_image"`
+    Status        string `json:"status"` // 👈 เพิ่ม
 }
 
 func GetNameTeacher(c *gin.Context) {
 	var teacher []NameOnlyTeacher
 	if err := config.DB().
-        Raw("SELECT MIN(id) AS id, t_first_name,t_last_name,teacher_id,qualification,teacher_image FROM teachers WHERE deleted_at IS NULL  GROUP BY id ORDER BY id ASC").
+        Raw("SELECT MIN(id) AS id, t_first_name,t_last_name,teacher_id,qualification,teacher_image,status FROM teachers WHERE deleted_at IS NULL  GROUP BY id ORDER BY id ASC").
         Scan(&teacher).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
         return
@@ -306,6 +307,7 @@ type TeacherDetailResponse struct {
     ThaiProvinceID     uint   `json:"thai_province_id"`
     ThaiDistrictID     uint   `json:"thai_district_id"`
     ThaiSubdistrictID  uint   `json:"thai_subdistrict_id"`
+    Status             string `json:"status"`
 }
 
 // ✅ แทนที่ฟังก์ชันเดิมให้เลือกมาคนเดียว พร้อม address
@@ -337,6 +339,7 @@ func GetTeacherDetailById(c *gin.Context) {
         ThaiProvinceID    uint        `gorm:"column:thai_province_id"`
         ThaiDistrictID    uint        `gorm:"column:thai_district_id"`
         ThaiSubdistrictID uint        `gorm:"column:thai_subdistrict_id"`
+        Status            string
     }
 
     var r row
@@ -360,6 +363,7 @@ func GetTeacherDetailById(c *gin.Context) {
           t.teacher_image              AS teacher_image,
           t.qualification_image        AS qualification_image,
           t.address_id                 AS address_id,
+          t.status                     AS status,
           a.address_number             AS address_number,
           a.road                       AS road,
           a.thai_province_id           AS thai_province_id,
@@ -404,6 +408,7 @@ func GetTeacherDetailById(c *gin.Context) {
         ThaiProvinceID:    r.ThaiProvinceID,
         ThaiDistrictID:    r.ThaiDistrictID,
         ThaiSubdistrictID: r.ThaiSubdistrictID,
+        Status:             r.Status,
     }
     c.JSON(http.StatusOK, resp)
 }
@@ -412,7 +417,7 @@ func GetTeacherDetailById(c *gin.Context) {
 func GetTeacherDetail(c *gin.Context) {
 	var teacher []TeacherDetailResponse
 	if err := config.DB().
-        Raw("SELECT teachers.*,addresses.address_id FROM teachers inner join addresses on teachers.address_id = addresses.id ").
+        Raw("SELECT teachers.*,addresses.* FROM teachers inner join addresses on teachers.address_id = addresses.id ").
         Scan(&teacher).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
         return
@@ -516,6 +521,7 @@ func UpdateTeacher(c *gin.Context) {
         Religious     *string `json:"religious" form:"religious"`
         Qualification *string `json:"qualification" form:"qualification"`
         AddressID     *uint   `json:"address_id" form:"address_id"`
+        Status 		   *string			`json:"status" form:"status"`
     }
 
     var req UpdateReq
@@ -550,6 +556,7 @@ func UpdateTeacher(c *gin.Context) {
     if req.Religious != nil  { t.Religious   = *req.Religious }
     if req.Qualification != nil { t.Qualification = *req.Qualification }
     if req.AddressID != nil  { t.AddressID   = *req.AddressID }
+    if req.Status != nil  { t.Status   = *req.Status }
 
     if req.DateOfBirth != nil && strings.TrimSpace(*req.DateOfBirth) != "" {
         dob, err := time.Parse("2006-01-02", *req.DateOfBirth)
