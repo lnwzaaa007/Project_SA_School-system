@@ -302,7 +302,7 @@ func AddStudent(c *gin.Context) {
         Email:         email, // ใช้ตัว normalize
         Religious:     payload.Religious,
         Student_image: img,
-        UsersID:       payload.UsersID,
+        // UsersID:       payload.UsersID,
         AddressID:     payload.AddressID,
         GradeID:       payload.GradeID,
     }
@@ -332,7 +332,7 @@ func AddStudent(c *gin.Context) {
         "nationality":   s.Nationality,
         "email":         s.Email,
         "religious":     s.Religious,
-        "users_id":      s.UsersID,
+        // "users_id":      s.UsersID,
         "address_id":    s.AddressID,
         "grade_id":      s.GradeID,
         "created_at":    s.CreatedAt,
@@ -354,7 +354,7 @@ type UpdateStudentReq struct {
 	Email        *string   `json:"email"`
 	Religious    *string   `json:"religious"`
 	StudentImage *string   `json:"student_image"` // nil = ไม่แตะ, "" = ล้างรูป, อื่นๆ = ใส่ใหม่
-	UsersID      *uint     `json:"users_id"`
+	// UsersID      *uint     `json:"users_id"`
 	AddressID    *uint     `json:"address_id"`
 	GradeID      *uint     `json:"grade_id"`
 }
@@ -389,7 +389,7 @@ func UpdateStudent(c *gin.Context) {
 	if req.Nationality != nil{ updates["nationality"]  = *req.Nationality }
 	if req.Email != nil      { updates["email"]        = *req.Email }
 	if req.Religious != nil  { updates["religious"]    = *req.Religious }
-	if req.UsersID != nil    { updates["users_id"]     = *req.UsersID }
+	// if req.UsersID != nil    { updates["users_id"]     = *req.UsersID }
 	if req.AddressID != nil  { updates["address_id"]   = *req.AddressID }
 	if req.GradeID != nil    { updates["grade_id"]     = *req.GradeID }
 
@@ -466,7 +466,7 @@ type StudentView struct {
     Nationality  string            `json:"nationality"`
     Email        string            `json:"email"`
     Religious    string            `json:"religious"`
-    UsersID      uint              `json:"users_id"`
+    // UsersID      uint              `json:"users_id"`
     AddressID    uint              `json:"address_id"`
     GradeID      uint              `json:"grade_id"`
     CreatedAt    time.Time         `json:"created_at"`
@@ -486,7 +486,6 @@ func toStudentView(s entity.Student) StudentView {
         Gender: s.Gender, Nationality: s.Nationality, Email: s.Email, Religious: s.Religious,
         AddressID: s.AddressID, GradeID: s.GradeID,
         CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt,
-        UsersID: s.UsersID,
         HasImage: len(s.Student_image) > 0,
         ImageURL: fmt.Sprintf("/student/%d/image", s.ID),
     }
