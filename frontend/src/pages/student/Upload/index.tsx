@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { Form, Select, message } from 'antd';
-import { Link, Route, Routes ,Outlet} from 'react-router-dom';
+import { Form, Select, message, Card, Typography, Space, Button } from 'antd';
+import { Link, Outlet } from 'react-router-dom';
 import type { AssignmentInterface } from '../../../interfaces/Assignment';
 import { AssignmentAPI } from '../../../services/https';
-import AssignmentForm from './uploadfile';
 
 const { Option } = Select;
+const { Title, Text, Paragraph } = Typography;
 
 function Index() {
   const [courses, setCourses] = useState<{ id: number; name: string }[]>([]);
@@ -43,10 +42,8 @@ function Index() {
   const loadDetailAssign = async (courseId: number) => {
     try {
       const ress = await AssignmentAPI.getAssignments(courseId);
-      console.log("📌 API response assignments:", ress.data); // log ทั้งหมด
       if (ress.data && Array.isArray(ress.data)) {
         setDetailAssign(ress.data);
-        ress.data.forEach((assign: any) => console.log("assign.ID:", assign.ID)); // log id
       } else {
         setDetailAssign([]);
       }
@@ -57,12 +54,10 @@ function Index() {
     }
   };
 
-  // โหลดรายวิชาตอนเปิดหน้า
   useEffect(() => {
     fetchCourse();
   }, []);
 
-  // โหลดการบ้านเมื่อเลือกวิชา
   useEffect(() => {
     if (selectedCourse !== null) {
       loadDetailAssign(selectedCourse);
@@ -70,13 +65,15 @@ function Index() {
   }, [selectedCourse]);
 
   return (
-    <div>
+    <div style={{ padding: 32, maxWidth: 900, margin: '0 auto' }}>
       {contextHolder}
-      
       <Outlet />
 
-      <span style={{ color: "black", fontSize: "16px", fontWeight: "bold" }}>รายวิชา</span>
-      <Form layout="vertical" style={{ width: '30%', marginTop: '10px' }}>
+      <Title level={3} style={{ marginBottom: 20 }}>
+        📘 รายวิชา
+      </Title>
+
+      <Form layout="vertical" style={{ width: '100%', maxWidth: 400 }}>
         <Form.Item
           label="เลือกวิชา"
           name="course_id"
@@ -96,84 +93,79 @@ function Index() {
         </Form.Item>
       </Form>
 
-      <div style={{ marginTop: "30px" }}>
+      <div style={{ marginTop: 30 }}>
         {detailAssign.length > 0 ? (
-          detailAssign.map((assign, index) => {
-            console.log("assign object:", assign.ID); // log object แต่ละตัว
-            return (
-              <div
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            {detailAssign.map((assign, index) => (
+              <Card
                 key={index}
+                hoverable
                 style={{
-                  backgroundColor: "#B3E0FF",
-                  padding: "15px 20px",
-                  borderRadius: "15px",
-                  marginBottom: "15px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  borderRadius: 16,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  padding: 16,
                 }}
               >
-                <div style={{ fontSize: "20px" }}>
+                <Space
+                  direction="vertical"
+                  size="small"
+                  style={{ width: '100%' }}
+                >
+                  <Title level={4} style={{ marginBottom: 0 }}>
+                    {assign.assignment_title}
+                  </Title>
+                  <Paragraph style={{ margin: '8px 0' }}>
+                    {assign.description}
+                  </Paragraph>
+                  <Text type="secondary">
+                    📅 เริ่ม: {assign.time_start}
+                  </Text>
+                  <Text type="secondary">
+                    ⏰ สิ้นสุด: {assign.time_end}
+                  </Text>
+                  <Text strong>สถานะ: {assign.submit_status}</Text>
+
                   <div
                     style={{
-                      background: "white",
-                      height: "auto",
-                      padding: "30px",
-                      display: "inline-block",
+                      display: 'flex',
+                      gap: 12,
+                      marginTop: 16,
+                      justifyContent: 'flex-end',
                     }}
                   >
-                    <div>{assign.assignment_title}</div>
-                    <div>{assign.description}</div>
-                    <div>เริ่ม: {assign.time_start}</div>
-                    <div>สิ้นสุด: {assign.time_end}</div>
-                    <div>สถานะ: {assign.submit_status}</div>
+                    <Link to={`/student/upload/fileupload/${assign.ID}`}>
+                      <Button
+                        type="primary"
+                        style={{ borderRadius: 8 }}
+                        disabled={!selectedCourse}
+                      >
+                        ส่งงาน
+                      </Button>
+                    </Link>
+                    <Link
+                      to={`/student/upload/fileupload/${assign.ID}`}
+                      state={{ course_id: selectedCourse }}
+                    >
+                      <Button
+                        style={{
+                          backgroundColor: '#F06464',
+                          color: 'white',
+                          borderRadius: 8,
+                        }}
+                        disabled={!selectedCourse}
+                      >
+                        แก้ไข
+                      </Button>
+                    </Link>
                   </div>
-                </div>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <Link to={`/student/upload/fileupload/${assign.ID}`}>
-                    <button
-                      style={{
-                        backgroundColor: "#278FDB",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        padding: "8px 20px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                      }}
-                      disabled={!selectedCourse}
-                    >
-                      ส่งงาน
-                    </button>
-                  </Link>
-
-
-
-                  <Link
-                    to={`/student/upload/fileupload/${assign.ID}`}
-                    state={{ course_id: selectedCourse }}
-                  >
-                    <button
-                      style={{
-                        backgroundColor: "#F06464",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        padding: "8px 20px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                      }}
-                      disabled={!selectedCourse}
-                    >
-                      แก้ไข
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            );
-          })
+                </Space>
+              </Card>
+            ))}
+          </Space>
         ) : (
-          selectedCourse && <p>ไม่มีการบ้านในรายวิชานี้</p>
+          selectedCourse && (
+            <Text type="secondary">ไม่มีการบ้านในรายวิชานี้</Text>
+          )
         )}
       </div>
     </div>
