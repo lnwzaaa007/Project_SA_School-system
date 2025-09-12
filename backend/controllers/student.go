@@ -302,6 +302,7 @@ func AddStudent(c *gin.Context) {
         Email:         email, // ใช้ตัว normalize
         Religious:     payload.Religious,
         Student_image: img,
+        // UsersID:       payload.UsersID,
         // Ensure UsersID is saved from created/selected user
         UsersID:       userID,
         AddressID:     payload.AddressID,
