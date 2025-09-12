@@ -167,6 +167,10 @@ func main() {
 		router.POST("/assignments", controllers.CreateHomeWork)
 		router.GET("/assignments/:id", controllers.GetAllAssignment)
 		router.GET("/assignment/:id", controllers.GetAllAssignment)
+		// router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
+		router.GET("/assignments", controllers.ListAllAssignments)
+
+		
 		
 		
 		
@@ -208,6 +212,7 @@ func main() {
 
 		// create assignment
 		router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
+		// router.GET("/assignments/course/:course_id", controllers.GetAssignmentsByCourse)
 		
 
 
