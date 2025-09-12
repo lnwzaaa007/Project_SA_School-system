@@ -230,7 +230,7 @@ func GetSchedulesByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": responses})
 }/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+//get course by grade id
 func GetCourse(c *gin.Context) {
 code := strings.ToUpper(strings.TrimSpace(c.Param("id")))
     if code == "" {
@@ -277,7 +277,7 @@ code := strings.ToUpper(strings.TrimSpace(c.Param("id")))
 
 
 
-//ลบวิชาในคาบด้วย id shdules
+//ลบคาบในคาบด้วย id shdules
 func DeleteScheduleByID(c *gin.Context) {
 	schdule_id := c.Param("id")
 	id, err := strconv.Atoi(schdule_id)
