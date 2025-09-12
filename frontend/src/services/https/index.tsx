@@ -452,3 +452,81 @@ export const gradeCRUD = {
     http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
 };
 
+// ==== Education Records (คะแนนนักเรียน) ====
+export interface EducationRecordInterface {
+  id?: number;
+  term_id: number;
+  course_id: number;
+  teacher_id: number;
+  student_id: number;
+  point?: number;
+  mid_point?: number;
+  final_point?: number;
+  grade_point?: number;
+  behavior_point?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateEducationRecordPayload {
+  term_id: number;
+  course_id: number;
+  teacher_id: number;
+  student_id: number;
+  point?: number;
+  mid_point?: number;
+  final_point?: number;
+  grade_point?: number;
+  behavior_point?: number;
+}
+
+export interface UpdateEducationRecordPayload {
+  point?: number;
+  mid_point?: number;
+  final_point?: number;
+  grade_point?: number;
+  behavior_point?: number;
+  teacher_id?: number;
+}
+
+export interface EducationRecordListParams {
+  term_id?: number;
+  course_id?: number;
+  student_id?: number;
+  teacher_id?: number;
+  page?: number;
+  page_size?: number;
+}
+
+export const educationRecordsAPI = {
+  // GET /teacher/education-records - List all education records with filters
+  list: (params?: EducationRecordListParams) => 
+    http.get("/teacher/education-records", { params }),
+
+  // GET /teacher/education-records/:id - Get single education record
+  getById: (id: number | string) => 
+    http.get(`/teacher/education-records/${id}`),
+
+  // POST /teacher/education-records - Create new education record
+  create: (data: CreateEducationRecordPayload) => 
+    http.post("/teacher/education-records", data),
+
+  // PUT /teacher/education-records/:id - Update education record
+  update: (id: number | string, data: UpdateEducationRecordPayload) => 
+    http.put(`/teacher/education-records/${id}`, data),
+
+  // DELETE /teacher/education-records/:id - Delete education record
+  delete: (id: number | string) => 
+    http.delete(`/teacher/education-records/${id}`),
+
+  // Student self-view endpoints
+  getMyRecords: (params?: { term_id?: number; course_id?: number; page?: number; page_size?: number }) =>
+    http.get("/student/education-records", { params }),
+
+  getMyRecordById: (id: number | string) =>
+    http.get(`/student/education-records/${id}`),
+
+  getMyRecordByTermCourse: (term_id: number, course_id: number) =>
+    http.get("/student/education-record", { params: { term_id, course_id } }),
+};
+

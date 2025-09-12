@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"net/http"
-	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
-	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
+
 	"github.com/gin-gonic/gin"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/services"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,7 +15,6 @@ type LoginPayload struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-
 
 // LoginResponse token response
 type LoginResponse struct {

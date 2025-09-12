@@ -22,68 +22,67 @@ func ConnectionDB() {
 }
 
 func SetupDatabase() {
-    if db == nil {
-        ConnectionDB()
-    }
+	if db == nil {
+		ConnectionDB()
+	}
 
-    // --- เคลียร์คอลัมน์เก่าๆ ตามโค้ดเดิมของคุณ ---
-    if db.Migrator().HasColumn(&entity.Tuition{}, "bill_id") {
-        _ = db.Migrator().DropColumn(&entity.Tuition{}, "bill_id")
-    }
-    if db.Migrator().HasColumn(&entity.Bill{}, "payment_bill_id") {
-        _ = db.Migrator().DropColumn(&entity.Bill{}, "payment_bill_id")
-    }
+	// --- เคลียร์คอลัมน์เก่าๆ ตามโค้ดเดิมของคุณ ---
+	if db.Migrator().HasColumn(&entity.Tuition{}, "bill_id") {
+		_ = db.Migrator().DropColumn(&entity.Tuition{}, "bill_id")
+	}
+	if db.Migrator().HasColumn(&entity.Bill{}, "payment_bill_id") {
+		_ = db.Migrator().DropColumn(&entity.Bill{}, "payment_bill_id")
+	}
 
-    // --- AutoMigrate รอบใหญ่ (เหมือนที่คุณทำ) ---
-    if err := db.AutoMigrate(
-        &entity.Address{}, &entity.Admin_User{}, &entity.Announcement{},
-        &entity.AssignmentSubmit{}, &entity.Attendances{}, &entity.AttendanceStatus{},
-        &entity.Course{}, &entity.District{}, &entity.EducationRecords{},
-        &entity.Enrollment{}, &entity.Grade{}, &entity.Guardian{}, &entity.GuardianStudent{},
-        &entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{},
-        &entity.Subdistrict{}, &entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{},
-        &entity.Term{},
-        &entity.Tuition{},
-        &entity.Payment{},
-        &entity.Bill{},
-        &entity.Payment_Bill{},
-        &entity.Users{}, &entity.UserType{}, &entity.Zipcode{}, &entity.Notifications{}, &entity.Title{},
-    ); err != nil {
-        panic("failed to migrate database: " + err.Error())
-    }
+	// --- AutoMigrate รอบใหญ่ (เหมือนที่คุณทำ) ---
+	if err := db.AutoMigrate(
+		&entity.Address{}, &entity.Admin_User{}, &entity.Announcement{},
+		&entity.AssignmentSubmit{}, &entity.Attendances{}, &entity.AttendanceStatus{},
+		&entity.Course{}, &entity.District{}, &entity.EducationRecords{},
+		&entity.Enrollment{}, &entity.Grade{}, &entity.Guardian{}, &entity.GuardianStudent{},
+		&entity.Province{}, &entity.Schedules{}, &entity.Student{}, &entity.StudentRecords{},
+		&entity.Subdistrict{}, &entity.Subject_Group{}, &entity.Target_Group{}, &entity.Teacher{},
+		&entity.Term{},
+		&entity.Tuition{},
+		&entity.Payment{},
+		&entity.Bill{},
+		&entity.Payment_Bill{},
+		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{}, &entity.Notifications{}, &entity.Title{},
+	); err != nil {
+		panic("failed to migrate database: " + err.Error())
+	}
 
-    // --------- 🔧 ซ่อม unique เดี่ยวบน tuitions.grade_year (ครั้งเดียว) ---------
-    // พยายามดรอปชื่อ index ที่เป็นไปได้ (บางทีชื่อไม่ตรง, ขึ้นกับเวอร์ชันก่อนหน้า)
-    // ถ้าไม่พบก็ไม่เป็นไร (ignore error)
-    _ = db.Migrator().DropIndex(&entity.Tuition{}, "idx_grade_year")          // เผื่อเคยตั้งชื่อนี้
-    _ = db.Migrator().DropIndex(&entity.Tuition{}, "tuitions_grade_year")     // เผื่อ GORM ตั้งให้
-    _ = db.Migrator().DropIndex(&entity.Tuition{}, "uix_tuitions_grade_year") // เผื่อแบบอื่น
-    _ = db.Migrator().DropIndex(&entity.Tuition{}, "grade_year")              // ดรอปโดยอ้างชื่อคอลัมน์
+	// --------- 🔧 ซ่อม unique เดี่ยวบน tuitions.grade_year (ครั้งเดียว) ---------
+	// พยายามดรอปชื่อ index ที่เป็นไปได้ (บางทีชื่อไม่ตรง, ขึ้นกับเวอร์ชันก่อนหน้า)
+	// ถ้าไม่พบก็ไม่เป็นไร (ignore error)
+	_ = db.Migrator().DropIndex(&entity.Tuition{}, "idx_grade_year")          // เผื่อเคยตั้งชื่อนี้
+	_ = db.Migrator().DropIndex(&entity.Tuition{}, "tuitions_grade_year")     // เผื่อ GORM ตั้งให้
+	_ = db.Migrator().DropIndex(&entity.Tuition{}, "uix_tuitions_grade_year") // เผื่อแบบอื่น
+	_ = db.Migrator().DropIndex(&entity.Tuition{}, "grade_year")              // ดรอปโดยอ้างชื่อคอลัมน์
 
-    // ให้ GORM สร้าง composite unique (grade_year + term_id) ตามแท็กใหม่
-    _ = db.AutoMigrate(&entity.Tuition{})
+	// ให้ GORM สร้าง composite unique (grade_year + term_id) ตามแท็กใหม่
+	_ = db.AutoMigrate(&entity.Tuition{})
 
-    // 🛟 ถ้าโปรเจกต์ dev แล้วยังชนอยู่ (SQLite บางกรณีเป็น table-level unique ดรอปไม่ได้)
-    // ให้ใช้ hard reset ตาราง tuition (จะลบข้อมูล tuition ทั้งหมด):
-    // _ = db.Migrator().DropTable(&entity.Tuition{})
-    // _ = db.AutoMigrate(&entity.Tuition{})
+	// 🛟 ถ้าโปรเจกต์ dev แล้วยังชนอยู่ (SQLite บางกรณีเป็น table-level unique ดรอปไม่ได้)
+	// ให้ใช้ hard reset ตาราง tuition (จะลบข้อมูล tuition ทั้งหมด):
+	// _ = db.Migrator().DropTable(&entity.Tuition{})
+	// _ = db.AutoMigrate(&entity.Tuition{})
 
-    // --- Seeds อื่น ๆ ของคุณ (ตามเดิม) ---
-    seedDays()
-    seedTimeStart()
-    seedTimeEnd()
-    seedStudent()
-    seedTeachers()
-    seedAdmin()
-    seedUserType()
-    seedGrade()
-    seedTerm()
-    seedUsers()
-    seedProvince()
-    seedSubjectGroup()
-    seedTargetGroup(db)
+	// --- Seeds อื่น ๆ ของคุณ (ตามเดิม) ---
+	seedDays()
+	seedTimeStart()
+	seedTimeEnd()
+	seedStudent()
+	seedTeachers()
+	seedAdmin()
+	seedUserType()
+	seedGrade()
+	seedTerm()
+	seedUsers()
+	seedProvince()
+	seedSubjectGroup()
+	seedTargetGroup(db)
 }
-
 
 // func SetupDatabase() {
 // 	if db == nil {
@@ -116,7 +115,7 @@ func SetupDatabase() {
 // 		&entity.Payment_Bill{}, // ตารางเชื่อม (อ้าง payment + bill)
 // 		&entity.Users{}, &entity.UserType{}, &entity.Zipcode{}, &entity.Notifications{}, &entity.Title{},
 // 	)
-	
+
 // 	if err != nil {
 // 		panic("failed to migrate database: " + err.Error())
 // 	}
@@ -137,6 +136,5 @@ func SetupDatabase() {
 // 	// seedCourses()
 // 	seedSubjectGroup()
 // 	seedTargetGroup(db)
-	
-// }
 
+// }
