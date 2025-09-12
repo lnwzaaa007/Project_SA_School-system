@@ -317,9 +317,14 @@ export const DistrictAPI ={
 export const AssignmentAPI = {
   getCourses: () => Get(`/courses`),
   getAssignments: (id:number) => Get(`/assignments/${id}`),
-  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
-  
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`), 
 
+}
+
+export async function submitAssignment(fd: FormData) {
+  const res = await fetch("http://localhost:8088/submit-assignment", { method: "POST", body: fd });
+  if (!res.ok) throw new Error(`Submit failed ${res.status}`);
+  return res.json();
 }
 
 export const GetBinary = async (
@@ -401,56 +406,41 @@ export const guardianCRUD = {
 // services/https (เฉพาะส่วน Address)
 
 type CreateAddressPayload = {
-  address_number: string | number; // รองรับ FlexString ของหลังบ้าน
+  address_number: string | number;
   road?: string;
-  // ส่งอย่างใดอย่างหนึ่งก็ได้: แนะนำส่ง thai_* ตรงๆ
   thai_province_id?: number;
   thai_district_id?: number;
   thai_subdistrict_id?: number;
 
-  // เผื่อ FE เก่าส่งแบบนี้มา — จะถูกแมพเป็น thai_*
+  // alias จากฟอร์มเก่า (จะถูกแมพเป็น thai_*)
   province_id?: number;
   district_id?: number;
   subdistrict_id?: number;
 };
-
 type UpdateAddressPayload = Partial<CreateAddressPayload>;
 
-// แปลง payload ให้เป็น thai_* เสมอ
 const normalizeAddressPayload = (data: CreateAddressPayload | UpdateAddressPayload) => {
   const out: any = { ...data };
-
-  out.thai_province_id   = out.thai_province_id   ?? out.province_id;
-  out.thai_district_id   = out.thai_district_id   ?? out.district_id;
-  out.thai_subdistrict_id= out.thai_subdistrict_id?? out.subdistrict_id;
-
-  // ลบ alias เก่าออกเพื่อความสะอาด (ไม่บังคับ)
-  delete out.province_id;
-  delete out.district_id;
-  delete out.subdistrict_id;
-
+  out.thai_province_id    = out.thai_province_id    ?? out.province_id;
+  out.thai_district_id    = out.thai_district_id    ?? out.district_id;
+  out.thai_subdistrict_id = out.thai_subdistrict_id ?? out.subdistrict_id;
+  delete out.province_id; delete out.district_id; delete out.subdistrict_id;
   return out;
 };
 
 export const addressCRUD_N = {
-  // POST /addresses
   create: (data: CreateAddressPayload) =>
     Post("/addressesN", normalizeAddressPayload(data)),
 
-  // GET /addresses  (รองรับส่ง query string เดิม)
   list: (qs = "") => Get(`/addressesN${qs ? `?${qs}` : ""}`),
 
-  // GET /addresses/:id  ← ใช้ได้ต่อเมื่อเปิด route นี้แล้ว
   get: (id: number | string) => Get(`/addressesN/${id}`),
 
-  // PUT /addresses/:id
   update: (id: number | string, data: UpdateAddressPayload) =>
     Update(`/addressesN/${id}`, normalizeAddressPayload(data)),
 
-  // DELETE /addresses/:id
   delete: (id: number | string) => Delete(`/addressesN/${id}`),
 };
-
 
 
 export const gradeCRUD = {

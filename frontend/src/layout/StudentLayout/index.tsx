@@ -264,7 +264,7 @@ const StudentFullLayout: React.FC = () => {
               style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
-                to="/student/payment"
+                to="/student/payments"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
                   marginTop: `3px`,

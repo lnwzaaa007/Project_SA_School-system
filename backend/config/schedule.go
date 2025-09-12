@@ -23,8 +23,6 @@ func seedDays() {
 		{ThaiDay: "พุธ", EngDay: "Wednesday"},
 		{ThaiDay: "พฤหัสบดี", EngDay: "Thursday"},
 		{ThaiDay: "ศุกร์", EngDay: "Friday"},
-		{ThaiDay: "เสาร์", EngDay: "Saturday"},
-		{ThaiDay: "อาทิตย์", EngDay: "Sunday"},
 	})
 }
 
@@ -64,18 +62,6 @@ func seedTimeEnd() {
 func seedTerm() {
 	db.Model(&entity.Term{}).Create([]entity.Term{
 		{
-			Academic_year: 2566,
-			Semester:      1,
-			Start_date:    time.Date(2023, 5, 15, 0, 0, 0, 0, time.Local),
-			End_date:      time.Date(2023, 9, 30, 0, 0, 0, 0, time.Local),
-		},
-		{
-			Academic_year: 2566,
-			Semester:      2,
-			Start_date:    time.Date(2023, 11, 1, 0, 0, 0, 0, time.Local),
-			End_date:      time.Date(2024, 3, 31, 0, 0, 0, 0, time.Local),
-		},
-		{
 			Academic_year: 2567,
 			Semester:      1,
 			Start_date:    time.Date(2024, 5, 15, 0, 0, 0, 0, time.Local),
@@ -98,6 +84,18 @@ func seedTerm() {
 			Semester:      2,
 			Start_date:    time.Date(2025, 11, 1, 0, 0, 0, 0, time.Local),
 			End_date:      time.Date(2026, 3, 31, 0, 0, 0, 0, time.Local),
+		},
+		{
+			Academic_year: 2569,
+			Semester:      1,
+			Start_date:    time.Date(2026, 5, 15, 0, 0, 0, 0, time.Local),
+			End_date:      time.Date(2026, 9, 30, 0, 0, 0, 0, time.Local),
+		},
+		{
+			Academic_year: 2569,
+			Semester:      2,
+			Start_date:    time.Date(2026, 11, 1, 0, 0, 0, 0, time.Local),
+			End_date:      time.Date(2027, 3, 31, 0, 0, 0, 0, time.Local),
 		},
 	})
 }
