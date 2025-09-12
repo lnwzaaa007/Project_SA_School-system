@@ -55,14 +55,15 @@ func CreateHomeWork(c *gin.Context) {
 	}
 
 	// ✅ แก้ validation: เช็ค TimeEnd ให้ถูกฟิลด์
+	
 	if assignment.Assignment_title == "" ||
-		assignment.Description == "" ||
-		assignment.TimeStart.IsZero() ||
-		assignment.TimeEnd.IsZero() ||
-		assignment.Submit_Point_all == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณากรอกข้อมูลให้ครบถ้วน"})
-		return
-	}
+   assignment.Description == "" ||
+   assignment.TimeStart.IsZero() ||
+   assignment.TimeEnd.IsZero() ||
+   assignment.Submit_Point_all == 0 {
+   c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณากรอกข้อมูลให้ครบถ้วน"})
+   return
+}
 
 	if err := config.DB().Create(&assignment).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
