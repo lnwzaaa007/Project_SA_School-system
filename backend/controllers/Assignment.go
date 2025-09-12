@@ -234,13 +234,25 @@ func AssignmentSubmit(c *gin.Context) {
 }
 
 func GetSubmissionsByAssignment(c *gin.Context) {
-    courseID := c.Param("course_id")
-    var subs []entity.AssignmentSubmit
+    // รองรับทั้ง :course_id หรือ :assignment_id ที่กำหนดไว้ใน router เดิม
+    id := c.Param("course_id")
+    if id == "" {
+        id = c.Param("assignment_id")
+    }
 
-    if err := config.DB().
-        Preload("Student").
-        Where("course_id = ? AND submit_status = ?", courseID, entity.Submitted).
-        Find(&subs).Error; err != nil {
+    // ตัวเลือก filter ตามนักเรียนคนใดคนหนึ่ง
+    studentID := strings.TrimSpace(c.Query("student_id"))
+
+    db := config.DB().Preload("Student")
+    db = db.Where("course_id = ?", id)
+    // แสดงทั้งที่ส่งแล้วและตรวจแล้ว
+    db = db.Where("submit_status IN ?", []entity.Submit_status{entity.Submitted, entity.Success})
+    if studentID != "" {
+        db = db.Where("student_id = ?", studentID)
+    }
+
+    var subs []entity.AssignmentSubmit
+    if err := db.Find(&subs).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลการส่งงานได้"})
         return
     }

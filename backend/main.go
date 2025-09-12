@@ -173,7 +173,7 @@ func main() {
 		//ตรวจการบ้าน
 		router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScore)
 
-		router.GET("/assignments/submissions/:assignment_id", controllers.GetSubmissionsByAssignment)
+		router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignment)
 
 		
 		

@@ -211,17 +211,23 @@
 // };
 
 // export default CheckHomework;
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Table, Button, Tag, Input, Modal, message } from "antd";
+import { Table, Button, Tag, Input, Modal, message, Tabs, Spin, Select } from "antd";
 import axios from "axios";
 
 type StudentItem = {
-  id: number;
+  id: number; // submission ID
+  studentId: number;
   name: string;
   file: string;
-  status: string;
+  status: string; // local: 'pending' | 'checked'
   score: number | null;
+};
+
+type CourseItem = {
+  id: number;
+  name: string;
 };
 
 const statusMap: Record<string, { color: string; text: string }> = {
@@ -230,10 +236,14 @@ const statusMap: Record<string, { color: string; text: string }> = {
 };
 
 const CheckHomework: React.FC = () => {
-  const { id: homeworkId } = useParams(); // ✅ id คือ assignment id
+  const { id: routeId } = useParams(); // ใช้เป็นค่าเริ่มต้นของ course id ถ้ามี
+  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [activeCourseId, setActiveCourseId] = useState<number | null>(null);
   const [studentList, setStudentList] = useState<StudentItem[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<number | null>(null);
   const [score, setScore] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [filterStudentId, setFilterStudentId] = useState<number | null>(null);
 
   // ✅ เปิด modal ตรวจงาน
   const handleCheck = (studentId: number) => {
@@ -243,18 +253,13 @@ const CheckHomework: React.FC = () => {
 
   // ✅ บันทึกคะแนนและสถานะ
   const handleSubmitScore = async () => {
-    if (!selectedStudent || !homeworkId) return;
+    if (!selectedStudent) return;
 
     try {
       await axios.put(
         `http://localhost:8088/submissions/${selectedStudent}/score`,
-        {
-          assignment_id: homeworkId,
-          score: Number(score),
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { score: Number(score) },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
 
       // อัปเดตใน state ทันที
@@ -275,39 +280,82 @@ const CheckHomework: React.FC = () => {
     }
   };
 
-  // ✅ โหลดข้อมูลนักเรียนที่ส่งงานจากฐานข้อมูล
-  const fetchStudentSubmissions = async () => {
-    if (!homeworkId) return;
+  // ✅ โหลดรายวิชาของครู
+  const fetchCourses = async () => {
+    try {
+      const teacherId = localStorage.getItem("ID");
+      if (!teacherId) {
+        message.error("ไม่พบข้อมูลครู (ID)");
+        return;
+      }
+      const res = await axios.get(
+        `http://localhost:8088/courses/teacher/${teacherId}`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      const list: CourseItem[] = (res.data?.data || []).map((c: any) => ({
+        id: c.ID,
+        name: c.course_name,
+      }));
+      setCourses(list);
+      // ตั้งค่าแท็บเริ่มต้น: จาก route หรือ course แรก
+      const initialId = Number(routeId) || (list[0]?.id ?? null);
+      setActiveCourseId(initialId || null);
+    } catch (err) {
+      console.error("❌ โหลดรายวิชาล้มเหลว:", err);
+      message.error("โหลดรายวิชาล้มเหลว");
+    }
+  };
+
+  // ✅ โหลดข้อมูลนักเรียนที่ส่งงานของรายวิชา
+  const fetchStudentSubmissions = async (courseId: number, studentId?: number | null) => {
+    if (!courseId) return;
 
     try {
-      const res = await axios.get(
-        `http://localhost:8088/assignments/submissions/${homeworkId}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      setLoading(true);
+      const url = `http://localhost:8088/assignments/submissions/${courseId}` + (studentId ? `?student_id=${studentId}` : "");
+      const res = await axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
 
-      const list: StudentItem[] = res.data.data.map((item: any) => ({
-        id: item.student_id,
-        name: `${item.Student.first_name} ${item.Student.last_name}`,
-        file: item.assignment_file,
-        status: item.submit_status || "pending",
-        score: item.score ?? null,
-      }));
+      const list: StudentItem[] = (res.data?.data || []).map((item: any) => {
+        const score = item.submit_Point ?? item.submit_point ?? null;
+        const first = item.Student?.first_name || item.student?.first_name || "";
+        const last = item.Student?.last_name || item.student?.last_name || "";
+        const isChecked = item.submit_status === "Success" || item.submit_status === "สำเร็จ" || score !== null; // กันเหนียวเรื่องข้อความสถานะ
+        return {
+          id: item.ID, // ใช้ submission ID สำหรับอัปเดตคะแนน
+          studentId: item.student_id || item.StudentID || 0,
+          name: `${first} ${last}`.trim(),
+          file: item.assignment_file,
+          status: isChecked ? "checked" : "pending",
+          score: score,
+        };
+      });
 
       setStudentList(list);
     } catch (err) {
       console.error("❌ โหลดข้อมูลนักเรียนล้มเหลว:", err);
       message.error("โหลดข้อมูลนักเรียนล้มเหลว");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchStudentSubmissions();
-  }, [homeworkId]);
+    fetchCourses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (activeCourseId) fetchStudentSubmissions(activeCourseId, filterStudentId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCourseId, filterStudentId]);
 
   const columns = [
-    { title: "ลำดับ", dataIndex: "id", key: "id", align: "center" as const },
+    {
+      title: "ลำดับ",
+      key: "index",
+      align: "center" as const,
+      render: (_: any, __: StudentItem, index: number) => index + 1,
+    },
     { title: "ชื่อ", dataIndex: "name", key: "name", align: "center" as const },
     {
       title: "ไฟล์แนบ",
@@ -353,18 +401,49 @@ const CheckHomework: React.FC = () => {
     },
   ];
 
-  const student = studentList.find((s) => s.id === selectedStudent);
+  const student = useMemo(
+    () => studentList.find((s) => s.id === selectedStudent),
+    [studentList, selectedStudent]
+  );
 
   return (
     <div style={{ padding: 32 }}>
-      <h2>ตรวจการบ้าน: {homeworkId}</h2>
-      <Table
-        columns={columns}
-        dataSource={studentList}
-        pagination={false}
-        rowKey="id"
-        bordered
-      />
+      <h2>ตรวจการบ้าน แยกตามวิชา</h2>
+
+      <div style={{ marginBottom: 16 }}>
+        {courses.length === 0 ? (
+          <div>ไม่พบรายวิชาของครู</div>
+        ) : (
+          <Tabs
+            activeKey={activeCourseId ? String(activeCourseId) : undefined}
+            onChange={(key) => setActiveCourseId(Number(key))}
+            items={courses.map((c) => ({ key: String(c.id), label: c.name }))}
+          />
+        )}
+      </div>
+
+      <div style={{ marginBottom: 16, maxWidth: 360 }}>
+        <Select
+          allowClear
+          placeholder="กรองตามนักเรียนในวิชานี้"
+          value={filterStudentId as any}
+          onChange={(val) => setFilterStudentId(val ?? null)}
+          style={{ width: "100%" }}
+          options={Array.from(
+            new Map(studentList.map((s) => [s.studentId, { value: s.studentId, label: s.name }])).values()
+          )}
+        />
+      </div>
+
+      <Spin spinning={loading}>
+        <Table
+          columns={columns}
+          dataSource={studentList}
+          pagination={false}
+          rowKey="id"
+          bordered
+        />
+      </Spin>
 
       <Modal
         open={selectedStudent !== null}
