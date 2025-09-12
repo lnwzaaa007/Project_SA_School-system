@@ -170,6 +170,11 @@ func main() {
 		// router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
 		router.GET("/assignments", controllers.ListAllAssignments)
 
+		//ตรวจการบ้าน
+		router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScore)
+
+		router.GET("/assignments/submissions/:assignment_id", controllers.GetSubmissionsByAssignment)
+
 		
 		
 		

@@ -232,3 +232,53 @@ func AssignmentSubmit(c *gin.Context) {
 		"file_url": "/" + relPath, // เช่น /uploads/assignments/_noCourse/_noStudent/<uuid>_file.pdf
 	})
 }
+
+func GetSubmissionsByAssignment(c *gin.Context) {
+    courseID := c.Param("course_id")
+    var subs []entity.AssignmentSubmit
+
+    if err := config.DB().
+        Preload("Student").
+        Where("course_id = ? AND submit_status = ?", courseID, entity.Submitted).
+        Find(&subs).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลการส่งงานได้"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": subs})
+}
+
+// ✅ บันทึกคะแนนและสถานะตรวจแล้ว
+func UpdateSubmissionScore(c *gin.Context) {
+    submissionID := c.Param("id")
+
+    // ข้อมูลที่รับจาก frontend
+    var payload struct {
+        Score float32 `json:"score"`
+    }
+    if err := c.ShouldBindJSON(&payload); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ถูกต้อง"})
+        return
+    }
+
+    // หา record ตาม ID
+    var sub entity.AssignmentSubmit
+    if err := config.DB().First(&sub, submissionID).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูล"})
+        return
+    }
+
+    // ✅ อัปเดตคะแนนและสถานะ
+    sub.Submit_Point = payload.Score
+    sub.Submit_status = entity.Success // ใช้ enum Success = "ตรวจแล้ว"
+
+    if err := config.DB().Save(&sub).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกคะแนนล้มเหลว"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "message": "อัปเดตคะแนนสำเร็จ",
+        "data":    sub,
+    })
+}
