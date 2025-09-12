@@ -53,14 +53,16 @@ const ManageTeacher: React.FC = () => {
   const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
   const onlyDigits = (v: string) => /^\d+$/.test(v);
   const phoneOk = (v: string) => onlyDigits(v) && v.length >= 9 && v.length <= 10;
-  const thaiCidOk = (id: string) => {
-    const s = id.replace(/\D/g, "");
-    if (s.length !== 13) return false;
-    // let sum = 0;
-    // for (let i = 0; i < 12; i++) sum += parseInt(s[i], 10) * (13 - i);
-    // const check = (11 - (sum % 11)) % 10;
-    // return check === parseInt(s[12], 10);
-  };
+  // const thaiCidOk = (id: string) => {
+  //   const s = id.replace(/\D/g, "");
+  //   if (s.length !== 13) return false;
+  //   let sum = 0;
+  //   for (let i = 0; i < 12; i++) sum += parseInt(s[i], 10) * (13 - i);
+  //   const check = (11 - (sum % 11)) % 10;
+  //   return check === parseInt(s[12], 10);
+  // };
+  const thaiCidOk = (id: string) => id.replace(/\D/g, "").length === 13;
+
 
   const validate = (): ValidateResult => {
     const missing: string[] = [];
