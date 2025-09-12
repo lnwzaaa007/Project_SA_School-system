@@ -123,7 +123,42 @@ func CreateSchedule(c *gin.Context) {
 		return
 	}
 
-	// 6) บันทึก
+	
+
+	// 6) ตรวจจำนวนคาบต่อสัปดาห์ของรายวิชา (Class_in_week)
+	var course entity.Course
+	if err := db.First(&course, s.CourseID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบรายวิชานี้ในระบบ"})
+		return
+	}
+
+	if course.Class_in_week > 0 { // ถ้ากำหนดจำนวนคาบต่อสัปดาห์ไว้ ให้ตรวจสอบ
+		var existing []entity.Schedules
+		if err := db.Where("term_id = ? AND grade_id = ? AND course_id = ?", s.TermID, s.GradeID, s.CourseID).
+			Find(&existing).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "ตรวจสอบจำนวนคาบต่อสัปดาห์ล้มเหลว"})
+			return
+		}
+
+		used := 0
+		for _, ex := range existing {
+			// 1 คาบ = 1 ช่วงเวลา เช่น 08:40-09:30 ดังนั้นจำนวนคาบ = time_end_id - time_start_id
+			if ex.TimeEndID > ex.TimeStartID {
+				used += int(ex.TimeEndID - ex.TimeStartID)
+			}
+		}
+		newSlots := int(s.TimeEndID - s.TimeStartID)
+		if used+newSlots > course.Class_in_week {
+			remaining := course.Class_in_week - used
+			if remaining < 0 { // กันกรณีข้อมูลเดิมเกินอยู่แล้ว
+				remaining = 0
+			}
+			c.JSON(http.StatusConflict, gin.H{"error": "เกินจำนวนคาบต่อสัปดาห์ของวิชานี้", "allowed": course.Class_in_week, "used": used, "remaining": remaining})
+			return
+		}
+	}
+
+	// 7) บันทึก
 	if err := db.Create(&s).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถบันทึกตารางเรียนได้"})
 		return
