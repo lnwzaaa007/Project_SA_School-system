@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { studentAPI } from "../../services/https";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, Link, Navigate,Outlet } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
@@ -17,7 +17,6 @@ import Studentimg from "../../assets/student.png";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import { Outlet } from 'react-router-dom';
 import type {StudentInterface} from "../../interfaces/Student"
 
 
@@ -225,7 +224,7 @@ const StudentFullLayout: React.FC = () => {
                 <span>ผลการเรียน</span>
               </Link>
             </Menu.Item>
-            <Menu.Item
+            {/* <Menu.Item
               key="การเข้าเรียน"
               onClick={() => setCurrentPage("การเข้าเรียน")}
               style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
@@ -241,7 +240,7 @@ const StudentFullLayout: React.FC = () => {
 
                 <span>การเข้าเรียน</span>
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item
               key="ส่งงาน"
               onClick={() => setCurrentPage("ส่งงาน")}
@@ -265,7 +264,7 @@ const StudentFullLayout: React.FC = () => {
               style={{ marginBottom:  8 ,margin: "0 3px 15px"}}
             >
               <Link
-                to="/student/payment"
+                to="/student/payments"
                 style={{
                   marginLeft: collapsed ? "-5px" : "0px",
                   marginTop: `3px`,

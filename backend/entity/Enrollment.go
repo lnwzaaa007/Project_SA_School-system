@@ -34,6 +34,7 @@ type Enrollment struct {
 	Household_Registration_Certificate string ` json:"household_registration_certificate"`
 	Copy_Citizen_ID string ` json:"copy_citizen_id"`
 	Student_image string ` json:"student_image"`
+	Status string ` json:"status"`
 
 	AdminID uint `json:"admin_id"`
 	Admin_User   *Admin_User `gorm:"foreignKey:AdminID"`

@@ -3,10 +3,11 @@ package controllers
 import (
 	"net/http"
 	"strconv"
-    "github.com/gin-gonic/gin"
-    "github.com/lnwzaaa007/Project_SA_School-system/backend/config"
-    // "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 
+	"github.com/gin-gonic/gin"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
+	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
+	// "github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
 )
 
 type GradeYearBrief struct {
@@ -43,6 +44,7 @@ type GradeClassBrief struct {
 // 	c.JSON(http.StatusOK, gradeClasses)
 // }
 //ger/grade year/all
+
 func GetGradeYearAll(c *gin.Context) {
 	var gradeYears []GradeYearBrief
 	if err := config.DB().Raw("SELECT DISTINCT grade_year, MIN(id) AS id FROM grades GROUP BY grade_year").
@@ -110,4 +112,24 @@ func GetGradesByYearAndClass(c *gin.Context) {
 	*/
 
 	c.JSON(http.StatusOK, grades)
+}
+
+
+// GET /grades
+func ListGrades(c *gin.Context) {
+	type row struct {
+		ID         uint   `json:"id"`
+		GradeYear  string `json:"grade_year"`
+		GradeClass int    `json:"grade_class"`
+	}
+	var out []row
+	if err := config.DB().
+		Model(&entity.Grade{}).
+		Select("id, grade_year, grade_class").
+		Order("grade_year ASC, grade_class ASC").
+		Scan(&out).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": out})
 }

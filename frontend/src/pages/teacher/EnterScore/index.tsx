@@ -1,8 +1,11 @@
-import React from 'react';
+ import React from 'react';
 import { Table, Input, Button, Select, Space } from 'antd';
 import { SearchOutlined, EditOutlined } from '@ant-design/icons';
 import SelectGrade from '../../../components/SelectGrade';
 import SelectClass from '../../../components/SelectClass';
+import SelectTerm from '../../../components/SelectTerm';
+import SelectCourse from '../../../components/SelectCourse';
+
 
 const EnterScore = () => {
 const { Option } = Select;
@@ -29,6 +32,12 @@ const columns = [
   },
   {
     title: 'คะแนนเก็บ',
+    dataIndex: 'collect',
+    width: 100,
+    render: () => <Input size="small" />,
+  },
+    {
+    title: 'คะแนนส่งงาน',
     dataIndex: 'collect',
     width: 100,
     render: () => <Input size="small" />,
@@ -73,7 +82,9 @@ const data = Array.from({ length: 15 }, (_, i) => ({
   return (
     <div style={{ padding: 20 }}>
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Input placeholder="วิชา" style={{ width: 200 }} />
+        <SelectCourse />
+<SelectTerm/>
+
         <Input placeholder="อาจารย์ผู้สอน" style={{ width: 200 }} />
         <SelectGrade />
         <SelectClass />

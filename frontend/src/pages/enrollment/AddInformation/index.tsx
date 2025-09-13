@@ -1,6 +1,6 @@
 // pages/AddInformation.tsx
 import React, { useState } from "react";
-import { Row, Col, Input, DatePicker, Select, Upload, Button, Modal } from "antd";
+import { Row, Col, Input, DatePicker, Select, Upload, Button, Modal,Card } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -11,6 +11,7 @@ import SelectClass from "../../../components/SelectClass";
 import SelectGender from "../../../components/SelectGender";
 import SelectTitleTH from "../../../components/SelectTitleTH";
 import SelectTitleENG from "../../../components/SelectTitleENG";
+import School from "../../../assets/School.jpg"
 
 const LOGIN_PATH = "/login";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -240,10 +241,25 @@ const AddInformation: React.FC = () => {
   };
 
   return (
-    <div style={{ background: "#F1EEE0", minHeight: "100vh", padding: 20 }}>
+    <div style={{ background: "#000000ff", minHeight: "100vh", padding: 20 }}>
+      <img
+          src={School}
+          alt="School Background"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+            opacity: 0.4, 
+          }}
+/>
       {contextHolder}
 
-      <div style={{ padding: 24, background: "#fff", maxWidth: "60%", margin: "20px auto", borderRadius: 32 }}>
+      <Card 
+      style={{ padding: 24, background: "#fff", maxWidth: "60%", margin: "20px auto", borderRadius: 32,marginTop:"5%" }}>
         <h1>ข้อมูลทั่วไป</h1>
 
         <Row gutter={[16, 12]}>
@@ -411,7 +427,7 @@ const AddInformation: React.FC = () => {
             บันทึกการสมัคร
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

@@ -3,6 +3,7 @@ package entity
 import ("time"
 	"gorm.io/gorm"
 )
+
 type Statuspayment string
 const (
 	Complete   Statuspayment = "ตรวจสอบแล้ว"
@@ -11,9 +12,8 @@ const (
 
 type Payment struct {
 	gorm.Model
-	Silp []byte `json:"silp"`
+	SlipPath string         `json:"slip_path"`
 	DateTime time.Time `json:"dateTime"`
 	Amount int `json:"amount"`
 	Status Statuspayment `json:"status"`
-	
 }

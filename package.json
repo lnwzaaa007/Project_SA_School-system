@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "antd-style": "^3.7.1"
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "antd-style": "^3.7.1",
+    "promptpay-qr": "^0.5.0",
+    "qrcode": "^1.5.4"
   }
 }

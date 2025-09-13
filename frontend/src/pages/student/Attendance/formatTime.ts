@@ -19,7 +19,7 @@ export const formatThaiDateTime = (input: any): string => {
     const yyyy = d.getFullYear() + 543; // พ.ศ.
     const hh = String(d.getHours()).padStart(2, "0");
     const min = String(d.getMinutes()).padStart(2, "0");
-    return `วัน${day} ที่ ${dd}/${mm}/${yyyy} ${hh}:${min}`;
+    return `วัน${day} ที่ ${dd}/${mm}/${yyyy} เวลา ${hh}:${min}`;
   } catch {
     return String(input ?? "");
   }

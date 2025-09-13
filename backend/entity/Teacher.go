@@ -50,6 +50,7 @@ type Teacher struct {
 	Religious 				string 			`json:"religious"`
 	Qualification 			string 			`json:"qualification"`
 	Qualification_image 	string 			`json:"qualification_image"`
+	Status 					string			`json:"status"`
 
 	AddressID 				uint 			`gorm:"foreignKey:AddressID"json:"address_id" `
 	UsersID 				uint 			`gorm:"foreignKey:UsersID" json:"users_id"`

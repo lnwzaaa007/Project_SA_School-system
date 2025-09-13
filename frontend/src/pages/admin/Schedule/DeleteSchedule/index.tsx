@@ -34,7 +34,7 @@ const DeleteCoursesModal: React.FC<DeleteCoursesModalProps> = ({
 
   // helper: ฟอร์แมตเวลา (รองรับ start_time / start_tinme)
   const fmtTime = (it: ScheduleInterface) => {
-    const start = (it as any).start_time ?? it.start_tinme ?? "";
+    const start = (it as any).start_time ?? "";
     const end = it.end_time ?? "";
     return start && end ? `${start}–${end}` : start || end || "-";
   };
@@ -65,16 +65,20 @@ const DeleteCoursesModal: React.FC<DeleteCoursesModalProps> = ({
           (Array.isArray(res?.data) && res.data) ||
           [];
 
-          // ใช้ ScheduleInterface โดยตรง และ "ไม่ dedupe"
-          const list: ScheduleInterface[] = (Array.isArray(raw) ? raw : []) as ScheduleInterface[];
+          // map ให้มี field id (จาก id หรือ id_schedule ของ backend)
+          const list: ScheduleInterface[] = (Array.isArray(raw) ? raw : [])
+            .map((r: any) => ({
+              ...r,
+              id: typeof r.id === "number" ? r.id : r.id_schedule,
+            })) as ScheduleInterface[];
           
           // เรียงเพื่อให้อ่านง่าย
           list.sort((a, b) => {
             const dayA = a.day ?? "";
             const dayB = b.day ?? "";
             if (dayA !== dayB) return dayA.localeCompare(dayB, "th");
-            const tA = ((a as any).start_time ?? a.start_tinme ?? "") as string;
-            const tB = ((b as any).start_time ?? b.start_tinme ?? "") as string;
+            const tA = ((a as any).start_time ?? "") as string;
+            const tB = ((b as any).start_time ?? "") as string;
             if (tA !== tB) return tA.localeCompare(tB);
             return (a.course_code ?? "").localeCompare(b.course_code ?? "");
           });

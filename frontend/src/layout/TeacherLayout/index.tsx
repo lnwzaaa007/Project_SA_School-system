@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { teacherAPI } from "../../services/https";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, Link, Navigate,Outlet } from "react-router-dom";
 import Loader from "../../components/third-patry/Loader";
 import "../../App.css";
 import {
@@ -12,22 +12,26 @@ import {
   MenuOutlined,
   SolutionOutlined,
   FileAddOutlined,
+  LeftOutlined,
 } from "@ant-design/icons";
 
 import LogoutIcon from "@mui/icons-material/Logout";
 import Teacher from "../../assets/teacher.jpeg";
 import { Tooltip } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Button, message } from "antd";
-import Home from "../../pages/teacher/Home";
-import AttendanceRecord from "../../pages/teacher/AttendanceRecord";
-import CreateWork from "../../pages/teacher/CreateWork";
-import EnterScore from "../../pages/teacher/EnterScore";
-import ListOfStudent from "../../pages/teacher/ListOfStudent";
-import TeachProfile from "../../pages/teacher/TeachProfile";
-import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
-import EditProfile from "../../pages/teacher/TeachProfile/EditProfile";
-import CheckHomework from "../../pages/teacher/CreateWork/CheckWork";
-
+// import Home from "../../pages/teacher/Home";
+// import AttendanceRecord from "../../pages/teacher/AttendanceRecord";
+// import CreateWork from "../../pages/teacher/CreateWork";
+// import EnterScore from "../../pages/teacher/EnterScore";
+// import ListOfStudent from "../../pages/teacher/ListOfStudent";
+// import TeachProfile from "../../pages/teacher/TeachProfile";
+// import TeachingSchedule from "../../pages/teacher/TeachingSchedule";
+// import EditProfile from "../../pages/teacher/TeachProfile/EditProfile";
+// import CheckHomework from "../../pages/teacher/CreateWork/CheckWork";
+// ด้านบนไฟล์ (ใต้ import)
+const API_HOST = import.meta.env.VITE_API_KEY || "http://localhost:8088";
+const toUrl = (p?: string) =>
+  p ? (/^https?:\/\//i.test(p) ? p : `${API_HOST}/${p.replace(/^\/+/, "")}`) : "";
 const { Header, Content, Footer, Sider } = Layout;
 
 const TeacherFullLayout: React.FC = () => {
@@ -133,9 +137,8 @@ const TeacherFullLayout: React.FC = () => {
               padding: 16,
             }}
           >
-            <Button
-              type="text"
-              icon={<MenuOutlined style={{ fontSize: "20px" }} />}
+           <LeftOutlined
+              rotate={collapsed ? 180 : 0}
               onClick={() => setCollapsed(!collapsed)}
               style={{ fontSize: 20, color: "#000000" }}
             />
@@ -254,7 +257,7 @@ const TeacherFullLayout: React.FC = () => {
                 <span>สร้างงาน</span>
               </Link>
             </Menu.Item>
-            <Menu.Item
+            {/* <Menu.Item
               key="บันทึกเข้าเรียน"
               onClick={() => setCurrentPage("บันทึกเข้าเรียน")}
               style={{ marginBottom: 8 }}
@@ -270,7 +273,7 @@ const TeacherFullLayout: React.FC = () => {
 
                 <span>บันทึกเข้าเรียน</span>
               </Link>
-            </Menu.Item>
+            </Menu.Item> */}
           </Menu>
         </Sider>
 
@@ -331,18 +334,21 @@ const TeacherFullLayout: React.FC = () => {
               <Link to="/teacher/profile" 
                 onClick={() => setCurrentPage("ประวัติ")}
               >
-                <Tooltip title="ข้อมูลส่วนตัว" 
-                  overlayStyle={{ zIndex: 6000}}
-                >
+                <Tooltip title="ข้อมูลส่วนตัว" overlayStyle={{ zIndex: 6000 }}>
                   <img
-                    src={Teacher}
-                    alt="React Logo"
+                    src={teacher?.teacher_image ? toUrl(teacher.teacher_image) : Teacher}
+                    alt="รูปครู"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;           // กันลูป onError
+                      e.currentTarget.src = Teacher;            // รูป default ถ้าโหลดไม่สำเร็จ
+                    }}
                     style={{
-                      width: "40px",
-                      height: "40px",
-                      marginLeft: "8px",
-                      marginTop: `30px`,
+                      width: 40,
+                      height: 40,
+                      marginLeft: 8,
+                      marginTop: 30,
                       borderRadius: "50%",
+                      objectFit: "cover",
                     }}
                   />
                 </Tooltip>
@@ -354,7 +360,8 @@ const TeacherFullLayout: React.FC = () => {
           <Content
             style={{
               margin: "0 5px",
-              marginTop: "60px",
+              marginTop: "80px",
+              marginLeft: "25px",
               // height: "calc(100vh - 60px)", // 64px คือความสูงของ Header
               // overflowY: "auto",            // ✅ ให้ scroll เฉพาะเนื้อหา
             }}
@@ -362,14 +369,15 @@ const TeacherFullLayout: React.FC = () => {
             <Breadcrumb style={{ margin: "16px 0" }} />
 
             <div
-              style={{
+               style={{
                 padding: 24,
                 borderRadius: "16px",
-                minHeight: "calc(100vh - 60px)",
+                minHeight: "auto",
                 background: colorBgContainer,
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
               }}
             >
-              <Routes>
+              {/* <Routes>
                 <Route path="/" element={<Home />} />
                 <Route
                   path="/attendanceRecord"
@@ -383,7 +391,8 @@ const TeacherFullLayout: React.FC = () => {
                 <Route path="/profile" element={<TeachProfile />} />
                 <Route path="/profile/EditProfile" element={<EditProfile />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+              </Routes> */}
+              <Outlet/>
             </div>
           </Content>
         </Layout>

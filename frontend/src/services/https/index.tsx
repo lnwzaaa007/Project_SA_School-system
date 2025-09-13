@@ -9,6 +9,7 @@ import type { AnnouncementInterface } from "../../interfaces/announcement";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
+
 const getCookie = (name: string): string | null => {
   const cookies = document.cookie.split("; ");
   const cookie = cookies.find((row) => row.startsWith(`${name}=`));
@@ -33,6 +34,44 @@ const getConfigWithoutAuth = () => ({
     "Content-Type": "application/json",
   },
 });
+
+//////
+
+export const http = axios.create({
+  baseURL: API_URL,
+  // ถ้าต้องส่ง cookie cross-site ด้วยให้เปิดด้วย (ไม่บังคับ เพราะเราดึง token จาก cookie มาใส่ header อยู่แล้ว)
+  // withCredentials: true,
+});
+
+http.interceptors.request.use((config) => {
+  const tokenFromCookie = getCookie("0195f494-feaa-734a-92a6-05739101ede9");
+  const tokenFromLS = localStorage.getItem("token"); // เผื่อคุณเก็บ token ใน LS
+  const token = tokenFromCookie || tokenFromLS;
+
+  if (token && !config.headers?.Authorization) {
+    config.headers = config.headers ?? {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
+  // ใส่ content-type ให้แน่ใจ
+  (config.headers as any)["Content-Type"] =
+    config.headers?.["Content-Type"] || "application/json";
+  return config;
+});
+
+
+// ดัก 401 (เหมือนฟังก์ชัน Get/Post เดิมของคุณ)
+http.interceptors.response.use(
+  (r) => r,
+  (error) => {
+    if (error?.response?.status === 401) {
+      localStorage.clear();
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
+///////
 
 // services/https.ts (หรือไฟล์ services ของคุณ)
 const isFormData = (data: any) =>
@@ -94,7 +133,11 @@ export const Update = async (
   data: any,
   requireAuth: boolean = true
 ): Promise<AxiosResponse | any> => {
-  const config = requireAuth ? getConfig() : getConfigWithoutAuth();
+  const config = isFormData(data)
+    ? getFormConfig(requireAuth)  // ❗️อย่าตั้ง content-type เองถ้าเป็น FormData
+    : requireAuth
+    ? getConfig()
+    : getConfigWithoutAuth();
   return await axios
     .put(`${API_URL}${url}`, data, config)
     .then((res) => res.data)
@@ -150,6 +193,8 @@ export const teacherAPI = {
   getteacher :() => Get(`/teacher`),
   getTeacherDetail: (id: number | string) => Get(`/teacher-detail/${id}`),
   deleteTeacher: (id: number | string) => Delete(`/teacher/${id}`),
+  updateTeacher: (id: number | string, data: any) => Update(`/teacher/${id}`, data, true),
+  
 };
 
 export const adminAPI = {
@@ -172,12 +217,23 @@ export const ScheduleAPI = {
   getTimeEnd: () => Get("/schedule-times-end"),
   getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
-  // requires auth to pass middleware
+
   postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`),
-  getStudentSchedule: (grade_id :number) => Get(`/students/schedule?grade_id=${grade_id}`),
-  getTeacherSchedule: (teacher_id : number) => Get(`/teachers/schedule?teacher_id=${teacher_id}`), 
-
+  //ถ้ามีเทอมให้ส่งเทอม ถ้าไม่มีส่งแค่teacher_id
+  getStudentSchedule: (grade_id :number,term_id?: number) => {
+    const url = term_id != null
+    ?`/students/schedule?grade_id=${grade_id}&term_id=${term_id}`
+    :`/students/schedule?grade_id=${grade_id}`;
+    return Get(url);
+  },
+  //ถ้ามีเทอมให้ส่งเทอม ถ้าไม่มีส่งแค่teacher_id
+  getTeacherSchedule: (teacher_id: number, term_id?: number) => {
+    const url = term_id != null
+      ? `/teachers/schedule?teacher_id=${teacher_id}&term_id=${term_id}`
+      : `/teachers/schedule?teacher_id=${teacher_id}`;
+    return Get(url);
+  }, 
 };
 //แม็ก ระบบเช็คชื่อ
 export const AttendancesAPI ={
@@ -187,7 +243,7 @@ export const AttendancesAPI ={
   getAttendanceHistory: (schedule_id:number, student_id:number) => Get(`/attendances/student-history?schedule_id=${schedule_id}&student_id=${student_id}`),
   getAttendanceTeacher: (schedule_id:number) => Get(`/attendances/teacher-history?schedule_id=${schedule_id}`),
   getAttendanceByDate: (schedule_id:number, date:string) => Get(`/attendances-date?schedule_id=${schedule_id}&date=${date}`),
-  updateAttendance: (data: AttendanceInterface & { date: string }) => Update(`/attendances-record`, data, true),
+  updateAttendance: (data: AttendanceInterface /*& { date: string }*/) => Update(`/attendances-record`, data, true),
 };
 
 export const userTypeAPI = {
@@ -261,11 +317,27 @@ export const DistrictAPI ={
 export const AssignmentAPI = {
   getCourses: () => Get(`/courses`),
   getAssignments: (id:number) => Get(`/assignments/${id}`),
-  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
-  
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`), 
 
 }
 
+export async function submitAssignment(fd: FormData) {
+  const res = await fetch("http://localhost:8088/submit-assignment", { method: "POST", body: fd });
+  if (!res.ok) throw new Error(`Submit failed ${res.status}`);
+  return res.json();
+}
+
+export const GetBinary = async (
+  url: string,
+  requireAuth: boolean = true,
+  extraHeaders?: Record<string, string>
+) => {
+  const base = requireAuth ? getConfig() : getConfigWithoutAuth();
+  return await axios.get(`${API_URL}${url}`, {
+    responseType: "blob",
+    headers: { ...base.headers, ...(extraHeaders || {}) },
+  });
+};
 export const GenderAPI = {
   getGender: () => Get("/gender"),
 }
@@ -279,6 +351,160 @@ export const EnrollmentAPI = {
   getEnrollmentById: (id: number | string) => Get(`/enrollment/${id}`),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
   deleteEnrollment: (id: number | string) => Delete(`/enrollment/${id}`),
+  updateEnrollment: (id: number | string, data: FormData | any) => Update(`/enrollment/${id}`, data, true),
+  checkStatus: (citizenId: string) =>  Get(`/checkenrollment?citizen_id=${encodeURIComponent(citizenId)}`, false),
 };
 
 
+
+
+export const studentCRUD = {
+  list: (params: { q?: string; grade_id?: number|string; page?: number; page_size?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", String(params.q));
+    if (params?.grade_id) qs.set("grade_id", String(params.grade_id));
+    if (params?.page) qs.set("page", String(params.page));
+    if (params?.page_size) qs.set("page_size", String(params.page_size));
+    return Get(`/student?${qs.toString()}`);
+  },
+  // POST /studentAdd
+  create: (data: any) => Post("/studentAdd", data),
+
+  // GET /student/:id
+  getById: (id: number | string) => Get(`/student/${id}`),
+
+  // PUT /student/:id  (มี route หลังบ้านแล้ว เผื่อใช้ทีหลัง)
+  update: (id: number | string, data: any) => Update(`/student/${id}`, data),
+
+  // GET รูปนักเรียน (ใช้กับ <img src={...}>)
+  imageUrl: (id: number | string) => `${API_URL}/student/${id}/image`,
+
+  // ถ้ามีลบในอนาคต:
+  remove: (id: number | string) => Delete(`/students/${id}`),
+};
+
+
+// ==== Guardian (ผู้ปกครอง) ====
+export const guardianCRUD = {
+  // POST /guardian-student  (upsert พ่อ/แม่/ผู้ปกครอง ของนักเรียน 1 คน)
+  createProfile: (data: any) => Post("/guardian-student", data),
+
+  // GET /guardian-student?student_id=123
+  listByStudent: (studentId: number | string) =>
+    Get(`/guardian-student?student_id=${studentId}`),
+
+  // GET /guardian-student/:id   (อ่าน link รายแถว)
+  getLink: (id: number | string) => Get(`/guardian-student/${id}`),
+
+  // PUT /guardian-student/:id   (แก้บทบาท/ข้อมูลผู้ปกครองที่ลิงก์อยู่)
+  updateLink: (id: number | string, data: any) => Update(`/guardian-student/${id}`, data),
+
+  // DELETE /guardian-student/:id (ลบเฉพาะ link)
+  deleteLink: (id: number | string) => Delete(`/guardian-student/${id}`),
+};
+
+
+// ==== Address (ที่อยู่) ====
+// services/https (เฉพาะส่วน Address)
+
+type CreateAddressPayload = {
+  address_number: string | number;
+  road?: string;
+  thai_province_id?: number;
+  thai_district_id?: number;
+  thai_subdistrict_id?: number;
+
+  // alias จากฟอร์มเก่า (จะถูกแมพเป็น thai_*)
+  province_id?: number;
+  district_id?: number;
+  subdistrict_id?: number;
+};
+type UpdateAddressPayload = Partial<CreateAddressPayload>;
+
+const normalizeAddressPayload = (data: CreateAddressPayload | UpdateAddressPayload) => {
+  const out: any = { ...data };
+  out.thai_province_id    = out.thai_province_id    ?? out.province_id;
+  out.thai_district_id    = out.thai_district_id    ?? out.district_id;
+  out.thai_subdistrict_id = out.thai_subdistrict_id ?? out.subdistrict_id;
+  delete out.province_id; delete out.district_id; delete out.subdistrict_id;
+  return out;
+};
+
+export const addressCRUD_N = {
+  create: (data: CreateAddressPayload) =>
+    Post("/addressesN", normalizeAddressPayload(data)),
+
+  list: (qs = "") => Get(`/addressesN${qs ? `?${qs}` : ""}`),
+
+  get: (id: number | string) => Get(`/addressesN/${id}`),
+
+  update: (id: number | string, data: UpdateAddressPayload) =>
+    Update(`/addressesN/${id}`, normalizeAddressPayload(data)),
+
+  delete: (id: number | string) => Delete(`/addressesN/${id}`),
+};
+
+
+export const gradeCRUD = {
+  list: (params?: any) => http.get("/grades", { params }),
+  // ถ้ายังใช้แบบแยกปี/ห้อง:
+  years: () => http.get("/gradeyears"),
+  classes: () => http.get("/gradeclasses"),
+  byYearAndClass: (year: number, classId: number) =>
+    http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
+};
+
+// export const StudentAPI = {
+//   list: (params: {
+//     grade_id?: number | string;
+//     class_id?: number | string; // หรือ room_no ตามหลังบ้าน
+//     page_size?: number;
+//   }) => {
+//     const qs = new URLSearchParams();
+//     if (params.grade_id) qs.set("grade_id", String(params.grade_id));
+//     if (params.class_id) qs.set("class_id", String(params.class_id)); // ถ้าหลังบ้านใช้ room_no ให้เปลี่ยนชื่อคีย์
+//     qs.set("page_size", String(params.page_size ?? 1000));
+//     return Get(`/student?${qs.toString()}`); // ✅ ใช้ Get แทน axios.get
+//   },
+// };
+
+// export const EduRecordAPI = {
+//   list: (params: { term_id: number|string; course_id: number|string; page_size?: number }) => {
+//     const qs = new URLSearchParams();
+//     qs.set("term_id", String(params.term_id));
+//     qs.set("course_id", String(params.course_id));
+//     qs.set("page_size", String(params.page_size ?? 1000));
+//     return axios.get(`/teacher/education-records?${qs.toString()}`);
+//   },
+//   create: (payload: {
+//     term_id: number; course_id: number; teacher_id: number; student_id: number;
+//     point?: number; mid_point?: number; final_point?: number;
+//     grade_point?: number; behavior_point?: number; assign_id?: number;
+//   }) => axios.post(`/teacher/education-records`, payload),
+//   update: (id: number, payload: {
+//     point?: number; mid_point?: number; final_point?: number;
+//     grade_point?: number; behavior_point?: number; teacher_id?: number; assign_id?: number;
+//   }) => axios.put(`/teacher/education-records/${id}`, payload),
+// };
+
+export const StudentAPI = {
+  list: (params: { grade_id?: number|string; class_id?: number|string; page_size?: number }) => {
+    const qs = new URLSearchParams();
+    if (params.grade_id) qs.set("grade_id", String(params.grade_id));
+    if (params.class_id) qs.set("class_id", String(params.class_id)); // ถ้า BE ใช้ room_no ให้เปลี่ยนตรงนี้
+    qs.set("page_size", String(params.page_size ?? 1000));
+    return Get(`/student?${qs.toString()}`);
+  },
+};
+
+export const EduRecordAPI = {
+  list: (params: { term_id?: number|string; course_id?: number|string; page_size?: number }) => {
+    const qs = new URLSearchParams();
+    if (params.term_id) qs.set("term_id", String(params.term_id));
+    if (params.course_id) qs.set("course_id", String(params.course_id));
+    qs.set("page_size", String(params.page_size ?? 1000));
+    return Get(`/teacher/education-records?${qs.toString()}`);
+  },
+  create: (data: any) => Post("/teacher/education-records", data),
+  update: (id: number|string, data: any) => Update(`/teacher/education-records/${id}`, data),
+};

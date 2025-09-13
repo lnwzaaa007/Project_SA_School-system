@@ -25,21 +25,21 @@ export interface ScheduleCoureseInterface{
   teacher_id?:    number;
 }
 
-export interface ScheduleInterface {
-  id_schedule?:   number;
-  day?:           string;
-  start_tinme?:   string;
-  end_time?:      string;
-  course_name?:   string;
-  course_code?:   string;
-  credit_num?:    number;
-  class_in_week?: number;
-  hours_of_term?: number;
-  subject_group?: string;
-  teacher_name?:  string;
-  grade_year?:    string;
-  grade_class?:   number;
-}
+// export interface ScheduleInterface {
+//   id_schedule?:   number;
+//   day?:           string;
+//   start_tinme?:   string;
+//   end_time?:      string;
+//   course_name?:   string;
+//   course_code?:   string;
+//   credit_num?:    number;
+//   class_in_week?: number;
+//   hours_of_term?: number;
+//   subject_group?: string;
+//   teacher_name?:  string;
+//   grade_year?:    string;
+//   grade_class?:   number;
+// }
 
 export interface PostSchedule {
   day_id?:        number;
@@ -50,4 +50,29 @@ export interface PostSchedule {
   term_id:        number;
   grade_year:     string;
   grade_class:    number;
+}
+
+// src/types/schedule.ts
+export interface ScheduleInterface {
+  id: number;
+  day: string;
+  start_time: string;
+  end_time: string;
+  course_name: string;
+  course_code: string;
+  credit_num: number;
+  class_in_week: number;
+  hours_of_term: number;
+  subject_group: string;
+  teacher_name: string;
+  grade_year: string;
+  grade_class: number;
+}
+
+// Response จาก backend
+export interface TeacherScheduleResponse {
+  data: ScheduleInterface[];
+  term_id: number;
+  semester: number;
+  academic_year: number;
 }

@@ -315,14 +315,16 @@ const Schedule: React.FC = () => {
             <SelectTerm value={selectedTerm} onChange={setSelectedTerm} />
             <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
               <Button
+                className="big-btn"
                 icon={<PlusOutlined />}
                 type="primary"
                 onClick={() => setIsAddModalVisible(true)}
-                style={{ background: "#1677FF" }}
+                style={{ background: "#1677FF", height:100 }}
               >
                 เพิ่ม
               </Button>
               <Button
+                className="big-btn"
                 icon={<DeleteOutlined />}
                 onClick={() => setIsDeleteModalVisible(true)}
                 danger
@@ -379,14 +381,14 @@ const Schedule: React.FC = () => {
                     const dayA = a.day ?? "";
                     const dayB = b.day ?? "";
                     if (dayA !== dayB) return dayA.localeCompare(dayB, "th");
-                    const tA = ((a as any).start_time ?? a.start_tinme ?? "") as string;
-                    const tB = ((b as any).start_time ?? b.start_tinme ?? "") as string;
+                    const tA = ((a as any).start_time ?? "") as string;
+                    const tB = ((b as any).start_time ?? "") as string;
                     if (tA !== tB) return tA.localeCompare(tB);
                     return (a.course_code ?? "").localeCompare(b.course_code ?? "");
                   })}
                   renderItem={(item) => {
                     const fmtTime = (it: ScheduleInterface) => {
-                      const start = (it as any).start_time ?? it.start_tinme ?? "";
+                      const start = (it as any).start_time;
                       const end = it.end_time ?? "";
                       return start && end ? `${start}–${end}` : start || end || "-";
                     };

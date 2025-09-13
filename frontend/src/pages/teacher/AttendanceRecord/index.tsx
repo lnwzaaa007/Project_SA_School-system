@@ -28,6 +28,7 @@ const AttendanceRecord: React.FC = () => {
   const [selectedClass, setSelectedClass] = useState<number | null>(null);
   const [idschedule,setIdSchedule] = useState<number | null>(null);
   const [coursename,setCourseName] = useState<string | null>(null);
+  const [coursecode,setCourseCode] = useState<string | null>(null);
   const [students, setStudents] = useState<RowStudent[]>(initialStudents);
   const [historyDates, setHistoryDates] = useState<string[]>([]); // YYYY-MM-DD
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -43,11 +44,13 @@ const AttendanceRecord: React.FC = () => {
     const gYear = state.grade_year !== undefined ? Number(state.grade_year) : null;
     const gClass = state.grade_class !== undefined ? Number(state.grade_class) : null;
     const CourseName = state.course_name !== undefined ? String(state.course_name): null;
+    const CourseCode = state.course_code !== undefined ? String(state.course_code): null;
     const IDschedule = state.id_schedule !== undefined ? Number(state.id_schedule): null; 
     if (!Number.isNaN(gYear )) setSelectedGrade(gYear);
     if (!Number.isNaN(gClass )) setSelectedClass(gClass);
     setCourseName(CourseName);
     setIdSchedule(IDschedule);
+    setCourseCode(CourseCode);
     // สามารถใช้ state.day, state.start_time, state.end_time, state.course_code, state.course_name ได้เช่นกัน
     // console.log("attendance state:", state);
   }, [state]);
@@ -95,7 +98,7 @@ const AttendanceRecord: React.FC = () => {
   }, [selectedGrade, selectedClass]);
 
   // helper: format a JS Date into YYYY-MM-DD at Asia/Bangkok timezone
-  const toThaiYMD = (d: Date): string => {
+  const toThaiDMY = (d: Date): string => {
     try {
       const parts = new Intl.DateTimeFormat('en-GB', {
         timeZone: 'Asia/Bangkok',
@@ -107,7 +110,7 @@ const AttendanceRecord: React.FC = () => {
       const month = parts.find(p => p.type === 'month')?.value || '';
       const year = parts.find(p => p.type === 'year')?.value || '';
       // year is Gregorian, keep as YYYY
-      return `${year}-${month}-${day}`;
+      return `${day}/${month}/${year}`;
     } catch {
       return d.toISOString().slice(0,10);
     }
@@ -125,7 +128,7 @@ const AttendanceRecord: React.FC = () => {
         const raw = (item?.Attendances_Date ?? item?.attendances_date ?? item?.date);
         const d = new Date(raw);
         if (!isNaN(d.getTime())) {
-          dateSet.add(toThaiYMD(d));
+          dateSet.add(toThaiDMY(d));
         }
       }
       setHistoryDates(Array.from(dateSet).sort((a,b)=> a.localeCompare(b)));
@@ -399,11 +402,11 @@ const AttendanceRecord: React.FC = () => {
         >
           {/* ซ้าย: ชื่อวิชา */}
           <div style={{ fontSize: "32px" }}>
-            วิชา: {coursename}
+            {coursecode}: {coursename}
           </div>
 
           {/* ขวา: ประวัติการเช็คชื่อ */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 ,paddingTop:20}}>
             <Text style={{ fontSize: 25 }}>ประวัติการเช็คชื่อ:</Text>
             <div style={{ minWidth: 220 }}>
               {loadingDates ? (
