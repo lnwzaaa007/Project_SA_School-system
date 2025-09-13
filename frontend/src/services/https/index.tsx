@@ -314,9 +314,10 @@ export const AssignmentAPI = {
   getAssignmentById: (id:number) => Get(`/assignment/${id}`),
   getMySubmissionsByCourse: (course_id: number, student_id: number | string) =>
     Get(`/assignment-submissions/course/${course_id}?student_id=${student_id}`),
-  getMySubmissionByAssignment: (assignmentId: number, studentId: number) =>
-    Get(`/assignment-submissions/${assignmentId}?student_id=${studentId}`),
+  getMySubmissionByAssignment: (assignmentId: number, studentId: number | string) =>
+    Get(`/assignment-check/${assignmentId}?student_id=${studentId}`),
 };
+
 
 export async function submitAssignment(fd: FormData) {
   const res = await fetch(`${API_URL}/submit-assignment`, { method: "POST", body: fd });

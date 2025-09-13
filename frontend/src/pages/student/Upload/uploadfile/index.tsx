@@ -52,6 +52,7 @@ const AssignmentForm: React.FC = () => {
       console.log('student submission', res);
       if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
         const detail = res.data[0];
+        setCourseId(detail.course_id);
         if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
           const sub = res.data[0];
           setFormData(prev => ({ ...prev, status: sub.submit_status || 'ยังไม่ส่งงาน' }));

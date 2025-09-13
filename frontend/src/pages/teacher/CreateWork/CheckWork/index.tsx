@@ -53,7 +53,7 @@ const CheckHomework: React.FC = () => {
     if (!assignmentIdParam) return;
     try {
       setLoading(true);
-      const url = `http://localhost:8088/assignment-submissions/${assignmentIdParam}`;
+      const url = `http://localhost:8088/assignment-check/${assignmentIdParam}`;
       const res = await axios.get(url, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
       const list: StudentItem[] = (res.data?.data || []).map((item: any) => {
         const sc = item.submit_Point ?? item.submit_point ?? null;
