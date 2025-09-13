@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Row, Card, Statistic, Table ,Button, Space, message, Form, Modal} from "antd";
+import { Col, Row, Card, Statistic, Table ,Button, Space, message, Form, Modal, Tag, Typography} from "antd";
 import type { TableProps } from 'antd';
 import { Link, Route, Routes } from 'react-router-dom';
+
 import{
     NotificationOutlined,
     FileDoneOutlined,
@@ -17,6 +18,7 @@ import { announcementAPI } from '../../../services/https';
 import type { TargetGroupInterface } from '../../../interfaces/targetgroup';
 import { targetGroupAPI } from '../../../services/https';
 import { adminAPI } from '../../../services/https';
+const { Text } = Typography;
 
 interface Announcement {
   ID: number;
@@ -144,7 +146,7 @@ const Announce: React.FC = () => {
       // วิธี 1: อัปเดต state โดยตรง
       setAnnouncements((prev) =>
         prev.map((item) =>
-          item.ID === ID ? { ...item, status: "published" } : item
+          item.ID === ID ? { ...item, status: "เผยแพร่" } : item
         )
       );
 
@@ -166,20 +168,22 @@ const Announce: React.FC = () => {
   //   setIsModalOpen(false);
   // };
 
-  const categories: Category[] = [
-  { value: 'all',       label: 'ทั้งหมด', colorClass: 'bg-gray-100 text-gray-800' },
-  { value: 'general',   label: 'ประกาศทั่วไป', colorClass: 'bg-blue-100 text-blue-800' },
-  { value: 'academic',  label: 'การเรียนการสอน', colorClass: 'bg-yellow-100 text-yellow-800' },
-  { value: 'event',     label: 'กิจกรรม', colorClass: 'bg-purple-100 text-purple-800' },
-  { value: 'urgent',    label: 'ด่วน', colorClass: 'bg-red-100 text-red-800' },
-  { value: 'exam',      label: 'การสอบ', colorClass: 'bg-orange-100 text-orange-800' }
+  const categories = [
+  { value: 'ข่าวสาร',   label: 'ข่าวสาร', color:"blue" },
+  { value: 'ประชาสัมพันธ์',  label: 'ประชาสัมพันธ์', color: "cyan" },
+  { value: 'กิจกรรม',     label: 'กิจกรรม', color: "purple" },
+  { value: 'ด่วน',    label: 'ด่วน', color: "red" },
+  { value: 'อื่นๆ',      label: 'อื่นๆ', color: "pink" },
 ];
 
-  
+  const categoryColorMap = categories.reduce((acc, cat) => {
+  acc[cat.value] = cat.color;
+  return acc;
+}, {} as Record<string, string>);
   const statuses = [
     { value: 'all', label: 'ทั้งหมด' },
-    { value: 'published', label: 'เผยแพร่แล้ว', color: 'text-green-600' },
-    { value: 'draft', label: 'แบบร่าง', color: 'text-gray-600' }
+    { value: 'เผยแพร่แล้ว', label: 'เผยแพร่แล้ว', color: 'green' },
+    { value: 'ฉบับร่าง', label: 'ฉบับร่าง', color: 'gold' }
   ];
 
   const columns: TableProps<AnnouncementInterface>['columns'] = [
@@ -236,15 +240,55 @@ const Announce: React.FC = () => {
       //     <span>{category}</span>
       //   );
       // }
+      // render: (categoryValue: string) => {
+        
+      //   const category = categories.find((cat) => cat.value === categoryValue);
+      //    console.log('categoryValue:', categoryValue);
+      //     console.log('found category:', category);
+      //   if (!category) {
+      //     return <Tag color="default">{categoryValue}</Tag>; // fallback
+      //   }
+      //   return (
+      //     // <span className={`px-2 py-1 rounded ${category?.color}`}
+      //     //       style={{fontSize:'18px'}}>
+      //     //   {category?.label ?? categoryValue}
+      //     // </span>
+      //     <Tag color={category.color} style={{ marginLeft: 8 }}>
+      //       {category.label}
+      //     </Tag>
+      //   );
+      // }
       render: (categoryValue: string) => {
-        const category = categories.find(cat => cat.value === categoryValue);
-        return (
-          <span className={`px-2 py-1 rounded ${category?.colorClass}`}
-                style={{fontSize:'18px'}}>
-            {category?.label ?? categoryValue}
-          </span>
-        );
-      }
+    const category = categories.find((cat) => cat.value === categoryValue);
+    if (!category) {
+      return <Tag color="default">{categoryValue}</Tag>; // fallback
+    }
+    
+    // สำหรับสีที่ต้องการปรับแต่งพิเศษ
+    const customColors: Record<string, string> = {
+      'blue': '#1890ff',
+      'gold': '#faad14', 
+      'purple': '#722ed1',
+      'red': '#ff4d4f',
+      'orange': '#fa8c16'
+    };
+    
+    return (
+      <Tag 
+        color={category.color}
+        style={{ 
+          fontSize: '16px', 
+          fontWeight: '500',
+          // หากต้องการกำหนดสีเอง
+          // backgroundColor: customColors[category.color],
+          // color: 'white',
+          // border: 'none'
+        }}
+      >
+        {category.label}
+      </Tag>
+    );
+  }
     },
     {
       title: 'สถานะ',
@@ -258,14 +302,34 @@ const Announce: React.FC = () => {
       }),
       render: (status: string) => {
         const statusObj = statuses.find(stat => stat.value === status);
-        return statusObj ? (
-          <span className={`px-2 py-1 rounded ${statusObj.color}`}
-            style={{fontSize:'18px'}}>
-            {statusObj.label}
-          </span>
-        ) : (
-          <span style={{fontSize:'18px'}}>{status}</span>
-      );}
+        if (!statusObj) {
+      return <Tag color="default">{status}</Tag>; // fallback
+      }
+      
+      // สำหรับสีที่ต้องการปรับแต่งพิเศษ
+      const customColors: Record<string, string> = {
+        'blue': '#1890ff',
+        'gold': '#faad14', 
+        'purple': '#722ed1',
+        'red': '#ff4d4f',
+        'orange': '#fa8c16'
+      };
+      return  (
+        <Tag 
+        color={statusObj.color}
+        style={{ 
+          fontSize: '16px', 
+          fontWeight: '500',
+          // หากต้องการกำหนดสีเอง
+          // backgroundColor: customColors[category.color],
+          // color: 'white',
+          // border: 'none'
+        }}
+      >
+        {statusObj.label}
+      </Tag>
+      )
+    }
 
     },
     {

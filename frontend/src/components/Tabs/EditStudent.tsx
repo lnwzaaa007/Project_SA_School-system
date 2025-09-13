@@ -322,11 +322,11 @@ useEffect(() => {
                 <Col span={10}>
                   <Form.Item label="คำนำหน้า" name="title_id" >
                     <Select style={{ height: 35 }}>
-                      <Option value={1}>นาย</Option>
-                      <Option value={2}>นางสาว</Option>
-                      <Option value={3}>นาง</Option>
-                      <Option value={4}>เด็กชาย</Option>
-                      <Option value={5}>เด็กหญิง</Option>
+                      <Option value={3}>นาย</Option>
+                      <Option value={4}>นางสาว</Option>
+                      <Option value={5}>นาง</Option>
+                      <Option value={1}>เด็กชาย</Option>
+                      <Option value={2}>เด็กหญิง</Option>
                       <Option value={6}>-</Option>
                     </Select>
                   </Form.Item>
