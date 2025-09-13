@@ -5,9 +5,10 @@ import{
     UserOutlined,
     IdcardOutlined
 }from '@ant-design/icons';
-import Calendars from "../../../components/calendar";
+import Calendars from "../../../components/Calendar";
 import type { AnnouncementInterface } from '../../../interfaces/announcement';
 import { announcementAPI } from '../../../services/https';
+
 import React, { useState, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -15,6 +16,7 @@ const Home:React.FC = () => {
     const [announcements, setAnnouncements] = useState<AnnouncementInterface[]>([]);
     const [selectedAnnouncement, setSelectedAnnouncement] = useState<AnnouncementInterface | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
+
     useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -193,10 +195,11 @@ const Home:React.FC = () => {
         visible={modalVisible}
         onCancel={closeModal}
         footer={null}
+        centered
       >
         <p>{selectedAnnouncement?.content}</p>
         <p><strong>วันที่เผยแพร่:</strong> {selectedAnnouncement?.create_date ? dayjs(selectedAnnouncement.create_date).format("YYYY-MM-DD") : "-"}</p>
-        <p><strong>กลุ่มเป้าหมาย:</strong> {selectedAnnouncement?.target_group_id?.group_name || "-"}</p>
+        <p><strong>กลุ่มเป้าหมาย:</strong> {selectedAnnouncement?.target_group?.group_name || selectedAnnouncement?.group_name || "-"}</p> 
       </Modal>
         {/* <Col>
           <div style={{marginTop: "16px",}}> 

@@ -15,8 +15,10 @@ export interface AnnouncementInterface {
     enrollment_id?:     number;
     TargetGroupID?:     number;
     time_create?:       string;
+    target_group?:      TargetGroupInterface;
     
 }
+
 
 // Title         string `json:"title" binding:"required"`
 // 	Content       string `json:"content" binding:"required"`
