@@ -359,7 +359,7 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/announce"element={<Announce />}/>
                 <Route path="/announce/CreateAnnouncement" element={<CreateAnnouncement/>}/>
-                <Route path="/announce/EditAnnouncement" element={<EditAnnouncement/>}/>
+                <Route path="/announce/EditAnnouncement/:id" element={<EditAnnouncement/>}/>
                 <Route path="/manageStudent" element={<ManageStudent />} />
 
                 <Route path="/manageStudent/AddStudent" element={<AddStudent />} />

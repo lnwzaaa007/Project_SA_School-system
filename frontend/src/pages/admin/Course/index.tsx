@@ -68,7 +68,7 @@ const Course:React.FC = () => {
 
           }}>
           {/* <SelectYear/> */}
-          <SelectTerm value = {SelectedTerm} onChange={setSelectedTerm}/>
+          {/* <SelectTerm value = {SelectedTerm} onChange={setSelectedTerm}/> */}
           {/* ปุ่มเพิ่มแก้ไขลบ */}
           <div style={{
             marginLeft:'auto',
@@ -81,13 +81,13 @@ const Course:React.FC = () => {
               onChange={(e) => setKeyword(e.target.value)}
               style={{ width: 300, marginRight: 10 }}
             /> */}
-           <Button
+           {/* <Button
               icon={<SearchOutlined/>}
               type='text'
               onClick={showModal}
               style = {{background:"#f0f7ff",marginRight:"10px"}}>
                 ค้นหา
-            </Button>
+            </Button> */}
             {/* <Modal  title="Basic Modal"
               closable={{ 'aria-label': 'Custom Close Button' }}
               open={isModalOpen}

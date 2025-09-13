@@ -46,7 +46,7 @@ const AdminRoutes = (isLoggedIn: boolean): RouteObject => {
       { path: "announce", element: <Announce />, 
         children:[
           {path : "CreateAnnouncement", element: <CreateAnnouncement/>},
-          {path : "EditAnnouncement", element: <EditAnnouncement/>}
+          {path : "EditAnnouncement/:id", element: <EditAnnouncement/>}
         ]
       },
       { path: "manageStudent", element: <ManageStudent />,

@@ -5,6 +5,7 @@ import type {PostSchedule} from "../../interfaces/Schedule"
 import type {AttendanceInterface} from "../../interfaces/Attendance"
 import { useEffect } from "react";
 import type { UpdateCoursePayload } from "../../interfaces/course";
+import type { AnnouncementInterface } from "../../interfaces/announcement";
 
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 
@@ -216,8 +217,18 @@ export const AddressAPI ={
     student_id?: number;
   }) => Post("/address", payload, true),
 }
-export const annoncementAPI = {
-  getAnnouncements: () => Get("/new-announcements"),
+//ระบบประกาศ
+export const announcementAPI = {
+  getAnnouncements: () => Get("/announcements"),
+  createAnnouncement: (data: {title: string; content: string; category: string; time_create: string;
+                              status?: string; create_date?: string; end_date?: string; target_group_id?: number; 
+                              /*user_id?: number; admin_id?: number; term_id?: number; enrollment_id?: number;*/}) => 
+                              Post("/new-announcement", data, true),
+  deleteAnnouncement: (id: number) => Delete(`/announcements/${id}`),
+  publishAnnouncement:(id: number) => Update(`/announcements/${id}/publish`, { status: 'published' }, true),
+  updateAnnouncement:(id: number, data: AnnouncementInterface) => Update(`/announcements/${id}`,data,true),
+  getAnnouncementByID: (id: number) => Get(`/announcements/${id}`),
+  
 };
 
 export const targetGroupAPI = {
@@ -225,7 +236,8 @@ export const targetGroupAPI = {
 };
 
 export const subjectGroupAPI = {
-  getSubjectGroupAll: () => Get("/subjectgroup"),
+  getSubjectGroupAll: () => Get("/subjectgroups"),
+  
 };
 
 export const courseAPI = {
@@ -235,19 +247,7 @@ export const courseAPI = {
   getCourseAll: () => Get("/coursesall"),
   getGradClassAllWithYear: () => Get(`/gradeclass/allwithyear`),
   deleteCourse: (id: number) => Delete(`/course/${id}`),
-  updateCourse: (id: number, data: UpdateCoursePayload
-                // course:{
-                // course_code: string; 
-                // course_name: string; 
-                // subject_group_id: number; 
-                // credit_num: number;
-                // class_in_week: number; 
-                // grade_year: string; 
-                // grade_class: number; 
-                // teacher_id: number; 
-                // term_id: number; 
-                // grade_id: number;
-  ) => Update(`/course/${id}`,data ,true),
+  updateCourse: (id: number, data: UpdateCoursePayload) => Update(`/course/${id}`,data ,true),
   getCourseById: (id: number) => Get(`/course/${id}`),
   
 };
