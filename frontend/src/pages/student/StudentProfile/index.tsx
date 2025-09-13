@@ -1,14 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./index.css";
-import {
-  HomeOutlined,
-  SolutionOutlined,
-  DownOutlined,
-  UpOutlined,
-} from "@ant-design/icons";
+import { SolutionOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-// แทนบรรทัด import เดิมด้วยบรรทัดนี้บรรทัดเดียวพอ
 import {
   studentCRUD_SAFE as studentCRUD,
   guardianCRUD_SAFE as guardianCRUD,
@@ -17,10 +11,10 @@ import {
   getAuthTokenSafe,
   thaiAddressName_SAFE,
   gradeName_SAFE,
+  GetBinary
 } from "../../../services/https";
 
 // ===== util: ดึงค่าจาก res ทั้งแบบมี/ไม่มี data wrapper =====
-// ด้านบนไฟล์ StudentProfile (คงของเดิมไว้ได้)
 const pickData = (res: any) => {
   const rd = res?.data ?? res;
   return rd?.data ?? rd;
@@ -32,28 +26,27 @@ const getAddressId = (o: any) => o?.address_id ?? o?.AddressID;
 const StudentProfile = () => {
   const { id } = useParams<{ id?: string }>();
   const studentIdFromRoute = id ? Number(id) : undefined;
-
-  // ===== toggles =====
+  const [avatarSrc, setAvatarSrc] = useState<string>("");
   const [showPersonal, setShowPersonal] = useState(true);
   const [showFather, setShowFather] = useState(true);
   const [showMother, setShowMother] = useState(true);
-  const [showAddress, setShowAddress] = useState(true); // ✅ แยก toggle ที่อยู่
-  const [showGuardian, setShowGuardian] = useState(true);
+  const [showAddress, setShowAddress] = useState(true);
+  // const [showGuardian, setShowGuardian] = useState(true);
+  const objUrlRef = useRef<string | null>(null);
 
-  // ===== data =====
   const [student, setStudent] = useState<any>(null);
   const [father, setFather] = useState<any>(null);
   const [mother, setMother] = useState<any>(null);
   const [address, setAddress] = useState<any>(null);
-  const [guardian, setGuardian] = useState<any>(null);
+  // const [guardian, setGuardian] = useState<any>(null);
   const [rolePrefix, setRolePrefix] = useState<string | null>(null);
 
   const [provinceName, setProvinceName] = useState("-");
   const [districtName, setDistrictName] = useState("-");
   const [subdistrictName, setSubdistrictName] = useState("-");
   const [zipcodeText, setZipcodeText] = useState("-");
-
   const [classLabel, setClassLabel] = useState<string>("ม.-/-");
+
   // ---------- helpers ----------
   const show = (v: any) =>
     v == null || String(v).trim() === "" ? "-" : String(v).trim();
@@ -78,14 +71,12 @@ const StudentProfile = () => {
   };
 
   function getCurrentUserIdSmart(): number | undefined {
-    // 1) ลองจาก localStorage แบบเดิมก่อน
     const keys = ["user_id", "users_id", "uid", "auth.user_id"];
     for (const k of keys) {
       const v = localStorage.getItem(k);
       if (v && !isNaN(Number(v))) return Number(v);
     }
 
-    // 2) ถ้าไม่มี ให้ลองถอดจาก JWT ใน cookie/localStorage
     const token = getAuthTokenSafe();
     if (!token || token.split(".").length !== 3) return undefined;
     try {
@@ -111,18 +102,18 @@ const StudentProfile = () => {
     const d = dayjs(iso);
     if (!d.isValid()) return "-";
     const months = [
-      "ม.ค.",
-      "ก.พ.",
-      "มี.ค.",
-      "เม.ย.",
-      "พ.ค.",
-      "มิ.ย.",
-      "ก.ค.",
-      "ส.ค.",
-      "ก.ย.",
-      "ต.ค.",
-      "พ.ย.",
-      "ธ.ค.",
+      "มกราคม",
+      "กุมภาพันธ์",
+      "มีนาคม",
+      "เมษายน",
+      "พฤษภาคม",
+      "มิถุนายน",
+      "กรกฎาคม",
+      "สิงหาคม",
+      "กันยายน",
+      "ตุลาคม",
+      "พฤศจิกายน",
+      "ธันวาคม",
     ];
     const dd = d.date();
     const mm = months[d.month()];
@@ -265,7 +256,7 @@ const StudentProfile = () => {
           // เป็นนักเรียน → ดึงด้วย users_id
           const sRes = await studentCRUD.getByUserId(uid);
           let s = pickData(sRes);
-          if (Array.isArray(s)) s = s[0] ?? null; // <= ย้ายมาไว้ตรงนี้
+          if (Array.isArray(s)) s = s[0] ?? null;
           if (cancelled || !s) return;
           setStudent(s);
 
@@ -302,11 +293,9 @@ const StudentProfile = () => {
     }
 
     if (studentIdFromRoute) {
-      // โหมดเปิดโปรไฟล์นักเรียนแบบเจาะจง id ใน URL
-      loadByStudentPk(studentIdFromRoute);
+      loadByStudentPk(studentIdFromRoute); // โหมดเปิดโปรไฟล์นักเรียนแบบเจาะจง id ใน URL
     } else {
-      // โหมดผู้ใช้ที่ล็อกอินอยู่
-      loadForLoggedInUser();
+      loadForLoggedInUser(); // โหมดผู้ใช้ที่ล็อกอินอยู่
     }
 
     return () => {
@@ -359,6 +348,77 @@ const StudentProfile = () => {
     };
   }, [student]);
 
+useEffect(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let cancelled = false;
+
+  async function loadAvatar() {
+  setAvatarSrc("");
+
+  const id = student?.id ?? student?.ID;
+  if (!id) return;
+
+  // 1) ทำ version สำหรับ bust cache
+  const rawVer =
+    student?.updated_at ??
+    student?.UpdatedAt ??
+    student?.updatedAt ??
+    "";
+
+  // แปลงเป็นเลข ms ถ้าเป็นวันที่
+  let ver: string;
+  try {
+    ver = rawVer ? String(new Date(rawVer).getTime()) : String(Date.now());
+  } catch {
+    ver = String(Date.now());
+  }
+
+  // 2) ใส่ v ลงใน URL
+  const rel = `/student/${id}/image?v=${encodeURIComponent(ver)}`;
+  const apiUrl = `${studentCRUD.imageUrl(id)}?v=${encodeURIComponent(ver)}`;
+  const token = getAuthTokenSafe?.();
+
+  try {
+    if (token) {
+      const res = await GetBinary(rel, true); // << ใช้ path ที่มี ?v=
+      const blob: Blob = res?.data;
+      if (!(blob instanceof Blob) || blob.size === 0) {
+        setAvatarSrc("");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      if (objUrlRef.current) URL.revokeObjectURL(objUrlRef.current);
+      objUrlRef.current = url;
+      setAvatarSrc(url);
+    } else {
+      setAvatarSrc(apiUrl); // << URL ตรงที่มี ?v=
+    }
+  } catch (e) {
+    try {
+      const r = await fetch(apiUrl, { headers: { "Cache-Control": "no-cache" } });
+      if (r.ok) {
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        if (objUrlRef.current) URL.revokeObjectURL(objUrlRef.current);
+        objUrlRef.current = url;
+        setAvatarSrc(url);
+        return;
+      }
+    } catch {}
+    console.warn("Load avatar failed:", e);
+    setAvatarSrc("");
+  }
+}
+
+  loadAvatar();
+  return () => { cancelled = true; };
+}, [student?.id, student?.ID]);
+
+// รีโวคตอน unmount เท่านั้น (กันโดนรีโวคเร็วไปใน StrictMode)
+useEffect(() => {
+  return () => { if (objUrlRef.current) URL.revokeObjectURL(objUrlRef.current); };
+}, []);
+
   return (
     <>
       <div className="container">
@@ -366,10 +426,30 @@ const StudentProfile = () => {
 
         <div className="content1">
           <div className="content1Show">
-            <div className="content1ShowP"></div>
+          <div className="content1ShowP">
+  {avatarSrc ? (
+    <img
+      src={avatarSrc}
+      alt="student avatar"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  ) : (
+    <span style={{ color: "#fff", fontWeight: 600 }}>No Image</span>
+  )}
+</div>
             <div className="content1ShowInfor">
-              <div className="name-line">{fullNameTH(student)}</div>
-              <div className="class-line">{classLabel}</div>
+              <div
+                className="name-line"
+                style={{ fontSize: 21, color: "#000000ff", fontWeight: 500 }}
+              >
+                {fullNameTH(student)}
+              </div>
+              <div
+                className="class-line"
+                style={{ fontSize: 16, color: "#262626ff", fontWeight: 400 }}
+              >
+                {classLabel}
+              </div>
             </div>
           </div>
         </div>
@@ -394,7 +474,12 @@ const StudentProfile = () => {
                     </div>
                     <span
                       className="menu-label"
-                      style={{ paddingLeft: 16, fontSize: 15 }}
+                      style={{
+                        paddingLeft: 16,
+                        fontSize: 15,
+                        color: "#262626ff",
+                        fontWeight: 400,
+                      }}
                     >
                       ข้อมูลทั่วไป
                     </span>
@@ -416,7 +501,15 @@ const StudentProfile = () => {
                     width: "100%",
                   }}
                 >
-                  <div>ข้อมูลส่วนบุคคล</div>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      color: "#262626ff",
+                      fontWeight: 500,
+                    }}
+                  >
+                    ข้อมูลส่วนบุคคล{" "}
+                  </div>
                   <button onClick={() => setShowPersonal(!showPersonal)}>
                     {showPersonal ? <UpOutlined /> : <DownOutlined />}
                   </button>
@@ -504,7 +597,15 @@ const StudentProfile = () => {
                     width: "100%",
                   }}
                 >
-                  <div>ข้อมูลบิดา</div>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      color: "#262626ff",
+                      fontWeight: 500,
+                    }}
+                  >
+                    ข้อมูลบิดา
+                  </div>
                   <button onClick={() => setShowFather(!showFather)}>
                     {showFather ? <UpOutlined /> : <DownOutlined />}
                   </button>
@@ -565,7 +666,15 @@ const StudentProfile = () => {
                     width: "100%",
                   }}
                 >
-                  <div>ข้อมูลมารดา</div>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      color: "#262626ff",
+                      fontWeight: 500,
+                    }}
+                  >
+                    ข้อมูลมารดา
+                  </div>
                   <button onClick={() => setShowMother(!showMother)}>
                     {showMother ? <UpOutlined /> : <DownOutlined />}
                   </button>
@@ -626,7 +735,15 @@ const StudentProfile = () => {
                     width: "100%",
                   }}
                 >
-                  <div>ข้อมูลที่อยู่</div>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      color: "#262626ff",
+                      fontWeight: 500,
+                    }}
+                  >
+                    ข้อมูลที่อยู่
+                  </div>
                   <button onClick={() => setShowAddress(!showAddress)}>
                     {showAddress ? <UpOutlined /> : <DownOutlined />}
                   </button>
@@ -670,7 +787,6 @@ const StudentProfile = () => {
                       {show(zipcodeText)}
                     </div>
                   </div>
-                  {/* ถ้ามี zipcode ใน AddressN ก็แสดงเพิ่มได้ ถ้าไม่มีและคุณมีตาราง zipcode แยก ค่อย join ที่หลังบ้าน */}
                 </div>
               )}
             </div>
