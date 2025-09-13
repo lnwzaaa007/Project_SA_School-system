@@ -77,13 +77,15 @@ func GetCourses(c *gin.Context) {
 
 // ---------- (ตัวอย่าง) ดึง assignment submit ตาม id ----------
 func GetAllAssignment(c *gin.Context) {
-	var assignments []entity.AssignmentSubmit
-	id := c.Param("id")
-	if err := config.DB().Where("id = ?", id).Find(&assignments).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูล assignment ได้"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"data": assignments})
+    var assignment entity.AssignmentSubmit
+    id := c.Param("id")
+    if err := config.DB().
+        Where("id = ? AND student_id = 0", id).
+        First(&assignment).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบการบ้าน"})
+        return
+    }
+    c.JSON(http.StatusOK, gin.H{"data": assignment})
 }
 
 // ---------- อัปโหลดไฟล์อย่างเดียว ----------

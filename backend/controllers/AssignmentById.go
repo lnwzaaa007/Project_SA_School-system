@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,29 +41,32 @@ func GetSubmissionsByAssignmentID(c *gin.Context) {
 }
 // ✅ ครูบันทึกคะแนน
 func UpdateSubmissionScoreID(c *gin.Context) {
-	submissionID := c.Param("id")
+    submissionID := c.Param("id")
+    fmt.Println("DEBUG: submissionID =", submissionID) // ✅ ตรวจว่ามีค่า
 
-	var payload struct {
-		Score float32 `json:"score"`
-	}
-	if err := c.ShouldBindJSON(&payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ถูกต้อง"})
-		return
-	}
+    var payload struct {
+        Score float32 `json:"score"`
+    }
+    if err := c.ShouldBindJSON(&payload); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ข้อมูลไม่ถูกต้อง"})
+        return
+    }
 
-	var sub entity.AssignmentSubmit
-	if err := config.DB().First(&sub, submissionID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูลการส่งงาน"})
-		return
-	}
+    var sub entity.AssignmentSubmit
+    if err := config.DB().Where("id = ?", submissionID).First(&sub).Error; err != nil {
+        fmt.Println("DEBUG: record not found ->", err)
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบข้อมูลการส่งงาน"})
+        return
+    }
 
-	sub.Submit_Point = payload.Score
-	sub.Submit_status = entity.Success
+    sub.Submit_Point = payload.Score
+    sub.Submit_status = entity.Success
 
-	if err := config.DB().Save(&sub).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกคะแนนล้มเหลว"})
-		return
-	}
+    if err := config.DB().Save(&sub).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกคะแนนล้มเหลว"})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{"message": "อัปเดตคะแนนสำเร็จ", "data": sub})
+    c.JSON(http.StatusOK, gin.H{"message": "อัปเดตคะแนนสำเร็จ", "data": sub})
 }
+

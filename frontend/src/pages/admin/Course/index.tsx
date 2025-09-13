@@ -98,6 +98,7 @@ const Course:React.FC = () => {
                 <p>Some contents...</p>
                 <p>Some contents...</p>
             </Modal> */}
+            
 
             <Link to='CreateCourse'>
             <Button 
