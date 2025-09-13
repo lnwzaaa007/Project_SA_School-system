@@ -20,8 +20,11 @@ type ValidateResult = { missing: string[]; invalid: string[]; firstId: string | 
 // ---------- helpers ----------
 const API_HOST = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 const toUrl = (p?: string) => (p ? (/^https?:\/\//i.test(p) ? p : `${API_HOST}/${p.replace(/^\/+/, "")}`) : "");
+
 const isImage = (p?: string) => !!p && /\.(png|jpe?g|gif|webp|bmp)$/i.test(p);
+
 const isPdf = (p?: string) => !!p && /\.pdf($|\?)/i.test(p);
+
 const pick = (o: any, keys: string[]) => {
   for (const k of keys) {
     const v = o?.[k];
@@ -30,16 +33,73 @@ const pick = (o: any, keys: string[]) => {
   return undefined;
 };
 
-// preview เดิม (รูป/ไฟล์)
-const FilePreview: React.FC<{ path?: string; width?: number; height?: number }> = ({ path, width = 180, height = 240 }) => {
+// preview เดิม (รูป/ไฟล์) -> แทนที่ทั้งฟังก์ชันนี้
+const FilePreview: React.FC<{ path?: string; width?: number; height?: number }> = ({
+  path,
+  width = 180,
+  height = 240,
+}) => {
+  const [open, setOpen] = useState(false);
+
   if (!path) return <div>—</div>;
+
   const url = toUrl(path);
-  if (isImage(path)) return <Image width={width} src={url} style={{ borderRadius: 8 }} />;
-  if (isPdf(path)) {
+
+  // รูปภาพ: ใช้ antd Image + preview เต็มจอ
+  if (isImage(path)) {
     return (
-      <iframe src={url} width={width} height={height} style={{ border: "1px solid #eee", borderRadius: 8 }} />
+      <Image
+        width={width}
+        height={height}
+        src={url}
+        style={{ borderRadius: 8, objectFit: "cover" }}
+        preview={{ src: url }}
+      />
     );
   }
+
+  // PDF: แสดง thumbnail และกด "ขยายดู" เปิด Modal แบบเต็มจอ
+  if (isPdf(path)) {
+    return (
+      <>
+        <div
+          style={{ display: "inline-block" }}
+          onClick={() => setOpen(true)}
+          title="คลิกเพื่อขยายดู"
+        >
+          <iframe
+            src={url}
+            width={width}
+            height={height}
+            style={{ border: "1px solid #eee", borderRadius: 8 }}
+          />
+        </div>
+
+        <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+          <Button onClick={() => setOpen(true)}>ขยายดู</Button>
+          <Button href={url} target="_blank" rel="noopener noreferrer">
+            เปิดแท็บใหม่
+          </Button>
+        </div>
+
+        <Modal
+          open={open}
+          onCancel={() => setOpen(false)}
+          footer={null}
+          centered
+          width="90vw"
+          bodyStyle={{ height: "85vh", padding: 0 }}
+        >
+          <iframe
+            src={`${url}#toolbar=1&navpanes=0`}
+            style={{ width: "100%", height: "100%", border: 0 }}
+          />
+        </Modal>
+      </>
+    );
+  }
+
+  // ไฟล์ชนิดอื่น: ลิงก์เปิดแท็บใหม่
   return (
     <Button href={url} target="_blank" rel="noopener noreferrer">
       เปิดไฟล์
@@ -82,13 +142,14 @@ const ManageTeacher: React.FC = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
   const [selectedSubdistrict, setSelectedSubdistrict] = useState<number | null>(null);
   const [selectedZipcode, setSelectedZipcode] = useState<number | null>(null);
+  
   const readZipNum = (z: any): number | null => {
-  if (!z) return null;
-  const arr = Array.isArray(z) ? z : [];
-  const raw = arr[0]?.thai_zip_code;           // ⭐ ใช้ thai_zip_code
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : null;
-};
+    if (!z) return null;
+    const arr = Array.isArray(z) ? z : [];
+    const raw = arr[0]?.thai_zip_code;           // ⭐ ใช้ thai_zip_code
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  };
 
   // files (ใหม่: เก็บพาธไฟล์เดิมไว้แสดงผล)
   const [fileTeacherPath, setFileTeacherPath] = useState<string>("");
@@ -97,8 +158,6 @@ const ManageTeacher: React.FC = () => {
   // อัปโหลดไฟล์ใหม่ (ตอนบันทึก)
   const [teacherImage, setTeacherImage] = useState<File | null>(null);
   const [qualImage, setQualImage] = useState<File | null>(null);
-
-  
 
   // ---------- preload ข้อมูลเมื่อมี id ----------
   useEffect(() => {
@@ -134,7 +193,6 @@ const ManageTeacher: React.FC = () => {
         const dobRaw = pick(data, ["date_of_birth", "dateofbirth", "DateOfBirth"]);
         setDob(dobRaw ? dayjs(dobRaw) : null);
 
-        
         // address
         setAddressId(pick(data, ["address_id", "AddressID"]) ?? null);
         setAddrNumber(pick(data, ["address_number"]) || "");
@@ -145,17 +203,17 @@ const ManageTeacher: React.FC = () => {
         setSelectedProvince(prov ?? null);
         setSelectedDistrict(dist ?? null);
         setSelectedSubdistrict(subd ?? null);
-       
+
         if (subd) {
-      try {
-        const zipRes = await AddressAPI.getZipcode(Number(subd));
-        setSelectedZipcode(readZipNum(zipRes));
-      } catch {
-        setSelectedZipcode(null);
-      }
-    } else {
-      setSelectedZipcode(null);
-    }
+          try {
+            const zipRes = await AddressAPI.getZipcode(Number(subd));
+            setSelectedZipcode(readZipNum(zipRes));
+          } catch {
+            setSelectedZipcode(null);
+          }
+        } else {
+          setSelectedZipcode(null);
+        }
 
         // files (เดิม)
         setFileTeacherPath(pick(data, ["teacher_image", "Teacher_image"]) || "");
@@ -170,6 +228,33 @@ const ManageTeacher: React.FC = () => {
     run();
   }, [viewId]);
 
+  // ---------- ซ่อนตัวเลือกที่ไม่ต้องการใน Select (ไม่แก้คอมโพเนนต์ที่ใช้ซ้ำ) ----------
+  useEffect(() => {
+    // ซ่อนเฉพาะรายการเหล่านี้ใน dropdown
+    const banned = new Set(["เด็กชาย", "เด็กหญิง", "Master", "Miss"]);
+
+    const hideBanned = () => {
+      document
+        .querySelectorAll<HTMLDivElement>(".ant-select-dropdown .ant-select-item-option")
+        .forEach((opt) => {
+          const contentEl = opt.querySelector(".ant-select-item-option-content") as HTMLElement | null;
+          const label = contentEl?.innerText?.trim();
+          if (label && banned.has(label)) {
+            (opt as HTMLElement).style.display = "none";
+          }
+        });
+    };
+
+    // เรียกครั้งแรก (กรณี dropdown เปิดอยู่แล้ว)
+    hideBanned();
+
+    // เฝ้าดู DOM เพราะ dropdown ถูก mount/unmount ทุกครั้งที่เปิด
+    const obs = new MutationObserver(() => hideBanned());
+    obs.observe(document.body, { childList: true, subtree: true });
+
+    return () => obs.disconnect();
+  }, []);
+
   // ---------- ตัวช่วยตรวจสอบ ----------
   const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
   const onlyDigits = (v: string) => /^\d+$/.test(v);
@@ -182,7 +267,7 @@ const ManageTeacher: React.FC = () => {
   //   const check = (11 - (sum % 11)) % 10;
   //   return check === parseInt(s[12], 10);
   // };
-    const thaiCidOk = (id: string) => id.replace(/\D/g, "").length === 13;
+  const thaiCidOk = (id: string) => id.replace(/\D/g, "").length === 13;
 
   const validate = (): ValidateResult => {
     const missing: string[] = [];
@@ -237,14 +322,14 @@ const ManageTeacher: React.FC = () => {
   };
   const handleSubdistrictChange = async (value: number | null) => {
     setSelectedSubdistrict(value); setSelectedZipcode(null);
-     if (value) {
-    try {
-      const zipRes = await AddressAPI.getZipcode(value);
-      setSelectedZipcode(readZipNum(zipRes));  // ⭐
-    } catch {
-      setSelectedZipcode(null);
+    if (value) {
+      try {
+        const zipRes = await AddressAPI.getZipcode(value);
+        setSelectedZipcode(readZipNum(zipRes));  // ⭐
+      } catch {
+        setSelectedZipcode(null);
+      }
     }
-  }
   };
   const handleZipcodeChange = (value: number | null) => setSelectedZipcode(value);
 
@@ -256,44 +341,99 @@ const ManageTeacher: React.FC = () => {
 
   // ---------- Submit (ยังคงทำงานโหมดสร้าง/อัปเดตตามที่คุณจะต่อเพิ่ม) ----------
   const onSave = async () => {
-  const { missing, invalid, firstId } = validate();
-  if (missing.length > 0) {
-    modal.error({ title: "กรอกข้อมูลไม่ครบ", content: <ul style={{ marginLeft: 18 }}>{missing.map((m,i)=><li key={i}>{m}</li>)}</ul> });
-    setTimeout(() => scrollAndFocus(firstId), 0);
-    return;
-  }
-  if (invalid.length > 0) {
-    modal.error({ title: "รูปแบบข้อมูลไม่ถูกต้อง", content: <ul style={{ marginLeft: 18 }}>{invalid.map((m,i)=><li key={i}>{m}</li>)}</ul> });
-    setTimeout(() => scrollAndFocus(firstId), 0);
-    return;
-  }
+    const { missing, invalid, firstId } = validate();
+    if (missing.length > 0) {
+      modal.error({ title: "กรอกข้อมูลไม่ครบ", content: <ul style={{ marginLeft: 18 }}>{missing.map((m,i)=><li key={i}>{m}</li>)}</ul> });
+      setTimeout(() => scrollAndFocus(firstId), 0);
+      return;
+    }
+    if (invalid.length > 0) {
+      modal.error({ title: "รูปแบบข้อมูลไม่ถูกต้อง", content: <ul style={{ marginLeft: 18 }}>{invalid.map((m,i)=><li key={i}>{m}</li>)}</ul> });
+      setTimeout(() => scrollAndFocus(firstId), 0);
+      return;
+    }
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // ---------- สร้าง payload ครู: เลือก JSON หรือ FormData ----------
-    const asJSON = !(teacherImage || qualImage); // ไม่มีไฟล์ -> JSON, มีไฟล์ -> multipart
-    let teacherPayload: any;
+      // ---------- สร้าง payload ครู: เลือก JSON หรือ FormData ----------
+      const asJSON = !(teacherImage || qualImage); // ไม่มีไฟล์ -> JSON, มีไฟล์ -> multipart
+      let teacherPayload: any;
 
-    if (asJSON) {
-      teacherPayload = {
-        teacher_id: teacherId,
-        title_id: Number(titleThId),
-        t_first_name: tFirst,
-        t_last_name: tLast,
-        e_first_name: eFirst,
-        e_last_name: eLast,
-        citizen_id: citizenId,
-        tel: tel,
-        date_of_birth: (dob ?? dayjs()).format("YYYY-MM-DD"),
-        gender_id: Number(genderId),
-        nationality,
-        email,
-        religious,
-        qualification,
-        // address_id ไม่ต้องเซ็ตที่นี่ (จัดการ Address แยก)
-      };
-    } else {
+      if (asJSON) {
+        teacherPayload = {
+          teacher_id: teacherId,
+          title_id: Number(titleThId),
+          t_first_name: tFirst,
+          t_last_name: tLast,
+          e_first_name: eFirst,
+          e_last_name: eLast,
+          citizen_id: citizenId,
+          tel: tel,
+          date_of_birth: (dob ?? dayjs()).format("YYYY-MM-DD"),
+          gender_id: Number(genderId),
+          nationality,
+          email,
+          religious,
+          qualification,
+          // address_id ไม่ต้องเซ็ตที่นี่ (จัดการ Address แยก)
+        };
+      } else {
+        const fd = new FormData();
+        fd.append("teacher_id", teacherId);
+        fd.append("title_id", String(titleThId));
+        fd.append("t_first_name", tFirst);
+        fd.append("t_last_name", tLast);
+        fd.append("e_first_name", eFirst);
+        fd.append("e_last_name", eLast);
+        fd.append("citizen_id", citizenId);
+        fd.append("tel", tel);
+        fd.append("date_of_birth", (dob ?? dayjs()).format("YYYY-MM-DD"));
+        fd.append("gender_id", String(genderId));
+        fd.append("nationality", nationality);
+        fd.append("email", email);
+        fd.append("religious", religious);
+        fd.append("qualification", qualification);
+        if (teacherImage)     fd.append("teacher_image", teacherImage);
+        if (qualImage)        fd.append("qualification_image", qualImage);
+        teacherPayload = fd;
+      }
+
+      // ---------- โหมด "แก้ไข" เมื่อมี viewId ----------
+      if (viewId) {
+        // 1) อัปเดตครู
+        const up = await teacherAPI.updateTeacher(viewId, teacherPayload);
+        if (up?.error) throw new Error(up?.error || "อัปเดนครูไม่สำเร็จ");
+
+        // 2) อัปเดตที่อยู่ (มี addressId ถึงจะอัปเดต, ถ้าไม่มีให้สร้างใหม่)
+        const addrPayload = {
+          address_number: addrNumber,
+          road: road || "",
+          thai_province_id: Number(selectedProvince),
+          thai_district_id: Number(selectedDistrict),
+          thai_subdistrict_id: Number(selectedSubdistrict),
+        };
+
+        if (addressId) {
+          const upAddr = await addressCRUD_N.update(addressId, addrPayload);
+          if (upAddr?.error) throw new Error(upAddr?.error || "อัปเดตที่อยู่ไม่สำเร็จ");
+        } else {
+          // เผื่อครูยังไม่มี address — ให้สร้างใหม่แล้วหลังบ้านไปผูก teacher.address_id เองตามที่คุณออกแบบไว้
+          await AddressAPI.createAddress({ ...addrPayload, teacher_id: Number(viewId) });
+        }
+
+        setLoading(false);
+        modal.success({
+          title: "อัปเดตสำเร็จ",
+          content: "บันทึกการแก้ไขข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
+          okText: "กลับ",
+          onOk: () => navigate(-1),
+          afterClose: () => navigate(-1),
+        });
+        return;
+      }
+
+      // ---------- โหมด "สร้างใหม่" (เดิม) ----------
       const fd = new FormData();
       fd.append("teacher_id", teacherId);
       fd.append("title_id", String(titleThId));
@@ -309,113 +449,56 @@ const ManageTeacher: React.FC = () => {
       fd.append("email", email);
       fd.append("religious", religious);
       fd.append("qualification", qualification);
-      if (teacherImage)     fd.append("teacher_image", teacherImage);
-      if (qualImage)        fd.append("qualification_image", qualImage);
-      teacherPayload = fd;
-    }
+      if (teacherImage) fd.append("teacher_image", teacherImage);
+      if (qualImage)    fd.append("qualification_image", qualImage);
 
-    // ---------- โหมด "แก้ไข" เมื่อมี viewId ----------
-    if (viewId) {
-      // 1) อัปเดตครู
-      const up = await teacherAPI.updateTeacher(viewId, teacherPayload);
-      if (up?.error) throw new Error(up?.error || "อัปเดนครูไม่สำเร็จ");
+      const resTeacher = await teacherAPI.createTeacher(fd);
+      if (!(resTeacher?.status >= 200 && resTeacher?.status < 300)) {
+        const msg =
+          resTeacher?.data?.detail ||
+          resTeacher?.data?.error ||
+          resTeacher?.data?.message ||
+          resTeacher?.statusText ||
+          "สร้างครูไม่สำเร็จ";
+        throw new Error(msg);
+      }
 
-      // 2) อัปเดตที่อยู่ (มี addressId ถึงจะอัปเดต, ถ้าไม่มีให้สร้างใหม่)
-      const addrPayload = {
+      const teacherObj = resTeacher.data?.teacher || resTeacher.data;
+      const newTeacherId: number | undefined = teacherObj?.ID ?? teacherObj?.id;
+      if (!newTeacherId) throw new Error("ไม่ได้รับรหัสครู (teacher.id) จากเซิร์ฟเวอร์");
+
+      const resAddress = await AddressAPI.createAddress({
         address_number: addrNumber,
         road: road || "",
         thai_province_id: Number(selectedProvince),
         thai_district_id: Number(selectedDistrict),
         thai_subdistrict_id: Number(selectedSubdistrict),
-      };
+        teacher_id: newTeacherId,
+      });
 
-      if (addressId) {
-        const upAddr = await addressCRUD_N.update(addressId, addrPayload);
-        if (upAddr?.error) throw new Error(upAddr?.error || "อัปเดตที่อยู่ไม่สำเร็จ");
-      } else {
-        // เผื่อครูยังไม่มี address — ให้สร้างใหม่แล้วหลังบ้านไปผูก teacher.address_id เองตามที่คุณออกแบบไว้
-        await AddressAPI.createAddress({ ...addrPayload, teacher_id: Number(viewId) });
+      if (!(resAddress?.status >= 200 && resAddress?.status < 300)) {
+        const msg =
+          resAddress?.data?.detail ||
+          resAddress?.data?.error ||
+          resAddress?.data?.message ||
+          resAddress?.statusText ||
+          "สร้างที่อยู่ไม่สำเร็จ";
+        throw new Error(`สร้างครูสำเร็จ แต่สร้างที่อยู่ล้มเหลว: ${msg}`);
       }
 
       setLoading(false);
       modal.success({
-        title: "อัปเดตสำเร็จ",
-        content: "บันทึกการแก้ไขข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
+        title: "บันทึกสำเร็จ",
+        content: "ระบบได้บันทึกข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
         okText: "กลับ",
         onOk: () => navigate(-1),
         afterClose: () => navigate(-1),
       });
-      return;
+    } catch (e: any) {
+      setLoading(false);
+      modal.error({ title: "บันทึกไม่สำเร็จ", content: e?.message || "เกิดข้อผิดพลาดขณะบันทึก", okText: "ปิด" });
     }
-
-    // ---------- โหมด "สร้างใหม่" (เดิม) ----------
-    // (เหมือนเดิมทุกอย่าง)
-    const fd = new FormData();
-    fd.append("teacher_id", teacherId);
-    fd.append("title_id", String(titleThId));
-    fd.append("t_first_name", tFirst);
-    fd.append("t_last_name", tLast);
-    fd.append("e_first_name", eFirst);
-    fd.append("e_last_name", eLast);
-    fd.append("citizen_id", citizenId);
-    fd.append("tel", tel);
-    fd.append("date_of_birth", (dob ?? dayjs()).format("YYYY-MM-DD"));
-    fd.append("gender_id", String(genderId));
-    fd.append("nationality", nationality);
-    fd.append("email", email);
-    fd.append("religious", religious);
-    fd.append("qualification", qualification);
-    if (teacherImage) fd.append("teacher_image", teacherImage);
-    if (qualImage)    fd.append("qualification_image", qualImage);
-
-    const resTeacher = await teacherAPI.createTeacher(fd);
-    if (!(resTeacher?.status >= 200 && resTeacher?.status < 300)) {
-      const msg =
-        resTeacher?.data?.detail ||
-        resTeacher?.data?.error ||
-        resTeacher?.data?.message ||
-        resTeacher?.statusText ||
-        "สร้างครูไม่สำเร็จ";
-      throw new Error(msg);
-    }
-
-    const teacherObj = resTeacher.data?.teacher || resTeacher.data;
-    const newTeacherId: number | undefined = teacherObj?.ID ?? teacherObj?.id;
-    if (!newTeacherId) throw new Error("ไม่ได้รับรหัสครู (teacher.id) จากเซิร์ฟเวอร์");
-
-    const resAddress = await AddressAPI.createAddress({
-      address_number: addrNumber,
-      road: road || "",
-      thai_province_id: Number(selectedProvince),
-      thai_district_id: Number(selectedDistrict),
-      thai_subdistrict_id: Number(selectedSubdistrict),
-      teacher_id: newTeacherId,
-    });
-
-    if (!(resAddress?.status >= 200 && resAddress?.status < 300)) {
-      const msg =
-        resAddress?.data?.detail ||
-        resAddress?.data?.error ||
-        resAddress?.data?.message ||
-        resAddress?.statusText ||
-        "สร้างที่อยู่ไม่สำเร็จ";
-      throw new Error(`สร้างครูสำเร็จ แต่สร้างที่อยู่ล้มเหลว: ${msg}`);
-    }
-
-    setLoading(false);
-    modal.success({
-      title: "บันทึกสำเร็จ",
-      content: "ระบบได้บันทึกข้อมูลครูและที่อยู่เรียบร้อยแล้ว",
-      okText: "กลับ",
-      onOk: () => navigate(-1),
-      afterClose: () => navigate(-1),
-    });
-  } catch (e: any) {
-    setLoading(false);
-    modal.error({ title: "บันทึกไม่สำเร็จ", content: e?.message || "เกิดข้อผิดพลาดขณะบันทึก", okText: "ปิด" });
-  }
-};
-
+  };
 
   return (
     <div>
@@ -431,7 +514,7 @@ const ManageTeacher: React.FC = () => {
           borderRadius: 16,
         }}
       >
-        <h1>ข้อมูลทั่วไป {viewId ? "(โหมดดู/แก้ไข)" : "(โหมดสร้างใหม่)"}</h1>
+        <h1>แก้ไขข้อมูลทั่วไป </h1>
 
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12} id="fld_teacher_id">
@@ -490,13 +573,48 @@ const ManageTeacher: React.FC = () => {
             <Input placeholder="LastName" value={eLast} onChange={(e) => setELast(e.target.value)} disabled={loading} />
           </Col>
         </Row>
-
+        <Row gutter={[16, 12]}>
+          <Col xs={24} md={12}>
+              <label style={{ lineHeight: "2" }}>ศาสนา</label>
+              <Input value={religious} onChange={(e) => setReligious(e.target.value)} disabled={loading} />
+          </Col>
+          <Col xs={24} md={12} id="fld_nationality">
+            <label style={{ lineHeight: "2" }}>สัญชาติ</label>
+            <Input value={nationality} onChange={(e) => setNationality(e.target.value)} disabled={loading} />
+          </Col>
+        </Row>
         <Row gutter={[16, 12]}>
           <Col xs={24} md={12} id="fld_qualification">
             <label style={{ lineHeight: "2" }}>จบการศึกษา (สาขา)</label>
             <Input placeholder="เช่น วิทยาการคอมพิวเตอร์" value={qualification} onChange={(e) => setQualification(e.target.value)} disabled={loading} />
           </Col>
-          <Col xs={24} md={12}>
+          
+        </Row>
+
+        
+
+        {/* ----------- ไฟล์เดิม (ถ้ามี) ----------- */}
+        {(fileTeacherPath || fileQualPath) && (
+          <>
+            <h3 style={{ marginTop: 16 }}>ไฟล์ที่เคยอัปโหลด</h3>
+            <Row gutter={[16, 12]}>
+              <Col xs={24} md={4}>
+                <label>รูปภาพครู (เดิม)</label>
+                <div><FilePreview path={fileTeacherPath} /></div>
+              </Col>
+              <Col xs={24} md={8}>
+            <label style={{ lineHeight: "2" }}>Upload รูปภาพครู (teacher_image)</label>
+            <div>
+              <Upload {...oneFileOnly} accept="image/*" onChange={onTeacherImgChange}>
+                <Button disabled={loading}>เลือกรูป</Button>
+              </Upload>
+            </div>
+            </Col>
+              <Col xs={24} md={4}>
+                <label>ไฟล์วุฒิ (เดิม)</label>
+                <div><FilePreview path={fileQualPath} /></div>
+              </Col>
+              <Col xs={24} md={6}>
             <label style={{ lineHeight: "2" }}>แนบไฟล์วุฒิ (qualification_image)</label>
             <div>
               <Upload {...oneFileOnly} accept="image/*,.pdf" onChange={onQualImgChange}>
@@ -504,58 +622,11 @@ const ManageTeacher: React.FC = () => {
               </Upload>
             </div>
           </Col>
-        </Row>
-
-        <Row gutter={[16, 12]}>
-          <Col xs={24} md={12}>
-            <label style={{ lineHeight: "2" }}>ศาสนา</label>
-            <Input value={religious} onChange={(e) => setReligious(e.target.value)} disabled={loading} />
-          </Col>
-          <Col xs={24} md={12} id="fld_nationality">
-            <label style={{ lineHeight: "2" }}>สัญชาติ</label>
-            <Input value={nationality} onChange={(e) => setNationality(e.target.value)} disabled={loading} />
-          </Col>
-        </Row>
-
-        <Row gutter={[16, 12]}>
-          <Col xs={24} md={12} id="fld_tel">
-            <label style={{ lineHeight: "2" }}>เบอร์ติดต่อ</label>
-            <Input value={tel} onChange={(e) => setTel(e.target.value)} disabled={loading} />
-          </Col>
-          <Col xs={24} md={12} id="fld_email">
-            <label style={{ lineHeight: "2" }}>E-mail</label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
-          </Col>
-        </Row>
-
-        {/* ----------- ไฟล์เดิม (ถ้ามี) ----------- */}
-        {(fileTeacherPath || fileQualPath) && (
-          <>
-            <h3 style={{ marginTop: 16 }}>ไฟล์ที่เคยอัปโหลด</h3>
-            <Row gutter={[16, 12]}>
-              <Col xs={24} md={6}>
-                <label>รูปภาพครู (เดิม)</label>
-                <div><FilePreview path={fileTeacherPath} /></div>
-              </Col>
-              <Col xs={24} md={6}>
-                <label>ไฟล์วุฒิ (เดิม)</label>
-                <div><FilePreview path={fileQualPath} /></div>
-              </Col>
             </Row>
           </>
         )}
 
-        {/* อัปโหลดไฟล์ใหม่ */}
-        <Row gutter={[16, 12]} style={{ marginTop: 8 }}>
-          <Col xs={24} md={12}>
-            <label style={{ lineHeight: "2" }}>Upload รูปภาพครู (teacher_image)</label>
-            <div>
-              <Upload {...oneFileOnly} accept="image/*" onChange={onTeacherImgChange}>
-                <Button disabled={loading}>เลือกรูป</Button>
-              </Upload>
-            </div>
-          </Col>
-        </Row>
+        
 
         {/* ที่อยู่ */}
         <h1 style={{ marginTop: 24 }}>ที่อยู่ปัจจุบัน</h1>

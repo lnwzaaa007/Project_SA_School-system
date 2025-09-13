@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/config"
 	"github.com/lnwzaaa007/Project_SA_School-system/backend/entity"
+	"gorm.io/gorm"
 )
 
 type EnrollmentCreateRequest struct {
@@ -417,4 +418,57 @@ func UpdateEnrollment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "updated", "enrollment": en})
+}
+
+func CheckEnrollmentStatus(c *gin.Context) {
+    cid := strings.TrimSpace(c.Query("citizen_id"))
+    cid = strings.ReplaceAll(cid, " ", "")
+    cid = strings.ReplaceAll(cid, "-", "")
+
+    if cid == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "missing citizen_id"})
+        return
+    }
+
+    // ถ้ามีหลายแถว ใช้แถวล่าสุด
+    var e entity.Enrollment
+    err := config.DB().
+        Where("citizen_id = ?", cid).
+        Order("created_at DESC").
+        First(&e).Error
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+
+    status := strings.TrimSpace(e.Status)
+    if status == "" {
+        status = "waiting"
+    }
+
+    // mapping คำไทย (ปรับได้ตามที่ใช้จริง)
+    toTH := map[string]string{
+        "waiting":      "รอพิจารณา",
+        "completed":    "ผ่านการคัดเลือก",
+        "unsuccessful": "ไม่ผ่านการคัดเลือก",
+        "cancel":       "ยกเลิก",
+    }
+    th := toTH[status]
+    if th == "" {
+        th = status
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "full_name":   e.TFirst_Name + " " + e.TLast_Name,
+        "citizen_id":  e.Citizen_ID,
+        "status":      status,
+        "status_text": th,
+        "grade_year":  e.Grade_Year,
+        "grade_class": e.Grade_Class,
+        "submitted_at": e.CreatedAt.Format(time.RFC3339),
+    })
 }

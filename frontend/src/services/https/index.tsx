@@ -351,8 +351,8 @@ export const EnrollmentAPI = {
   getEnrollmentById: (id: number | string) => Get(`/enrollment/${id}`),
   createEnrollment: (form: FormData) => Post("/enrollments", form, false),
   deleteEnrollment: (id: number | string) => Delete(`/enrollment/${id}`),
-  updateEnrollment: (id: number | string, data: FormData | any) =>
-    Update(`/enrollment/${id}`, data, true),
+  updateEnrollment: (id: number | string, data: FormData | any) => Update(`/enrollment/${id}`, data, true),
+  checkStatus: (citizenId: string) =>  Get(`/checkenrollment?citizen_id=${encodeURIComponent(citizenId)}`, false),
 };
 
 

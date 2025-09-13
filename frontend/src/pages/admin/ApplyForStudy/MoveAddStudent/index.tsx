@@ -424,59 +424,59 @@ const FilePreview: React.FC<{
 
       {/* ----------- ไฟล์เดิมที่อัปโหลด ----------- */}
       <h3 style={{ marginTop: 16 }}>ไฟล์ที่เคยอัปโหลด</h3>
-<Row gutter={[16, 12]}>
-  <Col xs={24} md={6}>
-    <label>ปพ.1 (ไฟล์เดิม)</label>
-    <div><FilePreview path={fileTranscript} /></div>
-    <div style={{ marginTop: 8 }}>
-    <input
-      type="file"
-      accept=".pdf,image/*"
-      onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}
-      disabled={loading}
-    />
-  </div>
-  </Col>
+      <Row gutter={[16, 12]}>
+        <Col xs={24} md={6}>
+          <label>ปพ.1 (ไฟล์เดิม)</label>
+          <div><FilePreview path={fileTranscript} /></div>
+          <div style={{ marginTop: 8 }}>
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              onChange={(e) => setNewTranscript(e.target.files?.[0] || null)}  // ✅ ปพ.1 -> setNewTranscript
+              disabled={loading}
+            />
+          </div>
+        </Col>
 
-  <Col xs={24} md={6}>
-    <label>สำเนาทะเบียนบ้าน (ไฟล์เดิม)</label>
-    <div><FilePreview path={fileHousehold} /></div>
-    <div style={{ marginTop: 8 }}>
-    <input
-      type="file"
-      accept=".pdf,image/*"
-      onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}
-      disabled={loading}
-    />
-  </div>
-  </Col>
+        <Col xs={24} md={6}>
+          <label>สำเนาทะเบียนบ้าน (ไฟล์เดิม)</label>
+          <div><FilePreview path={fileHousehold} /></div>
+          <div style={{ marginTop: 8 }}>
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              onChange={(e) => setNewHousehold(e.target.files?.[0] || null)}   // ✅ ทะเบียนบ้าน -> setNewHousehold
+              disabled={loading}
+            />
+          </div>
+        </Col>
 
-  <Col xs={24} md={6}>
-    <label>สำเนาบัตรประชาชน (ไฟล์เดิม)</label>
-    <div><FilePreview path={fileCopyCid} /></div>
-    <div style={{ marginTop: 8 }}>
-    <input
-      type="file"
-      accept=".pdf,image/*"
-      onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}
-      disabled={loading}
-    />
-  </div>
-  </Col>
+        <Col xs={24} md={6}>
+          <label>สำเนาบัตรประชาชน (ไฟล์เดิม)</label>
+          <div><FilePreview path={fileCopyCid} /></div>
+          <div style={{ marginTop: 8 }}>
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              onChange={(e) => setNewCopyCid(e.target.files?.[0] || null)}     // ✅ บัตร ปชช. -> setNewCopyCid
+              disabled={loading}
+            />
+          </div>
+        </Col>
 
-  <Col xs={24} md={6}>
-    <label>รูปภาพนักเรียน (ไฟล์เดิม)</label>
-    <div><FilePreview path={fileImage} /></div>
-    <div style={{ marginTop: 8 }}>
-    <input
-      type="file"
-      accept="image/*"
-      onChange={(e) => setNewImage(e.target.files?.[0] || null)}
-      disabled={loading}
-    />
-    </div>
-  </Col>
-</Row>
+        <Col xs={24} md={6}>
+          <label>รูปภาพนักเรียน (ไฟล์เดิม)</label>
+          <div><FilePreview path={fileImage} /></div>
+          <div style={{ marginTop: 8 }}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewImage(e.target.files?.[0] || null)}
+            disabled={loading}
+          />
+          </div>
+        </Col>
+      </Row>
 
       {/* Modal ยืนยันการบันทึก */}
       <Modal

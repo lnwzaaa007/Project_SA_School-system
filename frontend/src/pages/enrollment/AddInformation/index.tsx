@@ -1,6 +1,6 @@
 // pages/AddInformation.tsx
 import React, { useState } from "react";
-import { Row, Col, Input, DatePicker, Select, Upload, Button, Modal } from "antd";
+import { Row, Col, Input, DatePicker, Select, Upload, Button, Modal,Card } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -258,7 +258,8 @@ const AddInformation: React.FC = () => {
 />
       {contextHolder}
 
-      <div style={{ padding: 24, background: "#fff", maxWidth: "60%", margin: "20px auto", borderRadius: 32,marginTop:"5%" }}>
+      <Card 
+      style={{ padding: 24, background: "#fff", maxWidth: "60%", margin: "20px auto", borderRadius: 32,marginTop:"5%" }}>
         <h1>ข้อมูลทั่วไป</h1>
 
         <Row gutter={[16, 12]}>
@@ -426,7 +427,7 @@ const AddInformation: React.FC = () => {
             บันทึกการสมัคร
           </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
