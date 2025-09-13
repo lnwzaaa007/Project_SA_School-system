@@ -1,0 +1,27 @@
+/* ทำให้ Carousel เต็มความกว้างและสูง */
+.full-screen-carousel {
+  position: relative;
+  width: 100vw;   /* เต็มความกว้าง viewport */
+  height: 100vh;  /* เต็มความสูง viewport */
+  overflow: hidden;
+  margin: 0;      /* ไม่ให้มี margin รอบ */
+  padding: 0;
+  z-index: -1;    /* อยู่เบื้องหลัง content อื่นถ้ามี */
+}
+
+/* ปรับภาพใน Carousel ให้เต็ม */
+.full-screen-carousel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ให้รูปเต็มโดยไม่บิด */
+  display: block;
+}
+.rounded-top {
+  border-top-left-radius: 40px;   /* ปรับค่าตามชอบ */
+  border-top-right-radius: 40px;
+}
+.picture-slide-container {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  overflow: hidden; /* ทำให้รูปไม่ล้นเกินโค้ง */
+}
