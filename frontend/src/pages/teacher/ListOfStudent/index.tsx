@@ -3,9 +3,9 @@ import "./index.css";
 import React, { useEffect, useState } from "react";
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
-import { SearchOutlined, PlusCircleOutlined, EyeOutlined } from "@ant-design/icons";
+import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import { Space, Table, Button, message } from "antd";
-import { Link, useNavigate, useLocation , Outlet} from "react-router-dom";
+import { Link, useNavigate, useLocation , Outlet, matchPath} from "react-router-dom";
 import { studentCRUD } from "../../../services/https";
 import { gradeCRUD } from "../../../services/https"; 
 //import { test     } from "../../teacher/ListOfStudent/WatchStudent/index";
@@ -36,12 +36,15 @@ const TITLE_MAP: Record<number, string> = {
 };
 
 const ListOfStudent: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  
   const [rows, setRows] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
   type GradeMeta = { year: string; room: string }; // ไว้โชว์ในตาราง
   const [gradeMap, setGradeMap] = useState<Record<number, GradeMeta>>({});
+   const navigate = useNavigate();
+  const location = useLocation();
+
+
 
 useEffect(() => {
   (async () => {
@@ -153,6 +156,9 @@ const findGradeIdByYearRoom = (
     fetchList();
   };
 
+  const isChild = !!matchPath("/teacher/ListOfStudent/WatchStudent/:id", location.pathname);
+  if (isChild) return <Outlet />;
+
   return (
     <div>
       {contextHolder}
@@ -170,14 +176,6 @@ const findGradeIdByYearRoom = (
             <SearchOutlined style={{ fontSize: 18 }} />
           </div>
         </div>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
-        <Link to="AddStudent">
-          <Button type="primary" icon={<PlusCircleOutlined />} className="myButton">
-            เพิ่มข้อมูล
-          </Button>
-        </Link>
       </div>
 
       <div className="content2" style={{ width: "95%" }}>
@@ -203,7 +201,7 @@ const findGradeIdByYearRoom = (
             
 <Button 
                   icon={<EyeOutlined /> }
-                  onClick={() => navigate(`/teacher/ListOfStudent/WatchStudent/${record.ID}`)}
+                  onClick={() => navigate(`WatchStudent/${record.ID}`)}
                   style={{ marginRight: 20, backgroundColor: "#fff", color: "#00db12ff", border: "1px solid #ccc" }}
 ></Button>
 
@@ -212,7 +210,7 @@ const findGradeIdByYearRoom = (
           />
         </Table>
       </div>
-      <Outlet />
+      {/* <Outlet /> */}
     </div>
   );
 };

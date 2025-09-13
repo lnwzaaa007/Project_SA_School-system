@@ -33,8 +33,6 @@ func main() {
 	
 	
 	{
-		// student
-		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
 
 		// router.GET("/student/:id", controllers.GetNameStudentById)
 		
@@ -46,7 +44,8 @@ func main() {
 		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		
 
-
+	// student
+		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
 		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
 		router.PUT("/student/:id", controllers.UpdateStudent)          // แก้ไขนักเรียนตาม PK id
 		// List + ค้นหา + แบ่งหน้า + กรอง

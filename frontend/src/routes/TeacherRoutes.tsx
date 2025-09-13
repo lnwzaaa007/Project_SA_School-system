@@ -43,6 +43,7 @@ const TeacherRoutes = (isLoggedIn: boolean): RouteObject => {
             {path:"WatchStudent/:id",element: <WatchStudent/>},
           ]
       },
+      // { path: "ListOfStudent/WatchStudent/:id", element: <WatchStudent /> },
       { path: "enterScore", element: <EnterScore /> },
       { path: "createWork", element: <CreateWork /> ,
         children:[

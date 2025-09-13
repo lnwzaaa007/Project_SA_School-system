@@ -14,7 +14,16 @@ button {
   border-radius: 5px;
 }
 
+.container{
+  display: block;
+  min-height: 100dvh;  /* อย่างน้อยเท่าความสูงหน้าจอ (รองรับมือถือดี) */
+}
 
+.main{
+  /* เนื้อหาหลัก สูงตามเนื้อหา */
+  display: block;
+  height: auto;       /* ค่าปกติอยู่แล้ว ใส่ไว้ให้ชัด */      /* กันปัญหาในกรณีอยู่ใน flex container */
+}
 .content1{
     /* flex: 1; */
     height: 150px;
@@ -35,27 +44,44 @@ button {
     height: 100px;
     width: 100px;
     background-color:#0777cc ;
-    margin-right: 10px;
     display: flex;
     border-radius: 50px;
     align-items: center;
     justify-content: center;
 }
 .content1ShowInfor{
-    height: 95%;
-    width: 15%;
-    display: flex;
-    align-items: center;
-    justify-content: start;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  height: 95%;
+  width: 15%;
+  display: flex;
+  flex-direction: column;   /* วางสองบรรทัดบน-ล่าง */
+  align-items: center;  /* ชิดซ้าย */
+  justify-content: center;
+
+  white-space: normal;      /* ยอมขึ้นบรรทัดใหม่ */
+  overflow: hidden;         /* กันล้น */
+}
+/* ทำ ellipsis แค่ที่บรรทัดชื่อ */
+.content1ShowInfor .name-line{
+  font-weight: 600;
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.content1ShowInfor .class-line{
+  margin-top: 5px;
+  font-size: 14px;     /* ย่อให้ดูเป็น subtitle */
+  line-height: 1.2;
+  opacity: .75;        /* สีอ่อนลงหน่อย */
 }
 
 .content2{
     flex-grow: 1;
     margin: 10px 30px 20px 30px;
     display: flex;
-    min-height: 10000pv;
+    min-height: 100ph;
 }
 .content2Left{
     /* flex-grow: 1; */
