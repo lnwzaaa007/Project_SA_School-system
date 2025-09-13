@@ -115,6 +115,131 @@ func UploadFileOnly(c *gin.Context) {
 
 // ---------- ส่งงาน (โหมดทดลอง: ไม่บังคับส่ง id ต่าง ๆ) ----------
 // ---------- ส่งงาน ----------
+// func AssignmentSubmit(c *gin.Context) {
+// 	assignmentTitle := c.PostForm("assignment_title")
+// 	description := c.PostForm("description")
+// 	studentComment := c.PostForm("student_comment")
+// 	submitPointAll := c.PostForm("submit_point_all")
+
+// 	getUint := func(k string) uint {
+// 		v := c.PostForm(k)
+// 		if v == "" {
+// 			return 0
+// 		}
+// 		u, err := strconv.ParseUint(v, 10, 32)
+// 		if err != nil {
+// 			return 0
+// 		}
+// 		return uint(u)
+// 	}
+// 	gradeID := getUint("grade_id")
+// 	courseID := getUint("course_id")
+// 	teacherID := getUint("teacher_id")
+// 	termID := getUint("term_id")
+// 	studentID := getUint("student_id")
+
+// 	pointAll := float32(0)
+// 	if submitPointAll != "" {
+// 		if f64, err := strconv.ParseFloat(submitPointAll, 32); err == nil {
+// 			pointAll = float32(f64)
+// 		} else {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "submit_point_all ไม่ถูกต้อง"})
+// 			return
+// 		}
+// 	}
+
+// 	if assignmentTitle == "" || courseID == 0 || studentID == 0 {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุชื่อการบ้าน รหัสวิชา และรหัสนักเรียน"})
+// 		return
+// 	}
+
+// 	// ตรวจสอบว่าเป็นงานที่เปิดอยู่จริง
+// 	{
+// 		var def entity.AssignmentSubmit
+// 		if err := config.DB().
+// 			Where("course_id = ? AND assignment_title = ? AND student_id = 0", courseID, assignmentTitle).
+// 			First(&def).Error; err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบการบ้านที่ระบุในรายวิชานี้"})
+// 			return
+// 		}
+// 		now := time.Now()
+// 		if now.Before(def.TimeStart) {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "ยังไม่ถึงเวลาเปิดส่งงาน"})
+// 			return
+// 		}
+// 		if now.After(def.TimeEnd) {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": "เลยกำหนดเวลาส่งงานแล้ว"})
+// 			return
+// 		}
+// 	}
+
+// 	fileHeader, err := c.FormFile("file")
+// 	if err != nil {
+// 		fileHeader, err = c.FormFile("assignment_file")
+// 	}
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาแนบไฟล์งาน"})
+// 		return
+// 	}
+// 	if vErr := validateFile(fileHeader); vErr != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": vErr.Error()})
+// 		return
+// 	}
+
+// 	courseFolder := strconv.Itoa(int(courseID))
+// 	studentFolder := strconv.Itoa(int(studentID))
+// 	baseDir := filepath.Join("uploads", "assignments", courseFolder, studentFolder)
+// 	relPath, _, err := saveFile(c, baseDir, fileHeader)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกไฟล์ไม่สำเร็จ"})
+// 		return
+// 	}
+
+// 	var sub entity.AssignmentSubmit
+// 	db := config.DB()
+// 	q := db.Where("assignment_title = ? AND course_id = ? AND student_id = ?",
+// 		assignmentTitle, courseID, studentID)
+// 	tx := q.First(&sub)
+
+// 	// ถ้ามีไฟล์เก่าและไฟล์ใหม่ไม่ตรงกัน ลบทิ้ง
+// 	if tx.Error == nil && sub.Assignment_file != "" && sub.Assignment_file != relPath {
+// 		_ = os.Remove(sub.Assignment_file)
+// 	}
+
+// 	// ✅ ตั้งค่าฟิลด์โดยใช้ชื่อ struct field ที่ถูกต้อง
+// 	sub.Assignment_title = assignmentTitle
+// 	sub.Description = description
+// 	sub.Student_comment = studentComment
+// 	sub.Assignment_file = relPath
+// 	sub.Submit_at = time.Now()
+// 	sub.Submit_Point_all = pointAll
+// 	sub.Submit_status = entity.Submitted // "ส่งงานแล้ว"
+
+// 	sub.GradeID = gradeID
+// 	sub.CourseID = courseID
+// 	sub.TeacherID = teacherID
+// 	sub.TermID = termID
+// 	sub.StudentID = studentID
+
+// 	if tx.Error == nil {
+// 		if err := db.Save(&sub).Error; err != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปเดตงานไม่สำเร็จ"})
+// 			return
+// 		}
+// 	} else {
+// 		if err := db.Create(&sub).Error; err != nil {
+// 			c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกงานไม่สำเร็จ"})
+// 			return
+// 		}
+// 	}
+
+// 	c.JSON(http.StatusCreated, gin.H{
+// 		"message":  "ส่งงานสำเร็จ",
+// 		"data":     sub,
+// 		"file_url": "/" + relPath,
+// 	})
+// }
+
 func AssignmentSubmit(c *gin.Context) {
 	assignmentTitle := c.PostForm("assignment_title")
 	description := c.PostForm("description")
@@ -153,26 +278,27 @@ func AssignmentSubmit(c *gin.Context) {
 		return
 	}
 
-	// ตรวจสอบว่าเป็นงานที่เปิดอยู่จริง
-	{
-		var def entity.AssignmentSubmit
-		if err := config.DB().
-			Where("course_id = ? AND assignment_title = ? AND student_id = 0", courseID, assignmentTitle).
-			First(&def).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบการบ้านที่ระบุในรายวิชานี้"})
-			return
-		}
-		now := time.Now()
-		if now.Before(def.TimeStart) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "ยังไม่ถึงเวลาเปิดส่งงาน"})
-			return
-		}
-		if now.After(def.TimeEnd) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "เลยกำหนดเวลาส่งงานแล้ว"})
-			return
-		}
+	// ✅ ตรวจสอบว่าเป็นงานที่เปิดอยู่จริง (template ของครู)
+	var def entity.AssignmentSubmit
+	if err := config.DB().
+		Where("course_id = ? AND assignment_title = ? AND student_id = 0",
+			courseID, assignmentTitle).
+		First(&def).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบการบ้านที่ระบุในรายวิชานี้"})
+		return
 	}
 
+	now := time.Now()
+	if now.Before(def.TimeStart) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ยังไม่ถึงเวลาเปิดส่งงาน"})
+		return
+	}
+	if now.After(def.TimeEnd) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "เลยกำหนดเวลาส่งงานแล้ว"})
+		return
+	}
+
+	// ✅ ตรวจสอบไฟล์แนบ
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		fileHeader, err = c.FormFile("assignment_file")
@@ -195,40 +321,45 @@ func AssignmentSubmit(c *gin.Context) {
 		return
 	}
 
+	// ✅ ค้นหา record ของนักเรียน ถ้ามีอยู่แล้วให้อัปเดต ไม่งั้นสร้างจาก template
 	var sub entity.AssignmentSubmit
 	db := config.DB()
-	q := db.Where("assignment_title = ? AND course_id = ? AND student_id = ?",
-		assignmentTitle, courseID, studentID)
-	tx := q.First(&sub)
+	errFind := db.Where("assignment_title = ? AND course_id = ? AND student_id = ?",
+		assignmentTitle, courseID, studentID).First(&sub).Error
 
-	// ถ้ามีไฟล์เก่าและไฟล์ใหม่ไม่ตรงกัน ลบทิ้ง
-	if tx.Error == nil && sub.Assignment_file != "" && sub.Assignment_file != relPath {
-		_ = os.Remove(sub.Assignment_file)
+	if errFind != nil {
+		// ⬇️ ยังไม่เคยส่ง → copy ข้อมูล template ครูมาเป็นของนักเรียน
+		sub = def
+		sub.ID = 0 // สำคัญ: reset ID เพื่อให้ gorm สร้าง row ใหม่
+		sub.StudentID = studentID
 	}
 
-	// ✅ ตั้งค่าฟิลด์โดยใช้ชื่อ struct field ที่ถูกต้อง
+	// ✅ ตั้งค่าฟิลด์ของนักเรียนให้ถูกต้อง
 	sub.Assignment_title = assignmentTitle
 	sub.Description = description
 	sub.Student_comment = studentComment
 	sub.Assignment_file = relPath
-	sub.Submit_at = time.Now()
+	sub.Submit_at = now
 	sub.Submit_Point_all = pointAll
-	sub.Submit_status = entity.Submitted // "ส่งงานแล้ว"
+	sub.Submit_status = entity.Submitted
 
+	// อัปเดตความสัมพันธ์อื่น ๆ
 	sub.GradeID = gradeID
 	sub.CourseID = courseID
 	sub.TeacherID = teacherID
 	sub.TermID = termID
-	sub.StudentID = studentID
 
-	if tx.Error == nil {
-		if err := db.Save(&sub).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปเดตงานไม่สำเร็จ"})
+	// ✅ บันทึกข้อมูล
+	if errFind != nil {
+		// สร้างใหม่
+		if err := db.Create(&sub).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกงานไม่สำเร็จ"})
 			return
 		}
 	} else {
-		if err := db.Create(&sub).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกงานไม่สำเร็จ"})
+		// อัปเดตไฟล์และสถานะ
+		if err := db.Save(&sub).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปเดตงานไม่สำเร็จ"})
 			return
 		}
 	}
@@ -239,6 +370,7 @@ func AssignmentSubmit(c *gin.Context) {
 		"file_url": "/" + relPath,
 	})
 }
+
 
 
 func GetSubmissionsByAssignment(c *gin.Context) {

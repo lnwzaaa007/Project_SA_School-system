@@ -203,6 +203,7 @@ func main() {
 		// router.POST("/submit-assignment", controllers.AssignmentSubmit)
 		router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignment)
 		router.GET("/assignment-check/:assignment_id", controllers.GetSubmissionsByAssignmentID)
+		router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScoreID)
 		
 		// Teacher: Education Records (คะแนนนักเรียน)
 		router.POST("/teacher/education-records", controllers.CreateEducationRecord)
