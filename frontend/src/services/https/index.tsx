@@ -6,7 +6,6 @@ import type {AttendanceInterface} from "../../interfaces/Attendance"
 import { useEffect } from "react";
 import type { UpdateCoursePayload } from "../../interfaces/course";
 import type { AnnouncementInterface } from "../../interfaces/announcement";
-
 const API_URL = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 import type { TeacherLite } from "../../interfaces/Teacher";
 
@@ -133,7 +132,7 @@ export const Update = async (
   requireAuth: boolean = true
 ): Promise<AxiosResponse | any> => {
   const config = isFormData(data)
-    ? getFormConfig(requireAuth)  // ❗️อย่าตั้ง content-type เองถ้าเป็น FormData
+    ? getFormConfig(requireAuth)  // อย่าตั้ง content-type เองถ้าเป็น FormData
     : requireAuth
     ? getConfig()
     : getConfigWithoutAuth();
@@ -170,10 +169,6 @@ export const authAPI = {
   userLogin: (data: SignInInterface) => Post("/auth", data, false),
 
 };
-
-// export const studentAPI = {
-//   me: () => Get("/student", true), // ดึง profile ของ student ที่ login อยู่
-// };
 
 export const studentAPI = {
   getStudent: (user_id :number) => Get(`/students/${user_id}`),
@@ -214,6 +209,7 @@ export const gradeAPI = {
 export const termAPI = {
   getTermsAll: () => Get("/terms"),
 };
+
 //แม็ก ระบบ สร้างตารางเรียน
 export const ScheduleAPI = {
   getDays: () => Get("/schedule-days"),
@@ -221,7 +217,6 @@ export const ScheduleAPI = {
   getTimeEnd: () => Get("/schedule-times-end"),
   getSchedule: (grade: number, classId: number, term: number) => Get(`/schedule-get-id?grade=${grade}&class=${classId}&term=${term}`),
   getScheduleCourse: (course_code: string) => Get(`/schedule-course/${course_code}`),
-
   postSchedule: (data: PostSchedule) => Post(`/schedules`, data, true),
   deleteSchedule: (id: number) => Delete(`/schedules/${id}`),
   //ถ้ามีเทอมให้ส่งเทอม ถ้าไม่มีส่งแค่teacher_id
@@ -239,6 +234,7 @@ export const ScheduleAPI = {
     return Get(url);
   }, 
 };
+
 //แม็ก ระบบเช็คชื่อ
 export const AttendancesAPI ={
   getCourseSchedule: (grade: number,classID:number) => Get(`/attendances-course?grade=${grade}&class=${classID}`),
@@ -258,13 +254,6 @@ export const userCRUD = {
   // GET /users/:id  -> { prefix: "S" | "T" | ... }
   getPrefixById: (id: number | string) => Get(`/users/${id}`),
 };
-// export const ProvinceAPI ={
-//   getProvince: () => Get("/province"),
-// }
-
-// export const DistrictAPI ={
-//   getDistrict: (id: number) => Get(`/district/${id}`)
-// }
 
 export const AddressAPI ={
     getProvince: () => Get("/thaiprovince"),
@@ -338,7 +327,6 @@ export async function submitAssignment(fd: FormData) {
   if (!res.ok) throw new Error(`Submit failed ${res.status}`);
   return res.json();
 }
-
 
 
 export const createAssignment = {
@@ -430,8 +418,6 @@ export const guardianCRUD = {
 
 
 // ==== Address (ที่อยู่) ====
-// services/https (เฉพาะส่วน Address)
-
 type CreateAddressPayload = {
   address_number: string | number;
   road?: string;
@@ -472,7 +458,6 @@ export const addressCRUD_N = {
   getById: (id: number | string) => Get(`/addressesN/${id}`),
 };
 
-
 export const gradeCRUD = {
   list: (params?: any) => http.get("/grades", { params }),
   // ถ้ายังใช้แบบแยกปี/ห้อง:
@@ -482,40 +467,6 @@ export const gradeCRUD = {
     http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
 
 };
-
-
-// export const StudentAPI = {
-//   list: (params: {
-//     grade_id?: number | string;
-//     class_id?: number | string; // หรือ room_no ตามหลังบ้าน
-//     page_size?: number;
-//   }) => {
-//     const qs = new URLSearchParams();
-//     if (params.grade_id) qs.set("grade_id", String(params.grade_id));
-//     if (params.class_id) qs.set("class_id", String(params.class_id)); // ถ้าหลังบ้านใช้ room_no ให้เปลี่ยนชื่อคีย์
-//     qs.set("page_size", String(params.page_size ?? 1000));
-//     return Get(`/student?${qs.toString()}`); // ✅ ใช้ Get แทน axios.get
-//   },
-// };
-
-// export const EduRecordAPI = {
-//   list: (params: { term_id: number|string; course_id: number|string; page_size?: number }) => {
-//     const qs = new URLSearchParams();
-//     qs.set("term_id", String(params.term_id));
-//     qs.set("course_id", String(params.course_id));
-//     qs.set("page_size", String(params.page_size ?? 1000));
-//     return axios.get(`/teacher/education-records?${qs.toString()}`);
-//   },
-//   create: (payload: {
-//     term_id: number; course_id: number; teacher_id: number; student_id: number;
-//     point?: number; mid_point?: number; final_point?: number;
-//     grade_point?: number; behavior_point?: number; assign_id?: number;
-//   }) => axios.post(`/teacher/education-records`, payload),
-//   update: (id: number, payload: {
-//     point?: number; mid_point?: number; final_point?: number;
-//     grade_point?: number; behavior_point?: number; teacher_id?: number; assign_id?: number;
-//   }) => axios.put(`/teacher/education-records/${id}`, payload),
-// };
 
 export const StudentAPI = {
   list: (params: { grade_id?: number|string; class_id?: number|string; page_size?: number }) => {
@@ -547,7 +498,6 @@ export const EduRecordAPI = {
   update: (id: number, data: any) => Update(`/teacher/education-records/${id}`, data),
 };
 
-
 export const courseAPI_N = {
   // GET /coursesall  (จาก controller: GetCourseAll)
   getAll: async () => {
@@ -571,11 +521,8 @@ export const teacherAPI_N = {
 };
 
 
-//////////////////////////////
+/////////// SAFE helpers (เพิ่มใหม่ ไม่ยุ่งของเดิม)
 
-// ==============================
-// SAFE helpers (เพิ่มใหม่ ไม่ยุ่งของเดิม)
-// ==============================
 export const getAuthTokenSafe = (): string | null => {
   // reuse cookie key & LS ตามที่โปรเจกต์ใช้อยู่
   const cookies = document.cookie.split("; ");
@@ -595,7 +542,7 @@ export const getAuthTokenSafe = (): string | null => {
 const buildHeadersSafe = (requireAuth = true): Record<string, string> => {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   const token = getAuthTokenSafe();
-  // ✅ ใส่ Authorization เฉพาะมี token จริงเท่านั้น
+  // ใส่ Authorization เฉพาะมี token จริงเท่านั้น
   if (requireAuth && token) headers.Authorization = `Bearer ${token}`;
   return headers;
 };
@@ -670,9 +617,8 @@ export const SafeDelete = async (url: string, requireAuth = true) => {
   }
 };
 
-// ==============================
 // CRUD ชุด SAFE (เพิ่มใหม่ ไม่ยุ่งของเดิม)
-// ==============================
+
 export const studentCRUD_SAFE = {
   list: (params: { q?: string; grade_id?: number|string; page?: number; page_size?: number }) => {
     const qs = new URLSearchParams();
@@ -845,7 +791,7 @@ export const thaiAddressName_SAFE = {
     return "";
   },
 
-  // ✅ ใหม่: ตำบล รองรับทั้ง PK/รหัส และคืน zip จากคอลัมน์ thai_zip_code
+  // ตำบล รองรับทั้ง PK/รหัส และคืน zip จากคอลัมน์ thai_zip_code
   async getSubdistrictNameAndZipByAny(id?: number | string) {
     if (!id) return { name: "", zip: "" };
     const cacheKey = `subd:${id}`;
@@ -879,8 +825,6 @@ export const thaiAddressName_SAFE = {
     return { name: "", zip: "" };
   },
 };
-
-
 
 // สมมติหลังบ้านมี GET /assignsubmit?student_id=&term_id=&course_id=&page_size=
 export const AssignmentSubmitAPI_N = {

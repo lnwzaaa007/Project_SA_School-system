@@ -23,7 +23,7 @@ type NameOnly struct {
 }
 
 func GetStudentAllById(c *gin.Context) {
-	id := c.Param("user_id") // รับ ID จาก URL param เช่น /students/:id
+	id := c.Param("user_id")                 // รับ ID จาก URL param เช่น /students/:id
 	var student entity.Student
 	if err := config.DB().First(&student, "users_id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบนักเรียนที่มี ID นี้"})
@@ -91,11 +91,11 @@ type AddStudentReq struct {
 	CitizenID    string    `json:"citizen_id" binding:"required,len=13"`
 	Tel          string    `json:"tel"`
 	DateOfBirth  string     `json:"date_of_birth" binding:"required"`
-	Gender       string    `json:"gender"` // รับเป็น string แล้วค่อยแปลง
+	Gender       string    `json:"gender"`          // รับเป็น string แล้วค่อยแปลง
 	Nationality  string    `json:"nationality"`
 	Email        string    `json:"email"`
 	Religious    string    `json:"religious"`
-	StudentImage string    `json:"student_image"` // ✅ data URL หรือ base64 ล้วน
+	StudentImage string    `json:"student_image"`   // data URL หรือ base64 ล้วน
 	UsersID      uint      `json:"users_id"`
 	AddressID    uint      `json:"address_id"`
 	GradeID      uint      `json:"grade_id"`
@@ -233,7 +233,7 @@ func AddStudent(c *gin.Context) {
 		}
 	}
 
-	//mag เวลาเพิ่ม studenะ ให้เพิ่ม user auto <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	//mag เวลาเพิ่ม student ให้เพิ่ม user auto <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     // --- 3) Optionally create Users record for login ---
     var userID uint = payload.UsersID
     if userID == 0 {
@@ -296,11 +296,9 @@ func AddStudent(c *gin.Context) {
         DateOfBirth:   dob,
         Gender:        toGenderType(payload.Gender),
         Nationality:   payload.Nationality,
-        Email:         email, // ใช้ตัว normalize
+        Email:         email,      
         Religious:     payload.Religious,
         Student_image: img,
-        // UsersID:       payload.UsersID,
-        // Ensure UsersID is saved from created/selected user
         UsersID:       userID,
         AddressID:     payload.AddressID,
         GradeID:       payload.GradeID,
@@ -352,7 +350,7 @@ type UpdateStudentReq struct {
 	Nationality  *string   `json:"nationality"`
 	Email        *string   `json:"email"`
 	Religious    *string   `json:"religious"`
-	StudentImage *string   `json:"student_image"` // nil = ไม่แตะ, "" = ล้างรูป, อื่นๆ = ใส่ใหม่
+	StudentImage *string   `json:"student_image"`   // nil = ไม่แตะ, "" = ล้างรูป, อื่นๆ = ใส่ใหม่
 	UsersID      *uint     `json:"users_id"`
 	AddressID    *uint     `json:"address_id"`
 	GradeID      *uint     `json:"grade_id"`
@@ -394,7 +392,7 @@ func UpdateStudent(c *gin.Context) {
 
 	if req.StudentImage != nil {
 		if strings.TrimSpace(*req.StudentImage) == "" {
-			updates["student_image"] = []byte(nil) // ล้างรูป
+			updates["student_image"] = []byte(nil)          // ล้างรูป
 		} else {
 			img, err := decodeImageBase64(*req.StudentImage)
 			if err != nil {
@@ -460,7 +458,7 @@ type StudentView struct {
     ELastName    string            `json:"e_last_name"`
     CitizenID    string            `json:"citizen_id"`
     Tel          string            `json:"tel"`
-    DateOfBirth  string            `json:"date_of_birth"` // YYYY-MM-DD
+    DateOfBirth  string            `json:"date_of_birth"`   // YYYY-MM-DD
     Gender       entity.Gendertype `json:"gender"`
     Nationality  string            `json:"nationality"`
     Email        string            `json:"email"`
@@ -472,7 +470,7 @@ type StudentView struct {
     UpdatedAt    time.Time         `json:"updated_at"`
 
     HasImage     bool   `json:"has_image"`
-    ImageURL     string `json:"image_url"` // relative: /students/:id/image
+    ImageURL     string `json:"image_url"`  // relative: /students/:id/image
 }
 
 func toStudentView(s entity.Student) StudentView {
@@ -543,7 +541,7 @@ func ListStudents(c *gin.Context) {
         GradeID      uint
         CreatedAt    time.Time
         UpdatedAt    time.Time
-        HasImage     bool `gorm:"column:has_image"`
+        HasImage     bool   `gorm:"column:has_image"`
     }
 
     var rows []row
@@ -644,7 +642,7 @@ func GetStudentByID(c *gin.Context) {
        	AddressID: r.AddressID, GradeID: r.GradeID,
         CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
         HasImage: r.HasImage,
-        ImageURL: fmt.Sprintf("/students/%d/image", r.ID),
+        ImageURL: fmt.Sprintf("/student/%d/image", r.ID),
     }
 
     c.JSON(http.StatusOK, gin.H{"data": v})
