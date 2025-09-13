@@ -375,69 +375,169 @@ func findStudentIDByUsersID(db *gorm.DB, usersID uint) (uint, error) {
 	return s.ID, nil
 }
 
+// ---------- Slim Views used by student self-view ----------
+type TermSlim struct {
+    ID           uint   `json:"id"`
+    No           uint   `json:"no"`
+    AcademicYear string `json:"academic_year"`
+    Name         string `json:"name"`
+}
+type CourseSlim struct {
+    ID          uint   `json:"id"`
+    CourseCode  string `json:"course_code"`
+    CourseName  string `json:"course_name"`
+    Name        string `json:"name"`
+}
+type TeacherSlim struct {
+    ID         uint   `json:"id"`
+    TeacherID  string `json:"teacher_id"`
+    TFirstName string `json:"t_first_name"`
+    TLastName  string `json:"t_last_name"`
+}
+
+type MyEducationRecordView struct {
+    EducationRecordView `json:",inline"`
+    Term    *TermSlim    `json:"Term,omitempty"`
+    Course  *CourseSlim  `json:"Course,omitempty"`
+    Teacher *TeacherSlim `json:"Teacher,omitempty"`
+}
+
+
+
+
 // GET /me/education-records?term_id=&course_id=&assign_id=&page=&page_size=
 func ListMyEducationRecords(c *gin.Context) {
-	userID, ok := currentUserID(c)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
+    userID, ok := currentUserID(c)
+    if !ok {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+        return
+    }
+    db := config.DB()
 
-	db := config.DB()
-	stuID, err := findStudentIDByUsersID(db, userID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "student profile not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
-		return
-	}
+    // หา student_id ของ user นี้
+    stuID, err := findStudentIDByUsersID(db, userID)
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            c.JSON(http.StatusNotFound, gin.H{"error": "student profile not found"})
+            return
+        }
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+        return
+    }
 
-	qTerm := strings.TrimSpace(c.Query("term_id"))
-	qCourse := strings.TrimSpace(c.Query("course_id"))
-	qAssign := strings.TrimSpace(c.Query("assign_id"))
+    qTerm := strings.TrimSpace(c.Query("term_id"))
+    qCourse := strings.TrimSpace(c.Query("course_id"))
+    qAssign := strings.TrimSpace(c.Query("assign_id"))
 
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if page < 1 { page = 1 }
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-	if pageSize <= 0 || pageSize > 100 { pageSize = 20 }
+    page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+    if page < 1 { page = 1 }
+    pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
+    if pageSize <= 0 || pageSize > 100 { pageSize = 20 }
 
-	base := db.Model(&entity.EducationRecords{}).Where("student_id = ?", stuID)
-	if qTerm != "" {
-		base = base.Where("term_id = ?", qTerm)
-	}
-	if qCourse != "" {
-		base = base.Where("course_id = ?", qCourse)
-	}
-	if qAssign != "" {
-		base = base.Where("assignment_submit_id = ?", qAssign)
-	}
+    base := db.Model(&entity.EducationRecords{}).Where("student_id = ?", stuID)
+    if qTerm != ""   { base = base.Where("term_id = ?", qTerm) }
+    if qCourse != "" { base = base.Where("course_id = ?", qCourse) }
+    if qAssign != "" { base = base.Where("assignment_submit_id = ?", qAssign) }
 
-	var total int64
-	if err := base.Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+    var total int64
+    if err := base.Count(&total).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
 
-	var rows []entity.EducationRecords
-	if err := base.Order("id DESC").
-		Limit(pageSize).
-		Offset((page-1)*pageSize).
-		Find(&rows).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+    var rows []entity.EducationRecords
+    if err := base.Order("id DESC").
+        Limit(pageSize).
+        Offset((page-1)*pageSize).
+        Find(&rows).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
 
-	views := make([]EducationRecordView, 0, len(rows))
-	for _, r := range rows { views = append(views, toEduView(r)) }
+    // ----------------------------
+    // Batch fetch slims (ไม่อิงชื่อ field ใน entity.*)
+    // ----------------------------
+    termIDsSet := map[uint]struct{}{}
+    courseIDsSet := map[uint]struct{}{}
+    teacherIDsSet := map[uint]struct{}{}
+    for _, r := range rows {
+        if r.TermID != 0 { termIDsSet[r.TermID] = struct{}{} }
+        if r.CourseID != 0 { courseIDsSet[r.CourseID] = struct{}{} }
+        if r.TeacherID != 0 { teacherIDsSet[r.TeacherID] = struct{}{} }
+    }
+    termIDs := make([]uint, 0, len(termIDsSet))
+    for id := range termIDsSet { termIDs = append(termIDs, id) }
+    courseIDs := make([]uint, 0, len(courseIDsSet))
+    for id := range courseIDsSet { courseIDs = append(courseIDs, id) }
+    teacherIDs := make([]uint, 0, len(teacherIDsSet))
+    for id := range teacherIDsSet { teacherIDs = append(teacherIDs, id) }
 
-	c.JSON(http.StatusOK, gin.H{
-		"data":      views,
-		"page":      page,
-		"page_size": pageSize,
-		"total":     total,
-	})
+    termMap := map[uint]*TermSlim{}
+    courseMap := map[uint]*CourseSlim{}
+    teacherMap := map[uint]*TeacherSlim{}
+
+    if len(termIDs) > 0 {
+        var terms []TermSlim
+        // ปรับชื่อคอลัมน์ตามตารางจริงของคุณ ถ้าใช้ชื่ออื่น (เช่น term_no) ให้ alias เป็น no
+        if err := db.Table("terms").
+            Select("id, no, academic_year, name").
+            Where("id IN ?", termIDs).
+            Scan(&terms).Error; err == nil {
+            for i := range terms {
+                t := terms[i]
+                termMap[t.ID] = &t
+            }
+        }
+    }
+
+    if len(courseIDs) > 0 {
+        var courses []CourseSlim
+        // ปรับชื่อคอลัมน์ถ้าจริงใช้ snake case: course_code, course_name, name
+        if err := db.Table("courses").
+            Select("id, course_code, course_name, name").
+            Where("id IN ?", courseIDs).
+            Scan(&courses).Error; err == nil {
+            for i := range courses {
+                x := courses[i]
+                courseMap[x.ID] = &x
+            }
+        }
+    }
+
+    if len(teacherIDs) > 0 {
+        var teachers []TeacherSlim
+        // ปรับชื่อคอลัมน์ให้ตรงกับตารางจริง เช่น t_first_name/t_last_name/teacher_id
+        if err := db.Table("teachers").
+            Select("id, teacher_id, t_first_name, t_last_name").
+            Where("id IN ?", teacherIDs).
+            Scan(&teachers).Error; err == nil {
+            for i := range teachers {
+                x := teachers[i]
+                teacherMap[x.ID] = &x
+            }
+        }
+    }
+
+    // ----------------------------
+    // Build output
+    // ----------------------------
+    out := make([]MyEducationRecordView, 0, len(rows))
+    for _, r := range rows {
+        view := MyEducationRecordView{
+            EducationRecordView: toEduView(r),
+            Term:    termMap[r.TermID],
+            Course:  courseMap[r.CourseID],
+            Teacher: teacherMap[r.TeacherID],
+        }
+        out = append(out, view)
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "data":      out,
+        "page":      page,
+        "page_size": pageSize,
+        "total":     total,
+    })
 }
 
 // GET /me/education-records/:id
@@ -521,3 +621,4 @@ func gradeFromTotal(t float32) float32 {
     default:      return 0.0
     }
 }
+

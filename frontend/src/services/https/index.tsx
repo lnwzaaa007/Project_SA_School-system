@@ -23,6 +23,7 @@ const getCookie = (name: string): string | null => {
   return null;
 };
 
+
 const getConfig = () => ({
   headers: {
     Authorization: `Bearer ${getCookie("0195f494-feaa-734a-92a6-05739101ede9")}`,
@@ -65,8 +66,7 @@ http.interceptors.response.use(
   (r) => r,
   (error) => {
     if (error?.response?.status === 401) {
-      localStorage.clear();
-      window.location.reload();
+   console.log("error1");
     }
     return Promise.reject(error);
   }
@@ -102,8 +102,7 @@ export const Post = async (
     .then((res) => res)
     .catch((error: AxiosError) => {
       if (error?.response?.status === 401) {
-        localStorage.clear();
-        window.location.reload();
+       console.log("POST error");     
       }
       return error.response;
     });
@@ -122,8 +121,7 @@ export const Get = async (
         return error.response;
       }
       if (error?.response?.status === 401) {
-        localStorage.clear();
-        window.location.reload();
+       console.log("GET error");
       }
       return error.response;
     });
@@ -144,8 +142,7 @@ export const Update = async (
     .then((res) => res.data)
     .catch((error: AxiosError) => {
       if (error?.response?.status === 401) {
-        localStorage.clear();
-        window.location.reload();
+      console.log("UPDATE error");
       }
       return error.response;
     });
@@ -161,8 +158,7 @@ export const Delete = async (
     .then((res) => res.data)
     .catch((error: AxiosError) => {
       if (error?.response?.status === 401) {
-        localStorage.clear();
-        window.location.reload();
+        console.log("DELETE error");
       }
       return error.response;
     });
@@ -600,8 +596,7 @@ export const SafeGet = async (url: string, requireAuth = true) => {
     // ทำพฤติกรรมเดียวกับของเดิม (ถ้า 401 เคลียร์)
     const status = error?.response?.status;
     if (status === 401) {
-      localStorage.clear();
-      window.location.reload();
+     console.log("error5");
     }
     return error?.response;
   }
@@ -619,8 +614,7 @@ export const SafePost = async (url: string, data: any, requireAuth = true) => {
   } catch (error: any) {
     const status = error?.response?.status;
     if (status === 401) {
-      localStorage.clear();
-      window.location.reload();
+       console.log("error6");
     }
     return error?.response;
   }
@@ -637,8 +631,7 @@ export const SafeUpdate = async (url: string, data: any, requireAuth = true) => 
   } catch (error: any) {
     const status = error?.response?.status;
     if (status === 401) {
-      localStorage.clear();
-      window.location.reload();
+     console.log("error7");
     }
     return error?.response;
   }
@@ -652,8 +645,7 @@ export const SafeDelete = async (url: string, requireAuth = true) => {
   } catch (error: any) {
     const status = error?.response?.status;
     if (status === 401) {
-      localStorage.clear();
-      window.location.reload();
+      console.log("error8");
     }
     return error?.response;
   }
@@ -869,40 +861,36 @@ export const thaiAddressName_SAFE = {
   },
 };
 
+
+
 // สมมติหลังบ้านมี GET /assignsubmit?student_id=&term_id=&course_id=&page_size=
 export const AssignmentSubmitAPI_N = {
-  list: (params: {
-    student_id: number | string;
-    term_id?: number | string;
-    course_id?: number | string;
-    page?: number;
-    page_size?: number;
-  }) => {
+  list: (params: { student_id: number | string; term_id?: number | string; course_id?: number | string; page?: number; page_size?: number; }) => {
     const qs = new URLSearchParams();
     qs.set("student_id", String(params.student_id));
     if (params.term_id != null) qs.set("term_id", String(params.term_id));
     if (params.course_id != null) qs.set("course_id", String(params.course_id));
     if (params.page != null) qs.set("page", String(params.page));
     if (params.page_size != null) qs.set("page_size", String(params.page_size));
-    return Get(`/assignsubmit?${qs.toString()}`);
+      return SafeGet(`/assignsubmit?${qs.toString()}`, true);
   },
 };
 
-export const StudentEduRecordAPI_N = {
-  list: (params: {
-    term_id?: number | string;
-    course_id?: number | string;
-    page_size?: number;
-  }) => {
-    const qs = new URLSearchParams();
-    if (params?.term_id != null) qs.set("term_id", String(params.term_id));
-    if (params?.course_id != null) qs.set("course_id", String(params.course_id));
-    qs.set("page_size", String(params?.page_size ?? 10000));
-    // ✅ endpoint ฝั่งนักเรียนตาม routes ของคุณ
-    return Get(`/student/education-records?${qs.toString()}`);
-  },
+export const teacherCRUD_SAFE = {
+  // GET /teacher/:id   -> ได้ { id, teacher_id, t_first_name, t_last_name, ... }
+  getNameById: (id: number | string) => Get(`/teacher/${id}`),
 
-  // ถ้าต้องอ่านรายวิชาเฉพาะ term+course เดียว:
-  getByTermCourse: (term_id: number | string, course_id: number | string) =>
-    Get(`/student/education-record?term_id=${term_id}&course_id=${course_id}`),
+  // GET /teachers/:user_id -> ได้ entity.Teacher ของ user นั้น (เผื่อใช้ภายหลัง)
+  getByUserId: (userId: number | string) => Get(`/teachers/${userId}`),
+
+  // GET /teacher        -> รายชื่อย่อทั้งหมด (NameOnlyTeacher) (เผื่อ cache แบบทั้งก้อน)
+  listCompact: () => Get(`/teacher`),
+};
+
+export const courseCRUD_SAFE = {
+  // GET /course/:id  -> { data: { id, course_code, course_name, ... } }
+  getById: (id: number | string) => Get(`/course/${id}`),
+
+  // (เผื่อใช้ในอนาคต) GET /coursesall -> { data: ResultByCourseID[] }
+  listAll: () => Get(`/coursesall`),
 };

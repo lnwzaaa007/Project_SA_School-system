@@ -206,9 +206,9 @@ func main() {
 		router.GET("/teacher/education-records", controllers.ListEducationRecords)
 
 		// Student self-view: นักเรียนดูคะแนนตัวเอง
-		router.GET("/student/education-records", controllers.ListMyEducationRecords)
-		router.GET("/student/education-records/:id", controllers.GetMyEducationRecordByID)
-		router.GET("/student/education-record", controllers.GetMyEducationRecordByTermCourse)
+		router.GET("/me/education-records", controllers.ListMyEducationRecords)
+		router.GET("/me/education-records/:id", controllers.GetMyEducationRecordByID)
+		router.GET("/me/education-record", controllers.GetMyEducationRecordByTermCourse)
 
 		// Course routes
 		router.GET("/courses", controllers.GetCourses)
