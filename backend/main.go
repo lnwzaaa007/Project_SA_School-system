@@ -31,7 +31,6 @@
 		router := r.Group("/")
 		router.Use(middlewares.Authorizes())
 		
-		
 		{
 
 			// router.GET("/student/:id", controllers.GetNameStudentById)
@@ -44,7 +43,7 @@
 			// router.GET("/teacher/:id", controllers.GetNameTeacherById)
 			
 
-		// student
+			// student
 			router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
 			router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
 			router.PUT("/student/:id", controllers.UpdateStudent)          // แก้ไขนักเรียนตาม PK id
@@ -159,6 +158,7 @@
 			router.GET("/targetgroup", controllers.GetTargetGroupAll)
 
 			// Course routes วรัทยา
+
 			router.GET("/subjectgroups", controllers.GetSubjectGroupAll)
 			router.POST("/new-course", controllers.CreateCourse)
 			// router.GET("/courses", controllers.ListCourses)
@@ -184,8 +184,8 @@
 
 			// router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignmentID)
 
-			
-			
+				
+				
 			
 			
 			// // Course routes
@@ -227,6 +227,81 @@
 			// Course routes
 			router.GET("/courses/:grade_id", controllers.GetCourses)
 
+			// Teacher routes
+			router.GET("/teacher", controllers.GetNameTeacher)
+			router.GET("/teachers/:user_id", controllers.GetTeacherAllById)
+			router.GET("/teacher/:id", controllers.GetNameTeacherById)
+			router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
+			router.POST("/teacher", controllers.CreateTeacher)
+			router.GET("/teacher-detail",controllers.GetTeacherDetail)
+			router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
+			router.DELETE("/teacher/:id", controllers.DeleteTeacher)
+			router.PUT("/teacher/:id", controllers.UpdateTeacher) //toto
+			router.PUT("/grades/:id/teacher", controllers.SetGradeHomeroomTeacher)
+			router.GET("/gradeteacher/:id",controllers.GetGradeTeacherById)
+
+			// Admin routes
+			router.GET("/admin/:id", controllers.GetNameAdminById)
+			
+			// Grade routes
+			router.GET("/gradeyears", controllers.GetGradeYearAll)
+			router.GET("/gradeclasses", controllers.GetGradeClassAll)
+			router.GET("/gradeclassID", controllers.GetGradesByYearAndClass)
+
+			router.GET("/grades", controllers.ListGrades)
+
+			// New routes for terms and schedule
+			router.GET("/terms", controllers.GetTermAll)
+			
+			// Schedule routes
+			router.GET("/schedule-days", controllers.GetDaysAll)
+			router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
+			router.GET("/schedule-times-end", controllers.GetTimeEndAll)
+			router.GET("/schedule-get-id", controllers.GetSchedulesByID) //schedule-get-all?grade=2&term=1
+			router.GET("/schedule-course/:id", controllers.GetCourse)
+			router.POST("/schedules", controllers.CreateSchedule)
+			router.DELETE("/schedules/:id", controllers.DeleteScheduleByID)
+			router.GET("/students/schedule", controllers.GetStudentSchedule)
+			router.GET("/teachers/schedule", controllers.GetTeacherschedule)
+
+			//Attendances routes
+			router.GET("/attendances-course", controllers.GetCourseInSchedule)
+			router.GET("/attendances-student", controllers.GetStudentAllByGradeId)
+			router.POST("/attendances-record", controllers.CreateAttendance)
+			router.PUT("/attendances-record", controllers.UpdateAttendanceByDate)
+			router.GET("/attendances/student-history", controllers.GetAttendanceStudent)
+			router.GET("/attendances/teacher-history", controllers.GetAttendanceTeacher)
+			router.GET("/attendances-date", controllers.GetAttendanceByDate)
+
+			// User type route
+			router.GET("/users/:id", controllers.GetUserTypeByID)
+
+			// Province routes
+			router.GET("/province", controllers.GetProvince)
+			router.GET("/province/:id", controllers.GetProvinceById)
+			
+			// // Thai_Province routes
+			// router.GET("/thaiprovince", controllers.GetThaiProvince)
+			// router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
+
+			// District routes
+			router.GET("/district", controllers.GetDistrict)
+			router.GET("/district/:id", controllers.GetDistrictById)
+
+			// Address routes
+			router.POST("/address", controllers.CreateAddress) //toto
+			// Thai_Province routes
+			router.GET("/thaiprovince", controllers.GetThaiProvince)
+			router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
+
+			// Thai_District routes
+			router.GET("/thaidistrict", controllers.GetThaiDistrict)
+			router.GET("/thaidistrict/:id", controllers.GetThaiDistrictById)
+
+			// Thai_Subdistrict routes
+			router.GET("/thaisubdistrict", controllers.GetThaiSubdistrict)
+			router.GET("/thaisubdistrict/:id", controllers.GetThaiSubdistrictById)
+			router.GET("/thaizipcode/:id", controllers.GetThaiZipcodeById)
 			// create assignment
 			router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
 			// router.GET("/assignments/course/:course_id", controllers.GetAssignmentsByCourse)
@@ -251,10 +326,30 @@
 			router.GET("/enrollment/:id", controllers.GetEnrollmentById)
 			router.DELETE("/enrollment/:id", controllers.DeleteEnrollment)
 			router.PUT("/enrollment/:id", controllers.UpdateEnrollment)
+		
+		
+
+
+			// CreateAssignments routes
+
+			router.GET("/assignments/:id", controllers.GetAllAssignment)
+
 			
+
+			router.GET("/gradeteacher", controllers.GetGradeTeacher)
+
+
+			// Student self-view: นักเรียนดูคะแนนตัวเอง
+			router.GET("/student/education-records", controllers.ListMyEducationRecords)
+			router.GET("/student/education-records/:id", controllers.GetMyEducationRecordByID)
+			router.GET("/student/education-record", controllers.GetMyEducationRecordByTermCourse)
+
 
 
 		}
+
+
+
 
 		// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
 		// r.Static("/uploads", "./uploads")
@@ -271,18 +366,18 @@
 
 	}
 
-	func CORSMiddleware() gin.HandlerFunc {
-		return func(c *gin.Context) {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-			c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
-			if c.Request.Method == "OPTIONS" {
-				c.AbortWithStatus(204)
-				return
-			}
-
-			c.Next()
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
 		}
+
+		c.Next()
 	}
+}
