@@ -1,0 +1,11 @@
+.custom-select-gradeteacher .ant-select-selector {
+    width: auto !important;
+    height: auto !important;
+    /* border-radius: 60px !important; */
+    background-color: #f5f5f5 !important;
+    color: black !important;
+    display: flex;
+    align-items: center;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}

@@ -80,6 +80,8 @@ func main() {
 		router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
 		router.DELETE("/teacher/:id", controllers.DeleteTeacher)
 		router.PUT("/teacher/:id", controllers.UpdateTeacher) //toto
+		router.PUT("/grades/:id/teacher", controllers.SetGradeHomeroomTeacher)
+		router.GET("/gradeteacher/:id",controllers.GetGradeTeacherById)
 
 		// Admin routes
 		router.GET("/admin/:id", controllers.GetNameAdminById)
@@ -204,6 +206,8 @@ func main() {
 		router.DELETE("/teacher/education-records/:id", controllers.DeleteEducationRecord)
 		router.GET("/teacher/education-records/:id", controllers.GetEducationRecordByID)
 		router.GET("/teacher/education-records", controllers.ListEducationRecords)
+		router.GET("/gradeteacher", controllers.GetGradeTeacher)
+
 
 		// Student self-view: นักเรียนดูคะแนนตัวเอง
 		router.GET("/student/education-records", controllers.ListMyEducationRecords)

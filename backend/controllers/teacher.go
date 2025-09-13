@@ -594,3 +594,110 @@ func UpdateTeacher(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "updated", "teacher": t})
 }
 
+type gradeTeacher struct {
+    ID        int     ` json:"id"`
+	Grade_Year		string  ` json:"grade_year"`
+	Grade_Class		int		` json:"grade_class"`
+    Teacher         int     ` json:"teacher_id"`
+}
+
+func GetGradeTeacher(c *gin.Context) {
+	var gradeTeacher []gradeTeacher
+	if err := config.DB().
+        Raw("SELECT grades.id, grade_year, grade_class FROM grades Order by id").
+        Scan(&gradeTeacher).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, gradeTeacher)
+}
+
+func GetGradeTeacherById(c *gin.Context) {
+	teacher := c.Param("id")
+    var rows []gradeTeacher
+
+    if err := config.DB().
+        Table("grades").
+        Select("*").
+        Where("teacher_id = ?", teacher).
+        Order("id ASC").
+        Scan(&rows).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, rows)
+}
+func SetGradeHomeroomTeacher(c *gin.Context) {
+	gid, err := strconv.Atoi(c.Param("id"))
+	if err != nil || gid <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid grade id"})
+		return
+	}
+
+	var req struct {
+		TeacherID *uint `json:"teacher_id"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "bad json"})
+		return
+	}
+
+	db := config.DB()
+
+	// หา grade
+	var grade entity.Grade
+	if err := db.First(&grade, gid).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "grade not found"})
+		return
+	}
+
+	// ถ้าตั้งค่าเป็น nil = ถอดครูประจำชั้น
+	if req.TeacherID == nil {
+		if err := db.Model(&grade).Update("teacher_id", nil).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "updated", "grade_id": grade.ID, "teacher_id": nil})
+		return
+	}
+
+	// ตรวจว่ามี teacher อยู่จริง
+	var t entity.Teacher
+	if err := db.First(&t, *req.TeacherID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "teacher not found"})
+		return
+	}
+
+	// ถ้าครูคนนี้ถูกใช้เป็นครูประจำชั้นที่อื่นอยู่แล้ว -> 409
+	var other entity.Grade
+	if err := db.Where("teacher_id = ? AND id <> ?", *req.TeacherID, gid).First(&other).Error; err == nil {
+		// รองรับ force=1 เพื่อย้ายครูจากชั้นเดิม (optional)
+		if c.Query("force") == "1" {
+			if err := db.Model(&other).Update("teacher_id", nil).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot unassign previous grade"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusConflict, gin.H{
+				"error":    "teacher already assigned to another grade",
+				"grade_id": other.ID,
+			})
+			return
+		}
+	} else if err != nil && err != gorm.ErrRecordNotFound {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "check conflict failed"})
+		return
+	}
+
+	// อัปเดต
+	if err := db.Model(&grade).Update("teacher_id", *req.TeacherID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "updated",
+		"grade_id":   grade.ID,
+		"teacher_id": req.TeacherID,
+	})
+}

@@ -196,6 +196,12 @@ export const teacherAPI = {
   getTeacherDetail: (id: number | string) => Get(`/teacher-detail/${id}`),
   deleteTeacher: (id: number | string) => Delete(`/teacher/${id}`),
   updateTeacher: (id: number | string, data: any) => Update(`/teacher/${id}`, data, true),
+  getGradeTeacher : () => Get(`/gradeteacher`),
+  assignTeacher: (gradeId: number | string, teacherPk: number | string, force = false) =>
+    Update(`/grades/${gradeId}/teacher${force ? "?force=1" : ""}`, { teacher_id: Number(teacherPk) }, true),
+  unassignTeacher: (gradeId: number | string) =>
+    Update(`/grades/${gradeId}/teacher`, { teacher_id: null }, true),
+  getGradeTeacherById: (teacher_id: number) => Get(`/gradeteacher/${teacher_id}`),
   
 };
 
@@ -467,6 +473,7 @@ export const gradeCRUD = {
   classes: () => http.get("/gradeclasses"),
   byYearAndClass: (year: number, classId: number) =>
     http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
+
 };
 
 // export const StudentAPI = {
