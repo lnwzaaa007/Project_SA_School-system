@@ -63,9 +63,10 @@ const fetchStudentSubmissions = async (assignmentIdParam?: string) => {
     });
 
     const list: StudentItem[] = (res.data?.data || []).map((item: any) => {
+      console.log("Backend row:", item);
       const first = item.Student?.t_first_name || "";
       const last  = item.Student?.t_last_name || "";
-      const sc    = item.Submit_Point ?? null;
+      const sc    = item.submit_Point ?? null;
       const isChecked = item.Submit_status === "ตรวจแล้ว" || sc !== null;
       return {
         id: item.ID,
