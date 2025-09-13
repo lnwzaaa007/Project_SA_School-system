@@ -175,9 +175,9 @@ export default function EditGuardian() {
                 <Col span={10}>
                   <Form.Item label="คำนำหน้า" name={["father","title"]}>
                     <Select style={{ height: 35 }} disabled={isFatherInactive} placeholder={isFatherInactive ? "-" : undefined}>
-                      <Option value="1">นาย</Option>
-                      <Option value="2">นางสาว</Option>
-                      <Option value="3">นาง</Option>
+                      <Option value="3">นาย</Option>
+                      <Option value="4">นางสาว</Option>
+                      <Option value="5">นาง</Option>
                       <Option value="6">-</Option>
                     </Select>
                   </Form.Item>
@@ -248,9 +248,9 @@ export default function EditGuardian() {
                 <Col span={10}>
                   <Form.Item label="คำนำหน้า" name={["mother","title"]}>
                     <Select style={{ height: 35 }} disabled={isMotherInactive} placeholder={isMotherInactive ? "-" : undefined}>
-                      <Option value="1">นาย</Option>
-                      <Option value="2">นางสาว</Option>
-                      <Option value="3">นาง</Option>
+                      <Option value="3">นาย</Option>
+                      <Option value="4">นางสาว</Option>
+                      <Option value="5">นาง</Option>
                       <Option value="6">-</Option>
                     </Select>
                   </Form.Item>
