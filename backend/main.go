@@ -144,16 +144,22 @@ func main() {
 		router.GET("/thaisubdistrict/:id", controllers.GetThaiSubdistrictById)
 		router.GET("/thaizipcode/:id", controllers.GetThaiZipcodeById)
 
-		//Announcement routes
-		router.POST("/new-announcement", controllers.CreateAnnouncement)
-		// router.GET("/announcements", controllers.ListAnnouncements)
-		// router.GET("/announcements/:id", controllers.GetAnnouncementByID)
+
+		//Announcement routes วรัทยา
+		router.POST("/new-announcement", controllers.CreateAnnouncement) //สร้างประกาศ
+		router.GET("/announcements", controllers.ListAnnouncements) //ดึงข้อมูลประกาศทั้งหมด
+		router.DELETE("/announcements/:id",controllers.DeleteAnnouncement) //ลบประกาศ
+		router.PUT("/announcements/:id/publish", controllers.PublishAnnouncement) //เปลี่ยนสถานะ
+		router.PUT("/announcements/:id", controllers.UpdateAnnouncement) //แก้ไขประกาศ
+		router.GET("/announcements/:id", controllers.GetAnnouncementByID) //ดึงข้อมูลประกาศตามID
+
+
 		
 		//Target Group routes
 		router.GET("/targetgroup", controllers.GetTargetGroupAll)
 
-		// Course routes
-		router.GET("/subjectgroup", controllers.GetSubjectGroupAll)
+		// Course routes วรัทยา
+		router.GET("/subjectgroups", controllers.GetSubjectGroupAll)
 		router.POST("/new-course", controllers.CreateCourse)
 		// router.GET("/courses", controllers.ListCourses)
 		// router.GET("/courses/:id", controllers.GetCourseByID)

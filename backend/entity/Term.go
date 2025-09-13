@@ -19,5 +19,5 @@ type Term struct {
 	Announcement []Announcement `gorm:"foreignKey:TermID" json:"announcement"`
 
 	// เชื่อมแบบ One-to-Many กับ Bill
-	Bills []Bill `gorm:"foreignKey:TermID" json:"bills"`
+	Bills 		 []Bill `gorm:"foreignKey:TermID" json:"bills"`
 }

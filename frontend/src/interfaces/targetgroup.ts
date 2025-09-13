@@ -1,4 +1,4 @@
 export interface TargetGroupInterface {
-    ID?:         number;
+    id?:         number;
     group_name?: string;
 }

@@ -15,7 +15,7 @@ type Announcement struct {
 	Title  			string 				`json:"title"`
 	Create_Date 	time.Time			`json:"create_date"`
 	End_Date 		time.Time			`json:"end_date"`
-	TimeCreate		time.Time			`json:"time_create"`
+	TimeCreate		string				`json:"time_create"`
 	Content 		string				`json:"content"`
 	Category        string				`json:"category"`
 	Status 			StatusAnnouncement	`gorm:"default:'ฉบับร่าง'" json:"status"`
@@ -36,8 +36,16 @@ type Announcement struct {
 	Enrollments *Enrollments `gorm:"foreignKey:EnrollmentsID" json:"enrollments"`
 	Users []Users `gorm:"many2many:notifications" json:"users"` // many to many กับ Users ผ่านตาราง Notifications
 }
-func GetCurrentTime() time.Time {
-	return time.Now()
+func ParseTime(timeStr string) time.Time {
+	layout := "15:04"
+	t, err := time.Parse(layout, timeStr)
+	// return time.Now()
+	// parsedTime, err := time.Parse(time.RFC3339, timeStr)
+	if err != nil {
+		// ถ้าแปลงไม่ได้ ให้ใช้เวลาปัจจุบัน
+		return time.Now()
+	}
+	return t
 }
 func ParseDate(dateStr string) time.Time {
 	layout := "2006-01-02"
