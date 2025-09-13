@@ -314,6 +314,8 @@ export const AssignmentAPI = {
   getAssignmentById: (id:number) => Get(`/assignment/${id}`),
   getMySubmissionsByCourse: (course_id: number, student_id: number | string) =>
     Get(`/assignment-submissions/course/${course_id}?student_id=${student_id}`),
+  getMySubmissionByAssignment: (assignmentId: number, studentId: number) =>
+    Get(`/assignment-submissions/${assignmentId}?student_id=${studentId}`),
 };
 
 export async function submitAssignment(fd: FormData) {
@@ -321,6 +323,8 @@ export async function submitAssignment(fd: FormData) {
   if (!res.ok) throw new Error(`Submit failed ${res.status}`);
   return res.json();
 }
+
+
 
 export const createAssignment = {
   // postAssignment: (form: FormData) => Post("/assignments", form, true),

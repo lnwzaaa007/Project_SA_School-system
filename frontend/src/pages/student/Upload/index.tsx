@@ -75,7 +75,7 @@ function Index() {
         setDetailAssign([]);
       }
 
-      const sidRaw = localStorage.getItem('ID');
+      const sidRaw = localStorage.getItem('IDstudent');
       const sid = sidRaw ? Number(sidRaw) : 0;
       if (sid && courseId) {
         const sub = await AssignmentAPI.getMySubmissionsByCourse(courseId, sid);
@@ -174,7 +174,9 @@ function Index() {
                   <Text type="secondary">
                     ⏰ สิ้นสุด: {assign.time_end}
                   </Text>
-                  <Text strong>สถานะ: {assign.submit_status}</Text>
+                <Text strong>
+                  สถานะ: {mySubsByTitle[assign.assignment_title]?.submit_status || assign.submit_status}
+                </Text>
 
                   <div
                     style={{

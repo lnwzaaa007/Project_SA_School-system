@@ -169,13 +169,13 @@ func main() {
         router.GET("/assignment/:id", controllers.GetAllAssignment)
         router.GET("/assignment-submissions/course/:course_id", controllers.GetMySubmissionsByCourse)
 		// router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
-        router.GET("/assignment-submissions/title/:course_id", controllers.GetSubmissionsByTitle)
+        // router.GET("/assignment-submissions/title/:course_id", controllers.GetSubmissionsByTitle)
 		router.GET("/assignments", controllers.ListAllAssignments)
 
 		//ตรวจการบ้าน
-		router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScore)
+		// router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScore)
 
-		router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignmentID)
+		// router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignmentID)
 
 		
 		
@@ -201,6 +201,7 @@ func main() {
 
 		// ส่งงาน
 		// router.POST("/submit-assignment", controllers.AssignmentSubmit)
+		router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignment)
 		
 		// Teacher: Education Records (คะแนนนักเรียน)
 		router.POST("/teacher/education-records", controllers.CreateEducationRecord)

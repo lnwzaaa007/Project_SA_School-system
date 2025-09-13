@@ -43,94 +43,100 @@ const AssignmentForm: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [courseId, setCourseId] = useState<number | null>(null);
 
+  // โหลดรายละเอียดงานการบ้าน
+  const fetchDetail = async () => {
+    if (!id) return;
+    try {
+      const sid = Number(localStorage.getItem('IDstudent'));
+      const res = await AssignmentAPI.getMySubmissionByAssignment(parseInt(id), sid);
+      console.log('student submission', res);
+      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+        const detail = res.data[0];
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          const sub = res.data[0];
+          setFormData(prev => ({ ...prev, status: sub.submit_status || 'ยังไม่ส่งงาน' }));
+          setSubmittedInfo({
+            status: sub.submit_status,
+            at: sub.submit_at,
+            url: `${API_BASE}/${sub.assignment_file}`,
+            name: sub.assignment_file?.split('/').pop()
+          });
+        }
+        const fmtDate = (s: string) => (s ? s.split('T')[0] : '');
+        setFormData(prev => ({
+          ...prev,
+          title: detail.assignment_title,
+          description: detail.description,
+          openDate: fmtDate(detail.time_start),
+          closeDate: fmtDate(detail.time_end),
+          status: detail.submit_status || prev.status || 'ยังไม่ส่งงาน',
+        }));
+
+        if (detail.assignment_file) {
+          setSubmittedInfo({
+            status: detail.submit_status,
+            at: detail.submit_at,
+            url: `${API_BASE}/${detail.assignment_file}`,
+            name: String(detail.assignment_file).split('/').pop(),
+          });
+        }
+      } else {
+        message.warning('ไม่พบข้อมูลการบ้านนี้');
+      }
+    } catch (err) {
+      console.error(err);
+      message.error('โหลดรายละเอียดการบ้านไม่สำเร็จ');
+    }
+  };
 
   useEffect(() => {
-    const fetchDetail = async () => {
-      if (!id) return;
-      try {
-        const res = await AssignmentAPI.getAssignmentById(parseInt(id));
-        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-          const detail = res.data[0];
-          if (typeof (detail as any).course_id === 'number') {
-            setCourseId((detail as any).course_id as number);
-          }
-          const fmtDate = (s: string) => (s ? s.split('T')[0] : '');
-          setFormData(prev => ({
-            ...prev,
-            title: detail.assignment_title,
-            description: detail.description,
-            openDate: fmtDate(detail.time_start),
-            closeDate: fmtDate(detail.time_end),
-            status: detail.submit_status || prev.status || 'ยังไม่ส่งงาน',
-          }));
-
-          if (detail.assignment_file) {
-            setSubmittedInfo({
-              status: detail.submit_status,
-              at: detail.submit_at,
-              url: `${API_BASE}/${detail.assignment_file}`,
-              name: String(detail.assignment_file).split('/').pop(),
-            });
-          }
-        } else {
-          message.warning('ไม่พบข้อมูลการบ้านนี้');
-        }
-      } catch (err) {
-        console.error(err);
-        message.error('โหลดรายละเอียดการบ้านไม่สำเร็จ');
-      }
-    };
     fetchDetail();
   }, [id]);
 
+  // ✅ ส่งงาน
   const onFinish = async (values: any) => {
     if (!formData.file) {
       message.error('กรุณาแนบไฟล์ก่อนส่ง');
       return;
     }
-
-    try {
-      setUploading(true);
-      const fd = new FormData();
-      fd.append('assignment_title', formData.title ?? '');
-      fd.append('description', formData.description ?? '');
-      fd.append('student_comment', values.feedback ?? '');
-      fd.append('submit_point_all', String(0));
-      fd.append('file', formData.file);
-      const sidRaw = localStorage.getItem('ID') || localStorage.getItem('IDstudent');
-      if (sidRaw) { fd.append('student_id', String(Number(sidRaw))); }
-      if (courseId) {
-        fd.append('course_id', String(courseId));
-      }
-      const IDstudent = localStorage.getItem('IDstudent');
-      // ✅ เพิ่มบรรทัดนี้
-    if (IDstudent) {
-      fd.append('student_id', String(IDstudent));
+    const sid = localStorage.getItem('IDstudent');
+    if (!sid) {
+      message.error('ไม่พบรหัสนักเรียน (IDstudent)');
+      return;
     }
 
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('assignment_title', formData.title || '');
+      fd.append('description', formData.description || '');
+      fd.append('student_comment', values.feedback || '');
+      fd.append('submit_point_all', '0');
+      fd.append('file', formData.file);
+      fd.append('student_id', sid);
+      if (courseId) fd.append('course_id', String(courseId));
 
-      // ส่งฟอร์ม และหากไม่สำเร็จให้แสดงข้อความจาก Backend เพื่อดีบักได้ทันที
       const res = await fetch(`${API_BASE}/submit-assignment`, {
         method: 'POST',
         body: fd,
       });
+
       if (!res.ok) {
-        let serverMsg = '';
-        try {
-          serverMsg = await res.text();
-        } catch {}
-        console.error('Submit failed:', res.status, serverMsg);
-        message.error(serverMsg || `ส่งงานไม่สำเร็จ (${res.status})`);
-        setUploading(false);
+        const txt = await res.text();
+        console.error('Submit failed', res.status, txt);
+        message.error(txt || `ส่งงานไม่สำเร็จ (${res.status})`);
         return;
       }
+
       const payload = await res.json();
       const d = payload?.data;
+      console.log('Backend response data', d);
 
-      setFormData(prev => ({ ...prev, status: d?.submit_status || 'ส่งงานแล้ว' }));
+      // ✅ อัปเดตสถานะทันที และโหลดข้อมูลจาก backend เพื่อความถูกต้อง
+      setFormData(prev => ({ ...prev, status: 'ส่งงานแล้ว' }));
       setSubmittedInfo({
-        status: d?.submit_status || 'ส่งงานแล้ว',
-        at: d?.submit_at,
+        status: 'ส่งงานแล้ว',
+        at: new Date().toISOString(),
         url: payload?.file_url ? `${API_BASE}${payload.file_url}` :
              (d?.assignment_file ? `${API_BASE}/${d.assignment_file}` : undefined),
         name: d?.assignment_file ? String(d.assignment_file).split('/').pop() : formData.file.name,
@@ -138,35 +144,20 @@ const AssignmentForm: React.FC = () => {
 
       Modal.success({
         title: 'ส่งงานสำเร็จ',
-        content: (
-          <>
-            <div>สถานะ: {d?.submit_status || 'ส่งงานแล้ว'}</div>
-            <div>ส่งเมื่อ: {d?.submit_at ? new Date(d.submit_at).toLocaleString() : '-'}</div>
-            {(payload?.file_url || d?.assignment_file) && (
-              <div>
-                ไฟล์ที่ส่ง:{' '}
-                <a
-                  href={payload?.file_url ? `${API_BASE}${payload.file_url}` : `${API_BASE}/${d.assignment_file}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {d?.assignment_file ? String(d.assignment_file).split('/').pop() : formData.file.name}
-                </a>
-              </div>
-            )}
-          </>
-        ),
+        content: `ส่งเมื่อ ${new Date().toLocaleString()}`,
         centered: true,
+        onOk: fetchDetail, // โหลดข้อมูลจริงอีกครั้ง
       });
 
       form.resetFields(['feedback']);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       message.error('อัปโหลดไม่สำเร็จ');
     } finally {
       setUploading(false);
     }
   };
+  
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
@@ -217,10 +208,10 @@ const AssignmentForm: React.FC = () => {
               <Upload
                 maxCount={1}
                 beforeUpload={(file) => {
-                  setFormData((prev: any) => ({ ...prev, file }));
+                  setFormData(prev => ({ ...prev, file }));
                   return false;
                 }}
-                onRemove={() => setFormData((prev: any) => ({ ...prev, file: null }))}
+                onRemove={() => setFormData(prev => ({ ...prev, file: null }))}
                 accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.png,.jpg,.jpeg,.txt"
               >
                 <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>

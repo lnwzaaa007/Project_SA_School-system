@@ -114,14 +114,13 @@ func UploadFileOnly(c *gin.Context) {
 }
 
 // ---------- ส่งงาน (โหมดทดลอง: ไม่บังคับส่ง id ต่าง ๆ) ----------
+// ---------- ส่งงาน ----------
 func AssignmentSubmit(c *gin.Context) {
-	// ---- อ่านข้อความจาก form-data ----
 	assignmentTitle := c.PostForm("assignment_title")
 	description := c.PostForm("description")
 	studentComment := c.PostForm("student_comment")
 	submitPointAll := c.PostForm("submit_point_all")
 
-	// อ่านเลขแบบ optional (ค่าว่าง/ผิด = 0)
 	getUint := func(k string) uint {
 		v := c.PostForm(k)
 		if v == "" {
@@ -139,7 +138,6 @@ func AssignmentSubmit(c *gin.Context) {
 	termID := getUint("term_id")
 	studentID := getUint("student_id")
 
-	// คะแนนเต็ม (optional)
 	pointAll := float32(0)
 	if submitPointAll != "" {
 		if f64, err := strconv.ParseFloat(submitPointAll, 32); err == nil {
@@ -150,12 +148,12 @@ func AssignmentSubmit(c *gin.Context) {
 		}
 	}
 
-	// ---- รับไฟล์ ----
-	// ตรวจสอบช่วงเวลาเปิดส่งจาก definition ของงาน (student_id = 0)
-	if assignmentTitle == "" || courseID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุชื่อการบ้านและรหัสวิชา (course_id)"})
+	if assignmentTitle == "" || courseID == 0 || studentID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุชื่อการบ้าน รหัสวิชา และรหัสนักเรียน"})
 		return
 	}
+
+	// ตรวจสอบว่าเป็นงานที่เปิดอยู่จริง
 	{
 		var def entity.AssignmentSubmit
 		if err := config.DB().
@@ -180,7 +178,7 @@ func AssignmentSubmit(c *gin.Context) {
 		fileHeader, err = c.FormFile("assignment_file")
 	}
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาแนบไฟล์งาน (file หรือ assignment_file)"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาแนบไฟล์งาน"})
 		return
 	}
 	if vErr := validateFile(fileHeader); vErr != nil {
@@ -188,49 +186,35 @@ func AssignmentSubmit(c *gin.Context) {
 		return
 	}
 
-	// ---- ที่เก็บไฟล์ (ถ้าไม่มี id ใช้โฟลเดอร์กันชน) ----
-	courseFolder := "_noCourse"
-	studentFolder := "_noStudent"
-	if courseID > 0 {
-		courseFolder = strconv.Itoa(int(courseID))
-	}
-	if studentID > 0 {
-		studentFolder = strconv.Itoa(int(studentID))
-	}
+	courseFolder := strconv.Itoa(int(courseID))
+	studentFolder := strconv.Itoa(int(studentID))
 	baseDir := filepath.Join("uploads", "assignments", courseFolder, studentFolder)
-
 	relPath, _, err := saveFile(c, baseDir, fileHeader)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกไฟล์ไม่สำเร็จ"})
 		return
 	}
 
-	// ---- หา/อัปเดต submission เดิม ----
 	var sub entity.AssignmentSubmit
 	db := config.DB()
-
-	q := db.Where("assignment_title = ?", assignmentTitle)
-	// ถ้ามี course + student ให้ใช้เป็นคีย์ร่วม (แน่นขึ้น)
-	if courseID > 0 && studentID > 0 {
-		q = q.Where("course_id = ? AND student_id = ?", courseID, studentID)
-	}
+	q := db.Where("assignment_title = ? AND course_id = ? AND student_id = ?",
+		assignmentTitle, courseID, studentID)
 	tx := q.First(&sub)
 
-	// มีไฟล์เก่า และ path เปลี่ยน → ลบทิ้ง (ล้มเหลวได้ ไม่ต้อง fail งาน)
+	// ถ้ามีไฟล์เก่าและไฟล์ใหม่ไม่ตรงกัน ลบทิ้ง
 	if tx.Error == nil && sub.Assignment_file != "" && sub.Assignment_file != relPath {
 		_ = os.Remove(sub.Assignment_file)
 	}
 
-	// ตั้งค่าฟิลด์
+	// ✅ ตั้งค่าฟิลด์โดยใช้ชื่อ struct field ที่ถูกต้อง
 	sub.Assignment_title = assignmentTitle
 	sub.Description = description
 	sub.Student_comment = studentComment
 	sub.Assignment_file = relPath
 	sub.Submit_at = time.Now()
 	sub.Submit_Point_all = pointAll
-	sub.Submit_status = entity.Submitted
+	sub.Submit_status = entity.Submitted // "ส่งงานแล้ว"
 
-	// เก็บ id ที่มี (ไม่มี = 0)
 	sub.GradeID = gradeID
 	sub.CourseID = courseID
 	sub.TeacherID = teacherID
@@ -239,50 +223,56 @@ func AssignmentSubmit(c *gin.Context) {
 
 	if tx.Error == nil {
 		if err := db.Save(&sub).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปเดตข้อมูลไม่สำเร็จ"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปเดตงานไม่สำเร็จ"})
 			return
 		}
 	} else {
 		if err := db.Create(&sub).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกข้อมูลไม่สำเร็จ"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "บันทึกงานไม่สำเร็จ"})
 			return
 		}
 	}
 
-	// คืน URL สาธารณะ (ต้องมี r.StaticFS("/uploads", http.Dir("uploads")))
 	c.JSON(http.StatusCreated, gin.H{
 		"message":  "ส่งงานสำเร็จ",
 		"data":     sub,
-		"file_url": "/" + relPath, // เช่น /uploads/assignments/_noCourse/_noStudent/<uuid>_file.pdf
+		"file_url": "/" + relPath,
 	})
 }
 
+
 func GetSubmissionsByAssignment(c *gin.Context) {
-    // รองรับทั้ง :course_id หรือ :assignment_id ที่กำหนดไว้ใน router เดิม
-    id := c.Param("course_id")
-    if id == "" {
-        id = c.Param("assignment_id")
+    assignmentID := c.Param("assignment_id")
+    studentID := c.Query("student_id")
+
+    if assignmentID == "" || studentID == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ต้องระบุ assignment_id และ student_id"})
+        return
     }
 
-    // ตัวเลือก filter ตามนักเรียนคนใดคนหนึ่ง
-    studentID := strings.TrimSpace(c.Query("student_id"))
-
-    db := config.DB().Preload("Student")
-    db = db.Where("course_id = ?", id)
-    // แสดงทั้งที่ส่งแล้วและตรวจแล้ว
-    db = db.Where("submit_status IN ?", []entity.Submit_status{entity.Submitted, entity.Success})
-    if studentID != "" {
-        db = db.Where("student_id = ?", studentID)
+    // หา assignment definition (row ของครูที่สร้างไว้)
+    var def entity.AssignmentSubmit
+    if err := config.DB().
+        Where("id = ? AND student_id = 0", assignmentID).
+        First(&def).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "ไม่พบการบ้านต้นฉบับ"})
+        return
     }
 
+    // ดึงงานส่งของนักเรียนที่ assignment_title และ course_id ตรงกัน
     var subs []entity.AssignmentSubmit
-    if err := db.Find(&subs).Error; err != nil {
+    if err := config.DB().
+        Where("assignment_title = ? AND course_id = ? AND student_id = ?",
+            def.Assignment_title, def.CourseID, studentID).
+        Find(&subs).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลการส่งงานได้"})
         return
     }
 
     c.JSON(http.StatusOK, gin.H{"data": subs})
 }
+
+
 
 // ✅ บันทึกคะแนนและสถานะตรวจแล้ว
 func UpdateSubmissionScore(c *gin.Context) {
