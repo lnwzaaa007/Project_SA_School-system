@@ -20,11 +20,11 @@ const Home:React.FC = () => {
       try {
         const res = await announcementAPI.getAnnouncements();
         console.log("📢 Announcements:", res);
-        setAnnouncements(res);
-        // const published = res?.data
-        //   .filter((a: AnnouncementInterface) => a.status === "เผยแพร่แล้ว") // กรองเฉพาะเผยแพร่แล้ว
-        //   .slice(0, 4); // เอาแค่ล่าสุด 4 รายการ
-        // setAnnouncements(published);
+        // กรองไม่ให้แสดงประกาศที่มีสถานะ "ฉบับร่าง"
+        const visible = Array.isArray(res)
+          ? res.filter((a: AnnouncementInterface) => a.status !== "ฉบับร่าง")
+          : [];
+        setAnnouncements(visible);
       } catch (err) {
         console.error("❌ โหลดประกาศไม่สำเร็จ:", err);
         setAnnouncements([]);
