@@ -53,6 +53,7 @@ func main() {
 		router.GET("/student/:id", controllers.GetStudentByID)		// รูป (มีแล้ว / หรือใส่ตามนี้ให้ชัวร์)
 		router.GET("/student/:id/image", controllers.GetStudentImage)		
 		router.DELETE("/students/:id", controllers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
+		router.GET("/studentcount", controllers.GetStudentCount)
 
 		//Guardian routes ผู้ปกครอง
 		router.POST("/guardian-student", controllers.CreateGuardianProfile)

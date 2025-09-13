@@ -469,7 +469,7 @@ useEffect(() => {
     // รูปจากหลังบ้าน (absolute แล้ว)
     <img
       src={serverImagePath}
-      alt="profile"
+      alt={serverImagePath}
       // อย่าล้าง state ทิ้งใน onError ไม่งั้นรูปหาย ให้แค่ log เตือน
       onError={() => console.warn("Cannot load image:", serverImagePath)}
       style={{ width: "100%", height: "100%", objectFit: "cover" }}
