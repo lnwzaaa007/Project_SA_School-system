@@ -82,6 +82,8 @@ func SetupDatabase() {
     seedProvince()
     seedSubjectGroup()
     seedTargetGroup(db)
+    seedCourses()
+
 }
 
 
