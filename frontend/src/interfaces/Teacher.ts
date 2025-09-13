@@ -5,34 +5,44 @@ export type GenderType = "Male" | "Female" | "Other";
 
 // core
 export interface Teacher {
-  id: number;                 // gorm.Model
-  createdAt: string;
-  updatedAt: string;
-  deletedAt?: string | null;
-
-  teacherId: string;          // Teacher_ID
-  titleTH: TitleNameTH;
+  id: number;
+  teacher_id: string;
+  title_id: number;
   t_first_name: string;
   t_last_name: string;
-  titleENG: TitleNameENG;
-  eFirstName: string;
-  eLastName: string;
-  citizenId: string;
+  e_first_name?: string;
+  e_last_name?: string;
+  citizen_id: string;
   tel: string;
-  dateOfBirth: string;        // ISO
-  gender: GenderType;
+  date_of_birth: string;
+  gender_id: number;
   nationality: string;
   email: string;
-  religious: string;
-  teacherImage?: string | null; // แปลง []byte เป็น base64 string ฝั่ง API
+  religious?: string;
+  qualification?: string;
+  teacher_image?: string;
+  qualification_image?: string;
+  address_id?: number;
+  address_number?: string;
+  road?: string;
+  thai_province_id?: number;
+  thai_district_id?: number;
+  thai_subdistrict_id?: number;
+  thai_province_name?: string;
+  thai_district_name?: string;
+  thai_subdistrict_name?: string;
 
-  usersId: number;
-  addressId?: number;
-  
 }
 
 
 export interface LoginTeacherRequest {
   username: string;
   password: string;
+}
+
+export interface TeacherLite {
+  id: number;
+  teacher_id: string;
+  t_first_name: string;
+  t_last_name: string;
 }

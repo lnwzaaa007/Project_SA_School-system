@@ -3,7 +3,7 @@ import "./index.css";
 import React, { useEffect, useState } from "react";
 import SelectGrade from "../../../components/SelectGrade";
 import SelectClass from "../../../components/SelectClass";
-import { SearchOutlined, PlusCircleOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusCircleOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { Space, Table, Button, message, Popconfirm } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { studentCRUD } from "../../../services/https";
@@ -204,7 +204,7 @@ const onDelete = async (id: number) => {
         </Link>
       </div>
 
-      <div className="content2" style={{ width: "100%" }}>
+      <div className="content2" style={{ width: "95%" }}>
         <Table<DataType>
           rowKey="ID"
           dataSource={rows}
@@ -227,11 +227,12 @@ const onDelete = async (id: number) => {
                 <Button
                   type="primary"
                   icon={<EditOutlined />}
-                  onClick={() => navigate(`/ManageStudent/EditStudent/${record.ID}`)}
+                  onClick={() => navigate(`/admin/manageStudent/EditStudent/${record.ID}`)}
                   style={{ marginRight: 20, backgroundColor: "#fff", color: "#005e98ff", border: "1px solid #ccc" }}
                 >
                   แก้ไขข้อมูล
                 </Button>
+
                <Popconfirm
   title="ลบนักเรียนคนนี้?"
   description="การลบจะไม่สามารถย้อนกลับได้"
@@ -242,6 +243,11 @@ const onDelete = async (id: number) => {
 >
   <Button type="dashed" danger icon={<DeleteOutlined />} />
 </Popconfirm>
+<Button 
+icon={<EyeOutlined /> }
+onClick={() => navigate(`/admin/manageStudent/WatchStudent/${record.ID}`)}
+                  style={{ marginRight: 20, backgroundColor: "#fff", color: "#00db12ff", border: "1px solid #ccc" }}
+></Button>
               </Space>
             )}
           />

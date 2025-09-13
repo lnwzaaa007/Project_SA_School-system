@@ -1,13 +1,19 @@
-// src/pages/admin/TableApplyForStudy.tsx
-import React, { useEffect, useState } from "react";
-import { Table, Button, message, Popconfirm, Tooltip } from "antd";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { Table, Button, message, Popconfirm, Tooltip, Select } from "antd";
 import type { TableColumnsType } from "antd";
 import { CheckOutlined, CloseOutlined, EyeOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { EnrollmentAPI } from "../../services/https";
 import type { EnrollmentInterface } from "../../interfaces/Enrollment";
 
-// แถวที่ใช้แสดงในตาราง (normalize แล้ว)
+type Status = "completed" | "unsuccessful" | "waiting";
+type Summary = { completed: number; waiting: number; unsuccessful: number };
+
+type Props = {
+  onSummaryChange?: (s: Summary) => void;
+  filters?: { keyword?: string; grade?: number | null; status?: Status } | null;
+};
+
 type Row = {
   id: number;
   firstName: string;
@@ -16,7 +22,6 @@ type Row = {
   gradeClass: number;
 };
 
-// รองรับคีย์หลายรูปแบบจาก backend
 type RawEnrollment = EnrollmentInterface & Partial<{
   ID: number;
   TFirst_Name: string;
@@ -25,32 +30,46 @@ type RawEnrollment = EnrollmentInterface & Partial<{
   e_last_name: string;
   Grade_Year: number;
   Grade_Class: number;
+  status: string;    // <-- เผื่อ backend ส่งมา
+  Status: string;    // <-- เผื่อกุญแจตัวใหญ่
 }>;
 
-// แปลงข้อมูลดิบ -> แถวที่ตารางใช้
 const normalize = (e: RawEnrollment): Row => {
   const id = (e.id ?? e.ID) as number;
   const firstName = (e.t_first_name ?? e.TFirst_Name ?? e.e_first_name ?? "") as string;
-  const lastName =
-    (e.t_last_name ?? e.TLast_Name ?? (e as any).e_last_name ?? "") || "-";
+  const lastName  = (e.t_last_name ?? e.TLast_Name ?? (e as any).e_last_name ?? "") || "-";
   const gradeYear = Number(e.grade_year ?? e.Grade_Year ?? 0);
   const gradeClass = Number(e.grade_class ?? e.Grade_Class ?? 0);
   return { id, firstName, lastName, gradeYear, gradeClass };
 };
 
-const btnSquare: React.CSSProperties = {
-  width: 36,
-  height: 36,
-  borderRadius: 8,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 0,
+const toStatus = (v: any): Status => {
+  const s = String(v ?? "").toLowerCase();
+  if (s === "completed") return "completed";
+  if (s === "unsuccessful") return "unsuccessful";
+  return "waiting";
 };
 
-const TableApplyForStudy: React.FC = () => {
+const btnSquare: React.CSSProperties = {
+  width: 36, height: 36, borderRadius: 8,
+  display: "inline-flex", alignItems: "center", justifyContent: "center", padding: 0,
+};
+
+const TableApplyForStudy: React.FC<Props> = ({ onSummaryChange, filters }) => {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(false);
+  const [statusMap, setStatusMap] = useState<Record<number, Status>>({});
+  const [saving, setSaving] = useState<Record<number, boolean>>({}); // กำลังบันทึกต่อแถว
+
+  const computeAndEmit = useCallback((map: Record<number, Status>) => {
+    const summary: Summary = { completed: 0, waiting: 0, unsuccessful: 0 };
+    Object.values(map).forEach((s) => {
+      if (s === "completed") summary.completed += 1;
+      else if (s === "unsuccessful") summary.unsuccessful += 1;
+      else summary.waiting += 1;
+    });
+    onSummaryChange?.(summary);
+  }, [onSummaryChange]);
 
   const load = async () => {
     try {
@@ -58,64 +77,140 @@ const TableApplyForStudy: React.FC = () => {
       const data = (await EnrollmentAPI.getEnrollment()) as RawEnrollment[];
       if (!Array.isArray(data)) {
         message.error("โหลดข้อมูลไม่สำเร็จ");
-        setRows([]);
+        setRows([]); setStatusMap({}); computeAndEmit({});
         return;
       }
-      setRows(data.map(normalize).filter((r) => typeof r.id === "number"));
+
+      const newRows = data.map(normalize).filter((r) => typeof r.id === "number");
+      setRows(newRows);
+
+      // ✅ ดึงสถานะจาก backend ถ้ามี ไม่มีก็ตั้ง waiting
+      const init: Record<number, Status> = {};
+      data.forEach((e) => {
+        const id = (e.id ?? e.ID) as number | undefined;
+        if (!id) return;
+        init[id] = toStatus((e as any).status ?? (e as any).Status);
+      });
+      setStatusMap(init);
+      computeAndEmit(init);
     } catch (err: any) {
       message.error(err?.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
-      setRows([]);
+      setRows([]); setStatusMap({}); computeAndEmit({});
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
 
-  // TODO: ผูก API จริงเมื่อมี endpoint
-  const onApprove = (record: Row) => {
-    message.success(`ยืนยันข้อมูล: ${record.firstName} ${record.lastName}`);
-  };
-  const onDelete = async (record: Row) => {
-  try {
-    const res = await EnrollmentAPI.deleteEnrollment(record.id);
-
-    // Delete() ของคุณ: สำเร็จ -> คืน res.data (ไม่มี res.status)
-    // ผิดพลาด -> คืน error.response (มี res.status)
-    if (res && typeof res.status === "number") {
-      message.error(res?.data?.error || "ลบไม่สำเร็จ");
-      return;
+  // ⭐ กรองข้อมูลตาม filters
+  const filteredRows = useMemo(() => {
+    let list = rows;
+    if (filters?.keyword) {
+      const kw = filters.keyword.toLowerCase();
+      list = list.filter((r) => `${r.firstName} ${r.lastName}`.toLowerCase().includes(kw));
     }
+    if (filters?.grade) list = list.filter((r) => r.gradeYear === Number(filters.grade));
+    if (filters?.status) list = list.filter((r) => (statusMap[r.id] ?? "waiting") === filters.status);
+    return list;
+  }, [rows, statusMap, filters]);
 
-    message.success(res?.message || `ลบข้อมูล ID ${record.id} สำเร็จ`);
-    setRows((prev) => prev.filter((r) => r.id !== record.id));
-  } catch (e: any) {
-    message.error(e?.message || "ลบไม่สำเร็จ");
-  }
-};
+  // ✅ กดเครื่องหมายถูกเพื่อบันทึกสถานะลง backend
+  const onApprove = async (record: Row) => {
+    const newStatus = statusMap[record.id] ?? "waiting";
+    const label = newStatus === "completed" ? "ผ่านการคัดเลือก"
+                : newStatus === "unsuccessful" ? "ไม่ผ่านการคัดเลือก"
+                : "รอพิจารณา";
+
+    try {
+      setSaving((s) => ({ ...s, [record.id]: true }));
+      const res = await EnrollmentAPI.updateEnrollment(record.id, { status: newStatus });
+      if (res?.error) throw new Error(res.error);
+      message.success(`บันทึกสถานะเป็น “${label}” แล้ว`);
+      // ถ้าต้องการให้รีโหลดจากฐานข้อมูลจริง ๆ: await load();
+    } catch (e: any) {
+      message.error(e?.message || "อัปเดตไม่สำเร็จ");
+    } finally {
+      setSaving((s) => {
+        const { [record.id]: _, ...rest } = s; return rest;
+      });
+    }
+  };
+
+  const onDelete = async (record: Row) => {
+    try {
+      const res = await EnrollmentAPI.deleteEnrollment(record.id);
+      if (res && typeof res.status === "number") {
+        message.error(res?.data?.error || "ลบไม่สำเร็จ");
+        return;
+      }
+      message.success(res?.message || `ลบข้อมูล ID ${record.id} สำเร็จ`);
+      setRows((prev) => prev.filter((r) => r.id !== record.id));
+      setStatusMap((prev) => {
+        const next = { ...prev }; delete next[record.id]; computeAndEmit(next); return next;
+      });
+    } catch (e: any) {
+      message.error(e?.message || "ลบไม่สำเร็จ");
+    }
+  };
 
   const columns: TableColumnsType<Row> = [
-    { title:"ลำดับ",render: (_,_r, index) => index + 1, width: 50, fixed: "left"},
+    { title: "ลำดับ", render: (_,_r, index) => index + 1, width: 60, fixed: "left" },
     { title: "ชื่อ", dataIndex: "firstName", width: 160, fixed: "left" },
     { title: "นามสกุล", dataIndex: "lastName", width: 160, fixed: "left" },
     { title: "ชั้นปี", dataIndex: "gradeYear", width: 100, align: "center" },
     { title: "ห้อง", dataIndex: "gradeClass", width: 100, align: "center" },
+
+    {
+      title: "สถานะ",
+      width: 220,
+      align: "center",
+      render: (_, r) => (
+        <Select<Status>
+          value={statusMap[r.id] ?? "waiting"}
+          style={{ width: 200 }}
+          onChange={(val) => {
+            setStatusMap((prev) => {
+              const next = { ...prev, [r.id]: val };
+              computeAndEmit(next);
+              return next;
+            });
+          }}
+          options={[
+            { value: "completed", label: "ผ่านการคัดเลือก" },
+            { value: "unsuccessful", label: "ไม่ผ่านการคัดเลือก" },
+            { value: "waiting", label: "รอพิจารณา" },
+          ]}
+        />
+      ),
+    },
+
     {
       title: "ยืนยัน",
-      width: 50,
+      width: 60,
       fixed: "right",
       align: "center",
       render: (_, r) => (
-        <Tooltip title="ยืนยัน">
-          <Button style={btnSquare} onClick={() => onApprove(r)} icon={<CheckOutlined />} />
-        </Tooltip>
+        <Popconfirm
+          title="ยืนยันการเปลี่ยนสถานะ?"
+          description="ต้องการบันทึกสถานะสำหรับผู้สมัครรายนี้หรือไม่"
+          okText="ยืนยัน"
+          cancelText="ยกเลิก"
+          onConfirm={() => onApprove(r)}
+        >
+          <Tooltip title="ยืนยัน">
+            <Button
+              style={btnSquare}
+              loading={!!saving[r.id]}
+              icon={<CheckOutlined />}
+            />
+          </Tooltip>
+        </Popconfirm>
       ),
     },
     {
       title: "ลบ",
-      width: 50,
+      width: 60,
       fixed: "right",
       align: "center",
       render: (_, r) => (
@@ -133,7 +228,7 @@ const TableApplyForStudy: React.FC = () => {
     },
     {
       title: "แสดง",
-      width: 50,
+      width: 60,
       fixed: "right",
       align: "center",
       render: (_, r) => (
@@ -152,7 +247,7 @@ const TableApplyForStudy: React.FC = () => {
       size="middle"
       className="custom-scroll-table"
       columns={columns}
-      dataSource={rows}
+      dataSource={filteredRows}
       rowKey={(r) => r.id}
       loading={loading}
       pagination={false}

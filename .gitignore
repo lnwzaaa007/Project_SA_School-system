@@ -23,8 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 # *.db
-*.db
+# *.db
 *.env
+# *.db
+backend/sa.db
 
 # ─────────────────────────────────────────────────
 # User uploads (ไม่ต้อง track บน Git)

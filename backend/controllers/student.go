@@ -32,20 +32,17 @@ func GetStudentAllById(c *gin.Context) {
 	c.JSON(http.StatusOK, student)
 }
 
-// // GET /NameStudent/:id
-// func GetNameStudentById(c *gin.Context) {
-// 	var name NameOnly
-// 	id := c.Param("id")
+func GetStudentCount(c *gin.Context){
+    var student []NameOnly
+	if err := config.DB().
+        Raw("SELECT * FROM students ").
+        Scan(&student).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, student)
+}
 
-// 	if err := config.DB().Table("students").
-// 		Select("student_id,t_first_name, t_last_name").
-// 		Where("users_id = ?", id).
-// 		Scan(&name).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "student not found"})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, name)
-// }
 type keyLocker struct {
 	mu    sync.Mutex
 	locks map[string]*sync.Mutex
@@ -303,6 +300,8 @@ func AddStudent(c *gin.Context) {
         Religious:     payload.Religious,
         Student_image: img,
         // UsersID:       payload.UsersID,
+        // Ensure UsersID is saved from created/selected user
+        UsersID:       userID,
         AddressID:     payload.AddressID,
         GradeID:       payload.GradeID,
     }
@@ -332,7 +331,7 @@ func AddStudent(c *gin.Context) {
         "nationality":   s.Nationality,
         "email":         s.Email,
         "religious":     s.Religious,
-        // "users_id":      s.UsersID,
+        "users_id":      s.UsersID,
         "address_id":    s.AddressID,
         "grade_id":      s.GradeID,
         "created_at":    s.CreatedAt,
@@ -348,13 +347,13 @@ type UpdateStudentReq struct {
 	ELastName    *string   `json:"e_last_name"`
 	CitizenID    *string   `json:"citizen_id"`
 	Tel          *string   `json:"tel"`
-	DateOfBirth  *time.Time `json:"date_of_birth" time_format:"2006-01-02"`
+	DateOfBirth  *string `json:"date_of_birth" time_format:"2006-01-02"`
 	Gender       *string   `json:"gender"`
 	Nationality  *string   `json:"nationality"`
 	Email        *string   `json:"email"`
 	Religious    *string   `json:"religious"`
 	StudentImage *string   `json:"student_image"` // nil = ไม่แตะ, "" = ล้างรูป, อื่นๆ = ใส่ใหม่
-	// UsersID      *uint     `json:"users_id"`
+	UsersID      *uint     `json:"users_id"`
 	AddressID    *uint     `json:"address_id"`
 	GradeID      *uint     `json:"grade_id"`
 }
@@ -389,7 +388,7 @@ func UpdateStudent(c *gin.Context) {
 	if req.Nationality != nil{ updates["nationality"]  = *req.Nationality }
 	if req.Email != nil      { updates["email"]        = *req.Email }
 	if req.Religious != nil  { updates["religious"]    = *req.Religious }
-	// if req.UsersID != nil    { updates["users_id"]     = *req.UsersID }
+	if req.UsersID != nil    { updates["users_id"]     = *req.UsersID }
 	if req.AddressID != nil  { updates["address_id"]   = *req.AddressID }
 	if req.GradeID != nil    { updates["grade_id"]     = *req.GradeID }
 
@@ -466,7 +465,7 @@ type StudentView struct {
     Nationality  string            `json:"nationality"`
     Email        string            `json:"email"`
     Religious    string            `json:"religious"`
-    // UsersID      uint              `json:"users_id"`
+    UsersID      uint              `json:"users_id"`
     AddressID    uint              `json:"address_id"`
     GradeID      uint              `json:"grade_id"`
     CreatedAt    time.Time         `json:"created_at"`
@@ -484,6 +483,7 @@ func toStudentView(s entity.Student) StudentView {
         CitizenID: s.Citizen_ID, Tel: s.Tel,
         DateOfBirth: s.DateOfBirth.Format("2006-01-02"),
         Gender: s.Gender, Nationality: s.Nationality, Email: s.Email, Religious: s.Religious,
+        UsersID: s.UsersID,
         AddressID: s.AddressID, GradeID: s.GradeID,
         CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt,
         HasImage: len(s.Student_image) > 0,
@@ -533,11 +533,12 @@ func ListStudents(c *gin.Context) {
         ELast_Name   string
         Citizen_ID   string
         Tel          string
-        DateOfBirth  time.Time
+        DateOfBirth  string
         Gender       entity.Gendertype
         Nationality  string
         Email        string
         Religious    string
+        UsersID      uint
         AddressID    uint
         GradeID      uint
         CreatedAt    time.Time
@@ -550,7 +551,7 @@ func ListStudents(c *gin.Context) {
         Select(`
             id, student_id, title_id, t_first_name, t_last_name, e_first_name, e_last_name,
             citizen_id, tel, date_of_birth, gender, nationality, email, religious,
-            address_id, grade_id, created_at, updated_at,
+            users_id, address_id, grade_id, created_at, updated_at,
             CASE WHEN student_image IS NOT NULL AND LENGTH(student_image) > 0 THEN 1 ELSE 0 END AS has_image
         `).
         Order("id ASC").
@@ -568,8 +569,9 @@ func ListStudents(c *gin.Context) {
             TFirstName: r.TFirst_Name, TLastName: r.TLast_Name,
             EFirstName: r.EFirst_Name, ELastName: r.ELast_Name,
             CitizenID: r.Citizen_ID, Tel: r.Tel,
-            DateOfBirth: r.DateOfBirth.Format("2006-01-02"),
+            DateOfBirth: r.DateOfBirth,
             Gender: r.Gender, Nationality: r.Nationality, Email: r.Email, Religious: r.Religious,
+            UsersID: r.UsersID,
         	AddressID: r.AddressID, GradeID: r.GradeID,
             CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
             HasImage: r.HasImage,
@@ -600,11 +602,12 @@ func GetStudentByID(c *gin.Context) {
         ELast_Name   string
         Citizen_ID   string
         Tel          string
-        DateOfBirth  time.Time
+        DateOfBirth  string
         Gender       entity.Gendertype
         Nationality  string
         Email        string
         Religious    string
+        UsersID      uint
         AddressID    uint
         GradeID      uint
         CreatedAt    time.Time
@@ -617,7 +620,7 @@ func GetStudentByID(c *gin.Context) {
         Select(`
             id, student_id, title_id, t_first_name, t_last_name, e_first_name, e_last_name,
             citizen_id, tel, date_of_birth, gender, nationality, email, religious,
-            address_id, grade_id, created_at, updated_at,
+            users_id, address_id, grade_id, created_at, updated_at,
             CASE WHEN student_image IS NOT NULL AND LENGTH(student_image) > 0 THEN 1 ELSE 0 END AS has_image
         `).
         Where("id = ?", id).
@@ -635,8 +638,9 @@ func GetStudentByID(c *gin.Context) {
         TFirstName: r.TFirst_Name, TLastName: r.TLast_Name,
         EFirstName: r.EFirst_Name, ELastName: r.ELast_Name,
         CitizenID: r.Citizen_ID, Tel: r.Tel,
-        DateOfBirth: r.DateOfBirth.Format("2006-01-02"),
+        DateOfBirth: r.DateOfBirth,
         Gender: r.Gender, Nationality: r.Nationality, Email: r.Email, Religious: r.Religious,
+        UsersID: r.UsersID,
        	AddressID: r.AddressID, GradeID: r.GradeID,
         CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
         HasImage: r.HasImage,

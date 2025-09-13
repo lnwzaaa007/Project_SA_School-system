@@ -24,12 +24,13 @@ type NameOnlyTeacher struct {
 	TLast_Name  string `json:"t_last_name"`
     Qualification string `json:"qualification"`
 	Teacher_image string `json:"teacher_image"`
+    Status        string `json:"status"` // 👈 เพิ่ม
 }
 
 func GetNameTeacher(c *gin.Context) {
 	var teacher []NameOnlyTeacher
 	if err := config.DB().
-        Raw("SELECT MIN(id) AS id, t_first_name,t_last_name,teacher_id,qualification,teacher_image FROM teachers WHERE deleted_at IS NULL  GROUP BY id ORDER BY id ASC").
+        Raw("SELECT MIN(id) AS id, t_first_name,t_last_name,teacher_id,qualification,teacher_image,status FROM teachers WHERE deleted_at IS NULL  GROUP BY id ORDER BY id ASC").
         Scan(&teacher).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
         return
@@ -114,26 +115,30 @@ func saveUploadedFileRequired(c *gin.Context, field, uploadDir string) (string, 
 }
 
 func saveUploadedFileOptional(c *gin.Context, field, uploadDir string) (string, error) {
-	f, err := c.FormFile(field)
-	if err != nil {
-		// ถ้าไม่ส่งไฟล์มาก็ให้ว่างไป
-		if errors.Is(err, http.ErrMissingFile) {
-			return "", nil
-		}
-		return "", err
-	}
-	if f == nil {
-		return "", nil
-	}
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		return "", err
-	}
-	name := fmt.Sprintf("%s_%d_%s", field, time.Now().UnixNano(), filepath.Base(f.Filename))
-	diskPath := filepath.Join(uploadDir, name)
-	if err := c.SaveUploadedFile(f, diskPath); err != nil {
-		return "", err
-	}
-	return strings.ReplaceAll(diskPath, "\\", "/"), nil
+    ct := c.Request.Header.Get("Content-Type")
+    if !strings.HasPrefix(ct, "multipart/form-data") {
+        // ไม่ใช่ multipart ก็ข้ามการอัปโหลดไฟล์ไปเฉย ๆ
+        return "", nil
+    }
+    f, err := c.FormFile(field)
+    if err != nil {
+        if errors.Is(err, http.ErrMissingFile) {
+            return "", nil
+        }
+        return "", err
+    }
+    if f == nil {
+        return "", nil
+    }
+    if err := os.MkdirAll(uploadDir, 0755); err != nil {
+        return "", err
+    }
+    name := fmt.Sprintf("%s_%d_%s", field, time.Now().UnixNano(), filepath.Base(f.Filename))
+    diskPath := filepath.Join(uploadDir, name)
+    if err := c.SaveUploadedFile(f, diskPath); err != nil {
+        return "", err
+    }
+    return strings.ReplaceAll(diskPath, "\\", "/"), nil
 }
 
 // -------------------------------
@@ -302,6 +307,7 @@ type TeacherDetailResponse struct {
     ThaiProvinceID     uint   `json:"thai_province_id"`
     ThaiDistrictID     uint   `json:"thai_district_id"`
     ThaiSubdistrictID  uint   `json:"thai_subdistrict_id"`
+    Status             string `json:"status"`
 }
 
 // ✅ แทนที่ฟังก์ชันเดิมให้เลือกมาคนเดียว พร้อม address
@@ -333,6 +339,7 @@ func GetTeacherDetailById(c *gin.Context) {
         ThaiProvinceID    uint        `gorm:"column:thai_province_id"`
         ThaiDistrictID    uint        `gorm:"column:thai_district_id"`
         ThaiSubdistrictID uint        `gorm:"column:thai_subdistrict_id"`
+        Status            string
     }
 
     var r row
@@ -356,6 +363,7 @@ func GetTeacherDetailById(c *gin.Context) {
           t.teacher_image              AS teacher_image,
           t.qualification_image        AS qualification_image,
           t.address_id                 AS address_id,
+          t.status                     AS status,
           a.address_number             AS address_number,
           a.road                       AS road,
           a.thai_province_id           AS thai_province_id,
@@ -400,6 +408,7 @@ func GetTeacherDetailById(c *gin.Context) {
         ThaiProvinceID:    r.ThaiProvinceID,
         ThaiDistrictID:    r.ThaiDistrictID,
         ThaiSubdistrictID: r.ThaiSubdistrictID,
+        Status:             r.Status,
     }
     c.JSON(http.StatusOK, resp)
 }
@@ -408,7 +417,7 @@ func GetTeacherDetailById(c *gin.Context) {
 func GetTeacherDetail(c *gin.Context) {
 	var teacher []TeacherDetailResponse
 	if err := config.DB().
-        Raw("SELECT teachers.*,addresses.address_id FROM teachers inner join addresses on teachers.address_id = addresses.id ").
+        Raw("SELECT teachers.*,addresses.* FROM teachers inner join addresses on teachers.address_id = addresses.id ").
         Scan(&teacher).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
         return
@@ -460,5 +469,128 @@ func DeleteTeacher(c *gin.Context) {
         "message": "ลบสำเร็จ",
         "deleted": id,
     })
+}
+
+
+
+
+
+// type TeacherUpdateRequest struct {
+//     TeacherID     *string `form:"teacher_id"     json:"teacher_id"`
+//     TitleID       *uint   `form:"title_id"       json:"title_id"`
+//     TFirstName    *string `form:"t_first_name"   json:"t_first_name"`
+//     TLastName     *string `form:"t_last_name"    json:"t_last_name"`
+//     EFirstName    *string `form:"e_first_name"   json:"e_first_name"`
+//     ELastName     *string `form:"e_last_name"    json:"e_last_name"`
+//     CitizenID     *string `form:"citizen_id"     json:"citizen_id"`
+//     Tel           *string `form:"tel"            json:"tel"`
+//     DateOfBirth   *string `form:"date_of_birth"  json:"date_of_birth"` // YYYY-MM-DD
+//     GenderID      *uint   `form:"gender_id"      json:"gender_id"`
+//     Nationality   *string `form:"nationality"    json:"nationality"`
+//     Email         *string `form:"email"          json:"email"`
+//     Religious     *string `form:"religious"      json:"religious"`
+//     Qualification *string `form:"qualification"  json:"qualification"`
+//     AddressID     *uint   `form:"address_id"     json:"address_id"`
+// }
+
+// controllers/teacher.go
+// PUT /teacher/:id
+func UpdateTeacher(c *gin.Context) {
+    id := c.Param("id")
+
+    var t entity.Teacher
+    if err := config.DB().First(&t, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "teacher not found"})
+        return
+    }
+
+    // payload ใช้ pointer เพื่อรู้ว่า field ไหนถูกส่งมา
+    type UpdateReq struct {
+        TeacherID     *string `json:"teacher_id" form:"teacher_id"`
+        TitleID       *uint   `json:"title_id" form:"title_id"`
+        TFirstName    *string `json:"t_first_name" form:"t_first_name"`
+        TLastName     *string `json:"t_last_name" form:"t_last_name"`
+        EFirstName    *string `json:"e_first_name" form:"e_first_name"`
+        ELastName     *string `json:"e_last_name" form:"e_last_name"`
+        CitizenID     *string `json:"citizen_id" form:"citizen_id"`
+        Tel           *string `json:"tel" form:"tel"`
+        DateOfBirth   *string `json:"date_of_birth" form:"date_of_birth"` // YYYY-MM-DD
+        GenderID      *uint   `json:"gender_id" form:"gender_id"`
+        Nationality   *string `json:"nationality" form:"nationality"`
+        Email         *string `json:"email" form:"email"`
+        Religious     *string `json:"religious" form:"religious"`
+        Qualification *string `json:"qualification" form:"qualification"`
+        AddressID     *uint   `json:"address_id" form:"address_id"`
+        Status 		   *string			`json:"status" form:"status"`
+    }
+
+    var req UpdateReq
+    ct := c.Request.Header.Get("Content-Type")
+    if strings.HasPrefix(ct, "multipart/form-data") {
+        if err := c.ShouldBindWith(&req, binding.FormMultipart); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "bad form-data", "detail": err.Error()})
+            return
+        }
+    } else {
+        if err := c.ShouldBindJSON(&req); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "bad json", "detail": err.Error()})
+            return
+        }
+    }
+
+    // map เฉพาะ field ที่ส่งมา
+    if req.TeacherID != nil && strings.TrimSpace(*req.TeacherID) != "" {
+        // (ถ้าต้องเช็คไม่ให้ซ้ำ / sync users.username ให้เพิ่ม logic ตรงนี้)
+        t.Teacher_ID = *req.TeacherID
+    }
+    if req.TitleID != nil { t.TitleID = *req.TitleID }
+    if req.TFirstName != nil { t.TFirst_Name = *req.TFirstName }
+    if req.TLastName != nil  { t.TLast_Name  = *req.TLastName }
+    if req.EFirstName != nil { t.EFirst_Name = *req.EFirstName }
+    if req.ELastName != nil  { t.ELast_Name  = *req.ELastName }
+    if req.CitizenID != nil  { t.Citizen_ID  = *req.CitizenID }
+    if req.Tel != nil        { t.Tel         = *req.Tel }
+    if req.GenderID != nil   { t.GenderID    = *req.GenderID }
+    if req.Nationality != nil{ t.Nationality = *req.Nationality }
+    if req.Email != nil      { t.Email       = *req.Email }
+    if req.Religious != nil  { t.Religious   = *req.Religious }
+    if req.Qualification != nil { t.Qualification = *req.Qualification }
+    if req.AddressID != nil  { t.AddressID   = *req.AddressID }
+    if req.Status != nil  { t.Status   = *req.Status }
+
+    if req.DateOfBirth != nil && strings.TrimSpace(*req.DateOfBirth) != "" {
+        dob, err := time.Parse("2006-01-02", *req.DateOfBirth)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "date_of_birth must be YYYY-MM-DD"})
+            return
+        }
+        t.DateOfBirth = dob
+    }
+
+    // ถ้าเป็น multipart ค่อยเช็คไฟล์
+    if strings.HasPrefix(ct, "multipart/form-data") {
+        if newImg, err := saveUploadedFileOptional(c, "teacher_image", "uploads/teachers"); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "upload teacher_image failed", "detail": err.Error()})
+            return
+        } else if newImg != "" {
+            safeRemove(t.Teacher_image)
+            t.Teacher_image = newImg
+        }
+
+        if newQual, err := saveUploadedFileOptional(c, "qualification_image", "uploads/teacher_qualifications"); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "upload qualification_image failed", "detail": err.Error()})
+            return
+        } else if newQual != "" {
+            safeRemove(t.Qualification_image)
+            t.Qualification_image = newQual
+        }
+    }
+
+    if err := config.DB().Save(&t).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed", "detail": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "updated", "teacher": t})
 }
 

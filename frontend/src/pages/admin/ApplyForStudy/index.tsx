@@ -1,95 +1,132 @@
-import React from 'react';
-import { useState, useEffect } from "react";
-import { Space, Table, Button, Col, Row, Divider, message, Input,Select,Modal } from "antd";
-import { PlusOutlined, DeleteOutlined, FormOutlined,AudioOutlined,SearchOutlined    } from "@ant-design/icons";
-import type {GetProps} from "antd";
+// src/pages/admin/ApplyForStudy.tsx
+import React, { useState } from "react";
+import { Col, Row, Input, Select, Button } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import SelectGrade from "../../../components/SelectGrade";
+import TableApplyForStudy from "../../../components/TableApplyForStudy";
+
 const { Option } = Select;
-import { Link, Route, useNavigate,Outlet } from "react-router-dom";
-import dayjs from "dayjs";
-import { Content } from 'antd/es/layout/layout';
-import ModalDelete from "../../../components/ModalDelete";
-import UploadImages from "../../../components/UploadImages";
-import TableApplyForStudy from '../../../components/TableApplyForStudy';
-type SearchProps = GetProps<typeof Input.Search>;
 
-const { Search } = Input;
+// ให้ตรงกับค่าที่คอลัมน์สถานะใช้
+type Status = "completed" | "unsuccessful" | "waiting";
 
-const suffix = (
-  <AudioOutlined
-    style={{
-      fontSize: 16,
-      color: '#1677ff',
-    }}
-  />
-);
-const onSearch: SearchProps['onSearch'] = (value, _e, info) => console.log(info?.source, value);
+
 const ApplyForStudy = () => {
-   
+  // ฟอร์มค้นหา (ยังไม่ใช่ตัวกรองที่ตาราง)
+  const [keyword, setKeyword] = useState("");
+  const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
+  const [status, setStatus] = useState<Status | undefined>(undefined);
+
+  // ตัวเลขสรุปที่หัว
+  const [summary, setSummary] = useState({
+    completed: 0,
+    waiting: 0,
+    unsuccessful: 0,
+  });
+
+  // ตัวกรองที่ “กดค้นหาแล้วค่อยนำไปใช้”
+  const [filters, setFilters] = useState<{
+    keyword?: string;
+    grade?: number | null;
+    status?: Status;
+  } | null>(null);
+
+  const onSearch = () => {
+    setFilters({
+      keyword: keyword.trim(),
+      grade: selectedGrade ?? undefined,
+      status: status ?? undefined,
+    });
+  };
+
+  const onClear = () => {
+    setKeyword("");
+    setSelectedGrade(null);
+    setStatus(undefined);
+    setFilters(null); // กลับมาแสดงทั้งหมด
+  };
+
   return (
-    <div style={{ padding: "20px", backgroundColor: "#ffffffff", minHeight: "100vh" }}>
-      
+    <div style={{ padding: 20, backgroundColor: "#fff", minHeight: "100vh" }}>
       <Row gutter={[16, 12]}>
-        <Col xs={24} md={8} >
-          
-          <div style={{ minHeight: "20px",minWidth: "100%", backgroundColor: "#c0ffc0ff", padding: "20px", borderRadius: "8px" }}>
-            <h3>Completed 0</h3>
-          </div>
-        </Col>
-        <Col xs={24} md={8} >
-          
-          <div style={{ minHeight: "20px",minWidth: "100%", backgroundColor: "#D4EDFF", padding: "20px", borderRadius: "8px" }}>
-            <h3>Waiting 0</h3>
+        <Col xs={24} md={8}>
+          <div style={{ backgroundColor: "#c0ffc0", padding: 20, borderRadius: 8 }}>
+            <h3>Completed {summary.completed}</h3>
           </div>
         </Col>
         <Col xs={24} md={8}>
-          
-          <div style={{ minHeight: "20px",minWidth: "100%", backgroundColor: "#FFE0E0", padding: "20px", borderRadius: "8px" }}>
-            <h3>Unsuccessful 0</h3>
+          <div style={{ backgroundColor: "#D4EDFF", padding: 20, borderRadius: 8 }}>
+            <h3>Waiting {summary.waiting}</h3>
+          </div>
+        </Col>
+        <Col xs={24} md={8}>
+          <div style={{ backgroundColor: "#FFE0E0", padding: 20, borderRadius: 8 }}>
+            <h3>Unsuccessful {summary.unsuccessful}</h3>
           </div>
         </Col>
       </Row>
 
-      <div style={{display:"flex", justifyContent:"center",marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(10vh - 60px)", width: "70%", borderRadius: "16px",marginLeft:"15%" }}>
-        <div >
-          <Row gutter={[24, 12]} style={{ marginTop: "5px",marginBottom: "5px",}}>
-            <Col xs ={24} md={6} >
+      {/* แถบค้นหา */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: 20,
+          padding: 16,
+          background: "#F1F1F1",
+          width: "70%",
+          borderRadius: 16,
+          marginLeft: "15%",
+        }}
+      >
+        <div>
+          <Row gutter={[24, 12]} style={{ marginTop: 5, marginBottom: 5 }}>
+            <Col xs={24} md={6}>
               <label>ชื่อผู้สมัคร</label>
-              <Input style={{ width: "100%" }} placeholder="ค้นหาชื่อผู้สมัคร" 
+              <Input
+                style={{ width: "100%", height: 45 }}
+                placeholder="ค้นหาชื่อผู้สมัคร"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
               />
             </Col>
-            <Col xs ={24} md={6}>
-              <label>ระดับชั้น</label>
-                <Select placeholder="เลือก" style={{ width: "100%",height:"45px" }}>
-                  <Option value="มัธยมศึกษาปีที่ 1">มัธยมศึกษาปีที่ 1</Option>
-                  <Option value="มัธยมศึกษาปีที่ 2">มัธยมศึกษาปีที่ 2</Option>
-                  <Option value="มัธยมศึกษาปีที่ 3">มัธยมศึกษาปีที่ 3</Option>
-                  <Option value="มัธยมศึกษาปีที่ 4">มัธยมศึกษาปีที่ 4</Option>
-                  <Option value="มัธยมศึกษาปีที่ 5">มัธยมศึกษาปีที่ 5</Option>
-                  <Option value="มัธยมศึกษาปีที่ 6">มัธยมศึกษาปีที่ 6</Option>
-                </Select>
+
+            <Col xs={24} md={6}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                <label>ระดับชั้น</label>
+                <SelectGrade value={selectedGrade} onChange={setSelectedGrade} />
+              </div>
             </Col>
-            <Col xs ={24} md={6}>
+
+            <Col xs={24} md={6}>
               <label>สถานะ</label>
-                <Select placeholder="เลือก" style={{ width: "100%",height:"45px"  }}>
-                  <Option value="รอการอนุมัติ">รอการอนุมัติ</Option>
-                  <Option value="อนุมัติ">อนุมัติ</Option>
-                  <Option value="ไม่อนุมัติ">ไม่อนุมัติ</Option>
-                  <Option value="ยกเลิก">ยกเลิก</Option>
-                </Select>
+              <Select
+                allowClear
+                placeholder="เลือก"
+                style={{ width: "100%", height: 45 }}
+                value={status}
+                onChange={(v) => setStatus(v as Status)}
+              >
+                <Option value="waiting">รอพิจารณา</Option>
+                <Option value="completed">ผ่านการคัดเลือก</Option>
+                <Option value="unsuccessful">ไม่ผ่านการคัดเลือก</Option>
+              </Select>
             </Col>
-            <Col xs ={24} md={6} style={{padding: "18px 6px"}}>
-                
-                <Button type='primary' icon={<SearchOutlined />} onClick={() => alert(`ไม่พบข้อมูล `)}> ค้นหา</Button>
-                
+
+            <Col xs={24} md={6} style={{ display: "flex", gap: 8, alignItems: "end" }}>
+              <Button type="primary" icon={<SearchOutlined />} onClick={onSearch}>
+                ค้นหา
+              </Button>
+              <Button onClick={onClear}>ล้าง</Button>
             </Col>
-            </Row>
+          </Row>
         </div>
       </div>
-      <div style={{  marginTop: "20px", padding: "16px", background: "#F1F1F1", minHeight: "calc(100vh - 60px)", width: "100%",  }}>
-        
-        <TableApplyForStudy />
+
+      {/* ตาราง + ส่งตัวกรอง & callback ยอดรวม */}
+      <div style={{ marginTop: 20, padding: 16, background: "#F1F1F1" }}>
+        <TableApplyForStudy filters={filters} onSummaryChange={setSummary} />
       </div>
-      
     </div>
   );
 };

@@ -10,9 +10,11 @@ const Home = Loadable(lazy(() => import("../pages/teacher/Home")));
 const Profile = Loadable(lazy(() => import("../pages/teacher/TeachProfile")));
 const CreateWork = Loadable(lazy(() => import("../pages/teacher/CreateWork")));
 const EnterScore = Loadable(lazy(() => import("../pages/teacher/EnterScore")));
-const ListOfStudent = Loadable(
-  lazy(() => import("../pages/teacher/ListOfStudent")),
-);
+
+const ListOfStudent = Loadable(lazy(() => import("../pages/teacher/ListOfStudent")));
+const WatchStudent = Loadable(lazy(() => import("../pages/teacher/ListOfStudent/WatchStudent/index")));
+
+
 const AttendanceRecord = Loadable(
   lazy(() => import("../pages/teacher/AttendanceRecord")),
 );
@@ -35,7 +37,13 @@ const TeacherRoutes = (isLoggedIn: boolean): RouteObject => {
         ]
        },
       { path: "schedule", element: <TeachingSchedule /> },
-      { path: "ListOfStudent", element: <ListOfStudent /> },
+
+      { path: "ListOfStudent", element: <ListOfStudent />,
+          children:[
+            {path:"WatchStudent/:id",element: <WatchStudent/>},
+          ]
+      },
+      // { path: "ListOfStudent/WatchStudent/:id", element: <WatchStudent /> },
       { path: "enterScore", element: <EnterScore /> },
       { path: "createWork", element: <CreateWork /> ,
         children:[

@@ -36,7 +36,8 @@ import EditDataTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditDat
 import EditAddressTeacher from "../../pages/admin/ManageTeacher/EditTeacher/EditAddressTeacher";
 import MoveAddStudent from "../../pages/admin/ApplyForStudy/MoveAddStudent";
 import AddStudent from "../../pages/admin/ManageStudent/AddStudent";
-
+import EditStudent from "../../pages/admin/ManageStudent/EditStudent";
+import WatchtStudent from "../../pages/admin/ManageStudent/WatchStudent";
 
 import CreateCourse from "../../pages/admin/Course/CreateCourse";  //pangเพิ่มมา
 // import DeleteCourse from "../../pages/admin/Course/Delete"; //pangเพิ่มมา
@@ -359,10 +360,12 @@ const AdminFullLayout: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/announce"element={<Announce />}/>
                 <Route path="/announce/CreateAnnouncement" element={<CreateAnnouncement/>}/>
-                <Route path="/announce/EditAnnouncement" element={<EditAnnouncement/>}/>
+                <Route path="/announce/EditAnnouncement/:id" element={<EditAnnouncement/>}/>
                 <Route path="/manageStudent" element={<ManageStudent />} />
 
                 <Route path="/manageStudent/AddStudent" element={<AddStudent />} />
+                <Route path="/manageStudent/EditStudent/:id" element={<EditStudent/>}/>
+                <Route path="/manageStudent/WatchStudent/:id" element={<WatchtStudent/>}/>
 
                 <Route path="/manageTeacher" element={<ManageTeacher />} />
                 <Route path="/manageTeacher/CreateTeacher" element={<CreateTeacher />} />

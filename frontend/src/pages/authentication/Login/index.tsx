@@ -124,11 +124,16 @@ const SignInPages = () => {
         </div>
         <Space>
             <Col>
-            <Link to="/enrollment/checkStatus">
-              <Button  >
+            <Button
+              block
+              onClick={() => {
+                localStorage.setItem("role", "enrollment");
+                navigate("/enrollment/checkStatus");
+              }}
+            >
                   ตรวจสอบสถานะ
                   </Button>
-            </Link>
+            
             </Col>
           
           <Button
