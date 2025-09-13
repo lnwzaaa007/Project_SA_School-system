@@ -32,20 +32,17 @@ func GetStudentAllById(c *gin.Context) {
 	c.JSON(http.StatusOK, student)
 }
 
-// // GET /NameStudent/:id
-// func GetNameStudentById(c *gin.Context) {
-// 	var name NameOnly
-// 	id := c.Param("id")
+func GetStudentCount(c *gin.Context){
+    var student []NameOnly
+	if err := config.DB().
+        Raw("SELECT * FROM students ").
+        Scan(&student).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, student)
+}
 
-// 	if err := config.DB().Table("students").
-// 		Select("student_id,t_first_name, t_last_name").
-// 		Where("users_id = ?", id).
-// 		Scan(&name).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "student not found"})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, name)
-// }
 type keyLocker struct {
 	mu    sync.Mutex
 	locks map[string]*sync.Mutex

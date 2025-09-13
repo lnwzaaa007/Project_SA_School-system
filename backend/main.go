@@ -33,8 +33,6 @@ func main() {
 	
 	
 	{
-		// student
-		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
 
 		// router.GET("/student/:id", controllers.GetNameStudentById)
 		
@@ -46,7 +44,8 @@ func main() {
 		// router.GET("/teacher/:id", controllers.GetNameTeacherById)
 		
 
-
+	// student
+		router.GET("/students/:user_id", controllers.GetStudentAllById) //ดึงข้อมูลนักเรียน
 		router.POST("/studentAdd", controllers.AddStudent)                // สร้างนักเรียน (JSON + base64/dataURL สำหรับรูป)
 		router.PUT("/student/:id", controllers.UpdateStudent)          // แก้ไขนักเรียนตาม PK id
 		// List + ค้นหา + แบ่งหน้า + กรอง
@@ -54,6 +53,7 @@ func main() {
 		router.GET("/student/:id", controllers.GetStudentByID)		// รูป (มีแล้ว / หรือใส่ตามนี้ให้ชัวร์)
 		router.GET("/student/:id/image", controllers.GetStudentImage)		
 		router.DELETE("/students/:id", controllers.DeleteStudent)       // (ถ้ามีฟังก์ชัน) ลบนักเรียนตาม PK id
+		router.GET("/studentcount", controllers.GetStudentCount)
 
 		//Guardian routes ผู้ปกครอง
 		router.POST("/guardian-student", controllers.CreateGuardianProfile)
@@ -172,8 +172,19 @@ func main() {
 
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
-		router.GET("/assignments/:id", controllers.GetAllAssignment)
-		router.GET("/assignment/:id", controllers.GetAllAssignment)
+        router.GET("/assignments/:id", controllers.GetAssignmentsByCourse)
+        router.GET("/assignment/:id", controllers.GetAllAssignment)
+        router.GET("/assignment-submissions/course/:course_id", controllers.GetMySubmissionsByCourse)
+		// router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
+        // router.GET("/assignment-submissions/title/:course_id", controllers.GetSubmissionsByTitle)
+		router.GET("/assignments", controllers.ListAllAssignments)
+
+		//ตรวจการบ้าน
+		// router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScore)
+
+		// router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignmentID)
+
+		
 		
 		
 		
@@ -197,6 +208,9 @@ func main() {
 
 		// ส่งงาน
 		// router.POST("/submit-assignment", controllers.AssignmentSubmit)
+		router.GET("/assignment-submissions/:assignment_id", controllers.GetSubmissionsByAssignment)
+		router.GET("/assignment-check/:assignment_id", controllers.GetSubmissionsByAssignmentID)
+		router.PUT("/submissions/:id/score", controllers.UpdateSubmissionScoreID)
 		
 		// Teacher: Education Records (คะแนนนักเรียน)
 		router.POST("/teacher/education-records", controllers.CreateEducationRecord)
@@ -206,12 +220,17 @@ func main() {
 		router.GET("/teacher/education-records", controllers.ListEducationRecords)
 
 		// Student self-view: นักเรียนดูคะแนนตัวเอง
-		router.GET("/student/education-records", controllers.ListMyEducationRecords)
-		router.GET("/student/education-records/:id", controllers.GetMyEducationRecordByID)
-		router.GET("/student/education-record", controllers.GetMyEducationRecordByTermCourse)
+		router.GET("/me/education-records", controllers.ListMyEducationRecords)
+		router.GET("/me/education-records/:id", controllers.GetMyEducationRecordByID)
+		router.GET("/me/education-record", controllers.GetMyEducationRecordByTermCourse)
 
 		// Course routes
-		router.GET("/courses", controllers.GetCourses)
+		router.GET("/courses/:grade_id", controllers.GetCourses)
+
+		// create assignment
+		router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
+		// router.GET("/assignments/course/:course_id", controllers.GetAssignmentsByCourse)
+		
 
 
 		// ✅ ดาวน์โหลดตาม id

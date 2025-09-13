@@ -5,10 +5,9 @@ import{
     UserOutlined,
     IdcardOutlined
 }from '@ant-design/icons';
-import Calendars from "../../../components/Calendar";
 import type { AnnouncementInterface } from '../../../interfaces/announcement';
-import { announcementAPI } from '../../../services/https';
 
+import { announcementAPI,teacherAPI, studentAPI  } from '../../../services/https';
 import React, { useState, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 import dayjs from "dayjs";
@@ -16,6 +15,9 @@ const Home:React.FC = () => {
     const [announcements, setAnnouncements] = useState<AnnouncementInterface[]>([]);
     const [selectedAnnouncement, setSelectedAnnouncement] = useState<AnnouncementInterface | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
+    // ⬅️ ตัวนับครู
+    const [teacherCount, setTeacherCount] = useState<number>(0);
+    const [studentCount, setStudentCount] = useState<number>(0);
 
     useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -33,8 +35,39 @@ const Home:React.FC = () => {
       }
     };
 
+    
+  
+
+   // ⬅️ ดึงจำนวนครู
+    const fetchTeachers = async () => {
+      try {
+        const res = await teacherAPI.getNameTeacherAll(); // GET /teachers
+        // บาง backend คืนเป็น array ตรง ๆ หรือห่อใน { data: [...] }
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        setTeacherCount(Array.isArray(list) ? list.length : 0);
+      } catch (err) {
+        console.error("❌ โหลดจำนวนครูไม่สำเร็จ:", err);
+        setTeacherCount(0);
+      }
+    };
+
+     const fetchStudents = async () => {
+      try {
+        // ดึงเยอะๆ เพื่อให้ได้ครบ (ถ้า BE ใส่ total มา coerceCount จะหยิบ total ให้อัตโนมัติ)
+        const res = await studentAPI.getStudentCount();
+        const list1 = Array.isArray(res) ? res : (res?.data ?? []);
+        setStudentCount(Array.isArray(list1) ? list1.length : 0);
+      } catch (err) {
+        console.error("❌ โหลดจำนวนนักเรียนไม่สำเร็จ:", err);
+        setStudentCount(0);
+      }
+    };
+    
+    fetchStudents()
     fetchAnnouncements();
+    fetchTeachers(); // ⬅️ เรียกพร้อมกัน
   }, []);
+  
     const openModal = (announcement: AnnouncementInterface) => {
         setSelectedAnnouncement(announcement);
         setModalVisible(true);
@@ -85,7 +118,7 @@ const Home:React.FC = () => {
                                 จำนวนนักเรียน
                         </div>
                         <div style = {{ textAlign: 'center', fontSize: 36, fontWeight: 'bold', marginTop: 0,color:"#fff"}}>
-                            3100
+                            {studentCount}
                         </div>
                     </div>
                 </Card>
@@ -97,10 +130,10 @@ const Home:React.FC = () => {
                     <div style = {{ display: 'flex', flexDirection: 'column'}}>
                         <div style = {{ textAlign: 'left', fontSize: 18, color: '#ffffff'}}>
                             <IdcardOutlined style = {{marginRight: 16, fontSize:24,}}/>
-                                จำนวนบุคลากร
+                                จำนวนครู
                         </div>
                         <div style = {{ textAlign: 'center', fontSize: 36, fontWeight: 'bold', marginTop: 0,color:"#FFF"}}>
-                            200
+                            {teacherCount}
                         </div>
                     </div>
                 </Card>

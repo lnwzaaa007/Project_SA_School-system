@@ -37,3 +37,10 @@ export interface UpdateCoursePayload {
     term_id?: number;
     grade_id?: number;
 }
+
+export interface CourseLite {
+  id: number;
+  course_code: string;
+  course_name: string;
+  grade_id?: number; // เผื่อไว้ถ้าอยาก filter ตามชั้น/ห้องในอนาคต
+}

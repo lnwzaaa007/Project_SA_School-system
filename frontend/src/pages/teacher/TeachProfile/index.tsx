@@ -4,7 +4,7 @@ import { Card, Avatar, Descriptions, Button, Spin, Empty, message } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { teacherAPI, AddressAPI, Get } from "../../../services/https";
-import teacherImage from "../../../assets/teacher.jpeg";
+
 
 const API_HOST = import.meta.env.VITE_API_KEY || "http://localhost:8088";
 const toUrl = (p?: string) =>
@@ -160,7 +160,7 @@ if (detail.thai_subdistrict_id) {
   // };
 
   return (
-      <Card
+      <div
         style={{
           width: "100%",
           borderRadius: 10,
@@ -178,7 +178,7 @@ if (detail.thai_subdistrict_id) {
         >
           <div style={{ display: "flex", alignItems: "center" }}>
             <Avatar
-              src={t?.teacher_image ? toUrl(t.teacher_image) : teacherImage}
+              src={t?.teacher_image ? toUrl(t.teacher_image) : ""}
               size={120}
               style={{ marginRight: 20 }}
             />
@@ -243,7 +243,7 @@ if (detail.thai_subdistrict_id) {
             </Descriptions.Item>
           </Descriptions>
         )}
-      </Card>
+      </div>
   );
 };
 

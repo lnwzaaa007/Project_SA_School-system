@@ -39,3 +39,10 @@ export interface LoginTeacherRequest {
   username: string;
   password: string;
 }
+
+export interface TeacherLite {
+  id: number;
+  teacher_id: string;
+  t_first_name: string;
+  t_last_name: string;
+}

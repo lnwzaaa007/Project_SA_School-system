@@ -83,7 +83,7 @@ const loadedRef = useRef(false)
             <Title level={4} style={{ margin: 0 }}>ที่อยู่ที่ติดต่อได้</Title>
           </div>
 
-          <Form form={form} layout="vertical" disabled onValuesChange={onChange} style={{ marginTop: 24 }}>
+          <Form form={form} layout="vertical"  onValuesChange={onChange} style={{ marginTop: 24 }}>
             <Row gutter={16} justify="center">
               <Col span={10}>
                 <Form.Item label="รายละเอียด" name="address_number">

@@ -1,0 +1,268 @@
+import React, { useEffect, useState } from 'react';
+import {
+  Form,
+  Input,
+  Button,
+  Upload,
+  message,
+  Modal,
+  Card,
+  Typography,
+  Divider,
+  Space,
+} from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { useParams } from 'react-router-dom';
+import { AssignmentAPI } from '../../../../services/https';
+import type { AssignmentFormData, AssignmentInterface } from '../../../../interfaces/Assignment';
+
+const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:8088';
+const { Title, Text } = Typography;
+
+const AssignmentForm: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+
+  const [formData, setFormData] = useState<AssignmentFormData>({
+    title: '',
+    status: '',
+    description: '',
+    openDate: '',
+    closeDate: '',
+    file: null,
+    feedback: '',
+  });
+
+  const [submittedInfo, setSubmittedInfo] = useState<{
+    status?: string;
+    at?: string;
+    url?: string;
+    name?: string;
+  } | null>(null);
+
+  const [form] = Form.useForm();
+  const [uploading, setUploading] = useState(false);
+
+  // โหลดรายละเอียดงานจาก backend
+  useEffect(() => {
+    const fetchDetail = async () => {
+      if (!id) return;
+      try {
+        const res = await AssignmentAPI.getAssignmentById(parseInt(id));
+        // ✅ รองรับทั้งกรณี object ตรง และกรณี array
+        const detail: AssignmentInterface | undefined = Array.isArray(res.data?.data)
+          ? res.data.data[0]
+          : res.data?.data;
+
+        if (!detail) {
+          message.warning('ไม่พบข้อมูลการบ้านนี้');
+          return;
+        }
+
+        const fmtDate = (s: string) => (s ? s.split('T')[0] : '');
+
+        setFormData((prev) => ({
+          ...prev,
+          title: detail.assignment_title,
+          description: detail.description,
+          openDate: fmtDate(detail.time_start),
+          closeDate: fmtDate(detail.time_end),
+          status: detail.submit_status || prev.status || 'ยังไม่ส่งงาน',
+        }));
+
+        if (detail.assignment_file) {
+          setSubmittedInfo({
+            status: detail.submit_status,
+            at: (detail as any).submit_at, // ถ้ามีเวลา submit กลับมาด้วย
+            url: `${API_BASE}/${detail.assignment_file}`,
+            name: String(detail.assignment_file).split('/').pop(),
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        message.error('โหลดรายละเอียดการบ้านไม่สำเร็จ');
+      }
+    };
+    fetchDetail();
+  }, [id]);
+
+  // ฟังก์ชันเมื่อกดส่งงาน
+  const onFinish = async (values: any) => {
+    if (!formData.file) {
+      message.error('กรุณาแนบไฟล์ก่อนส่ง');
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      const fd = new FormData();
+      fd.append('assignment_title', formData.title ?? '');
+      fd.append('description', formData.description ?? '');
+      fd.append('student_comment', values.feedback ?? '');
+      fd.append('submit_point_all', String(0));
+      fd.append('file', formData.file);
+
+      const res = await fetch(`${API_BASE}/submit-assignment`, {
+        method: 'POST',
+        body: fd,
+      });
+      if (!res.ok) throw new Error(`Submit failed ${res.status}`);
+      const payload = await res.json();
+      const d = payload?.data;
+
+      setFormData((prev) => ({
+        ...prev,
+        status: d?.submit_status || 'ส่งงานแล้ว',
+      }));
+
+      setSubmittedInfo({
+        status: d?.submit_status || 'ส่งงานแล้ว',
+        at: d?.submit_at,
+        url: payload?.file_url
+          ? `${API_BASE}${payload.file_url}`
+          : d?.assignment_file
+          ? `${API_BASE}/${d.assignment_file}`
+          : undefined,
+        name: d?.assignment_file
+          ? String(d.assignment_file).split('/').pop()
+          : formData.file.name,
+      });
+
+      Modal.success({
+        title: 'ส่งงานสำเร็จ',
+        centered: true,
+        content: (
+          <>
+            <div>สถานะ: {d?.submit_status || 'ส่งงานแล้ว'}</div>
+            <div>
+              ส่งเมื่อ: {d?.submit_at ? new Date(d.submit_at).toLocaleString() : '-'}
+            </div>
+            {(payload?.file_url || d?.assignment_file) && (
+              <div>
+                ไฟล์ที่ส่ง:{' '}
+                <a
+                  href={
+                    payload?.file_url
+                      ? `${API_BASE}${payload.file_url}`
+                      : `${API_BASE}/${d.assignment_file}`
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {d?.assignment_file
+                    ? String(d.assignment_file).split('/').pop()
+                    : formData.file.name}
+                </a>
+              </div>
+            )}
+          </>
+        ),
+      });
+
+      form.resetFields(['feedback']);
+    } catch (e) {
+      console.error(e);
+      message.error('อัปโหลดไม่สำเร็จ');
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  return (
+    <Card
+      style={{
+        maxWidth: 650,
+        margin: '20px auto',
+        padding: 24,
+        borderRadius: 16,
+        boxShadow: '0 6px 16px rgba(0,0,0,0.1)',
+        background: '#f7fbff',
+      }}
+    >
+      <Title level={3} style={{ textAlign: 'center', marginBottom: 24 }}>
+        📤 ส่งงานการบ้าน
+      </Title>
+
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <div>
+          <Text strong>หัวข้อ:</Text> {formData.title || '-'}
+        </div>
+        <div>
+          <Text strong>รายละเอียด:</Text> {formData.description || '-'}
+        </div>
+        <div>
+          <Text strong>วันที่เปิด:</Text> {formData.openDate || '-'}
+        </div>
+        <div>
+          <Text strong>วันที่ปิด:</Text> {formData.closeDate || '-'}
+        </div>
+        <div>
+          <Text strong>สถานะ:</Text>{' '}
+          <Text type={formData.status === 'ส่งงานแล้ว' ? 'success' : 'danger'}>
+            {formData.status || 'ยังไม่ส่งงาน'}
+          </Text>
+        </div>
+
+        {submittedInfo?.url && (
+          <>
+            <Divider />
+            <div>
+              <Text strong>ไฟล์ล่าสุดที่ส่ง:</Text>{' '}
+              <a href={submittedInfo.url} target="_blank" rel="noreferrer">
+                {submittedInfo.name || 'ไฟล์แนบ'}
+              </a>
+              {submittedInfo.at && (
+                <span style={{ marginLeft: 8, color: '#555' }}>
+                  (เมื่อ {new Date(submittedInfo.at).toLocaleString()})
+                </span>
+              )}
+            </div>
+          </>
+        )}
+      </Space>
+
+      <Divider />
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        style={{ marginTop: 12 }}
+      >
+        <Form.Item label="ไฟล์งาน" required>
+          <Upload
+            maxCount={1}
+            beforeUpload={(file) => {
+              setFormData((prev) => ({ ...prev, file }));
+              return false;
+            }}
+            onRemove={() => setFormData((prev) => ({ ...prev, file: null }))}
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.png,.jpg,.jpeg,.txt"
+          >
+            <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
+          </Upload>
+        </Form.Item>
+
+        <Form.Item label="ความคิดเห็นถึงครู (ไม่บังคับ)" name="feedback">
+          <Input.TextArea rows={3} placeholder="เพิ่มคำอธิบายหรือคำถามถึงครูได้ที่นี่" />
+        </Form.Item>
+
+        <Form.Item style={{ textAlign: 'center' }}>
+          <Button
+            htmlType="submit"
+            type="primary"
+            size="large"
+            loading={uploading}
+            disabled={uploading}
+            style={{ padding: '0 40px', borderRadius: 8 }}
+          >
+            ส่งงาน
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
+  );
+};
+
+export default AssignmentForm;
+

@@ -134,20 +134,7 @@ const AdminPaymentsPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col>
-          <Card style={{ background: "#FFE2A9", borderRadius: 12, width: 200 }} bodyStyle={{ padding: 12 }}>
-            <div style={{ fontSize: 28, fontWeight: 700, textAlign: "center" }}>{pendingCount}</div>
-            <div style={{ textAlign: "center" }}>รอตรวจ</div>
-          </Card>
-        </Col>
-        <Col>
-          <Card style={{ background: "#B7E6B7", borderRadius: 12, width: 200 }} bodyStyle={{ padding: 12 }}>
-            <div style={{ fontSize: 28, fontWeight: 700, textAlign: "center" }}>{successCount}</div>
-            <div style={{ textAlign: "center" }}>อนุมัติแล้ว</div>
-          </Card>
-        </Col>
-        <Col flex="auto" />
+      <Row gutter={16} style={{ marginBottom: 16 , justifyContent: "end"}}>
         <Col>
           <Segmented
             options={[
