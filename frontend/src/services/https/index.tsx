@@ -317,16 +317,27 @@ export const DistrictAPI ={
   getDistrict: (id: number) => Get(`/district/${id}`)
 }
 export const AssignmentAPI = {
-  getCourses: () => Get(`/courses`),
+  getCourses: (grade_id: number) => Get(`/courses/${grade_id}`),
   getAssignments: (id:number) => Get(`/assignments/${id}`),
-  getAssignmentById: (id:number) => Get(`/assignment/${id}`), 
+  getAssignmentById: (id:number) => Get(`/assignment/${id}`),
+  getMySubmissionsByCourse: (course_id: number, student_id: number | string) =>
+    Get(`/assignment-submissions/course/${course_id}?student_id=${student_id}`),
+  getMySubmissionByAssignment: (assignmentId: number, studentId: number | string) =>
+    Get(`/assignment-check/${assignmentId}?student_id=${studentId}`),
+};
 
-}
 
 export async function submitAssignment(fd: FormData) {
-  const res = await fetch("http://localhost:8088/submit-assignment", { method: "POST", body: fd });
+  const res = await fetch(`${API_URL}/submit-assignment`, { method: "POST", body: fd });
   if (!res.ok) throw new Error(`Submit failed ${res.status}`);
   return res.json();
+}
+
+
+
+export const createAssignment = {
+  // postAssignment: (form: FormData) => Post("/assignments", form, true),
+  getCourseTeacher: (teacher_id: number) => Get(`/courses/teacher/${teacher_id}`),
 }
 
 export const GetBinary = async (
@@ -464,6 +475,7 @@ export const gradeCRUD = {
   byYearAndClass: (year: number, classId: number) =>
     http.get("/gradeclassID", { params: { grade_year_id: year, grade_class_id: classId } }),
 };
+
 
 // export const StudentAPI = {
 //   list: (params: {

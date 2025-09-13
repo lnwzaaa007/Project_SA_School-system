@@ -84,7 +84,7 @@ useEffect(() => {
   useEffect(() => {
     (async () => {
       try {
-        const sid = localStorage.getItem("ID");
+        const sid = localStorage.getItem("id");
         if (!sid) return;
         const res = await Get(`/payments/student/${sid}`);
         const arr = Array.isArray(res) ? res : (Array.isArray(res?.data) ? res.data : []);
@@ -108,6 +108,7 @@ useEffect(() => {
   //   };
   //   run();
   // }, [studentId]);
+  
 
   const selectableIds = useMemo(
     () => bills.filter(b => b.uiStatus === "ยังไม่ชำระ").map(b => b.billId),
@@ -150,7 +151,7 @@ useEffect(() => {
           ชำระเงิน
         </Button>
       </Flex>
-
+          
       <List
         loading={loading}
         dataSource={bills}
