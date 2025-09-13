@@ -1,4 +1,3 @@
-// components/Tabs/AddStudent/index.tsx
 import React, { useRef, useState, useEffect } from "react";
 import {
   Form, Input, Select, DatePicker, Button, Space, Upload, Row, Col, Typography,
@@ -13,6 +12,14 @@ import { useParams, useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const { Title } = Typography;
+
+// แปลง path สัมพัทธ์ให้เป็น Absolute URL
+const API_HOST = import.meta.env.VITE_API_KEY || "http://localhost:8088";
+const toUrl = (p?: string) => {
+  if (!p) return "";
+  if (/^(https?:|blob:|data:)/i.test(p)) return p;          // full, blob, data
+  return `${API_HOST}/${String(p).replace(/^\/+/, "")}`;    // /uploads/... -> http://host/uploads/...
+};
 
 function calculateAge(dob: Date): number {
   const today = new Date();
@@ -34,15 +41,17 @@ const fileToDataURL = (file: File) =>
 export default function Edit() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+const [serverImagePath, setServerImagePath] = useState<string>(""); // รูปที่มาจาก DB/API
+const [imageUrl, setImageUrl] = useState<string | null>(null); 
   const { id } = useParams<{ id?: string }>();
   const editingStudentId = id ? Number(id) : undefined;
 
    // ⬅️ ดึง imageBase64 ออกมาด้วย (เอาไว้ส่งให้ backend และใช้ตอน “บันทึกรูปภาพ”)
   const { setStudent, imageBase64, setImageBase64, saveAll, saving } = useStudentCreate();
+ // รูปที่มาจาก DB/API
 
   //picture
-  const [imageUrl, setImageUrl] = useState<string | null>(null);   // objectURL สำหรับพรีวิวทันที
+ // objectURL สำหรับพรีวิวทันที
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
   const previewUrlRef = useRef<string | null>(null);
@@ -88,18 +97,27 @@ useEffect(() => {
 const hydratedRef = useRef(false);
 
 useEffect(() => {
- if (!editingStudentId || hydratedRef.current) return;
+  if (!editingStudentId || hydratedRef.current) return;
   hydratedRef.current = true;
- (async () => {
-       try {
+  (async () => {
+    try {
       const res = await studentCRUD.getById(editingStudentId);
       const s = res?.data?.data ?? res?.data;
       if (!s) return;
 
-      setImageUrl(`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`);
+      // ⬇⬇ ใช้คีย์รูปจากหลังบ้าน (ปรับชื่อให้ตรงกับของคุณได้)
+      const pathFromDb =
+        s.student_image || s.Student_image || s.image || s.photo || "";
+
+      if (pathFromDb) {
+        setServerImagePath(toUrl(pathFromDb));     // path สัมพัทธ์ -> absolute
+      } else {
+        // fallback ไป endpoint ของคุณ (ควรให้มันคืน absolute อยู่แล้ว ถ้าไม่ใช่ก็ครอบ toUrl ได้)
+        setServerImagePath(toUrl(studentCRUD.imageUrl(editingStudentId)));
+      }
 
       form.setFieldsValue({
-          student_id: s.student_id,
+        student_id: s.student_id,
         title_id: s.title_id,
         t_first_name: s.t_first_name,
         t_last_name: s.t_last_name,
@@ -115,7 +133,8 @@ useEffect(() => {
         religious: s.religious,
         grade_id: s.grade_id,
       });
-    setStudent({
+
+      setStudent({
         student_id: s.student_id,
         title_id: s.title_id,
         t_first_name: s.t_first_name,
@@ -124,83 +143,96 @@ useEffect(() => {
         e_last_name: s.e_last_name,
         citizen_id: s.citizen_id,
         tel: s.tel,
-        date_of_birth: s.date_of_birth, // "YYYY-MM-DD"
+        date_of_birth: s.date_of_birth,
         gender: s.gender === "หญิง" ? "female" : s.gender === "ชาย" ? "male" : "",
         nationality: s.nationality,
         email: s.email,
         religious: s.religious,
         grade_id: s.grade_id,
       });
-  } catch (e: any) {
-        message.error(e?.message || "โหลดข้อมูลนักเรียนไม่สำเร็จ");
-      }
-    })();
-  }, [editingStudentId]);
+    } catch (e: any) {
+      message.error(e?.message || "โหลดข้อมูลนักเรียนไม่สำเร็จ");
+    }
+  })();
+}, [editingStudentId]);
 
 
   // อัปโหลดรูป: พรีวิวทันทีด้วย objectURL + เก็บ base64 (dataURL) สำหรับส่งหลังบ้าน
-  const handleUpload: UploadProps["onChange"] = async (info) => {
-    const file = (info.file.originFileObj || info.fileList[0]?.originFileObj) as File | undefined;
-    if (!file) return;
+ const handleUpload: UploadProps["onChange"] = async (info) => {
+  const file = (info.file.originFileObj || info.fileList[0]?.originFileObj) as File | undefined;
+  if (!file) return;
 
-    if (typeof file.type === "string" && !file.type.startsWith("image/")) {
-      return message.error("กรุณาเลือกไฟล์รูปภาพ");
-    }
-    if (file.size > 3 * 1024 * 1024) {
-      return message.error("ขนาดรูปต้องไม่เกิน 3MB");
-    }
+  if (!file.type?.startsWith("image/")) return message.error("กรุณาเลือกไฟล์รูปภาพ");
+  if (file.size > 3 * 1024 * 1024) return message.error("ขนาดรูปต้องไม่เกิน 3MB");
 
-    // พรีวิวทันที (objectURL)
-    const previewUrl = URL.createObjectURL(file);
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    previewUrlRef.current = previewUrl;
-    setImageUrl(previewUrl);
+  const previewUrl = URL.createObjectURL(file);
+  if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+  previewUrlRef.current = previewUrl;
+  setImageUrl(previewUrl);
 
-    // เก็บ base64 สำหรับส่งหลังบ้าน
-    try {
-      const dataUrl = await fileToDataURL(file);
-      setImageBase64(dataUrl);
-      message.success("โหลดรูปภาพสำเร็จ");
-    } catch {
-      message.error("อ่านไฟล์รูปไม่สำเร็จ");
-    }
-  };
+  try {
+    const dataUrl = await fileToDataURL(file);
+    setImageBase64(dataUrl);
+    message.success("โหลดรูปภาพสำเร็จ");
+  } catch {
+    message.error("อ่านไฟล์รูปไม่สำเร็จ");
+  }
+};
 
   // บันทึกรูปอย่างเดียว (เฉพาะตอนมี student id แล้ว)
-  const handleSaveOnlyImage = async () => {
-    if (!imageBase64) return; // ⬅️ ใช้ base64 (ไม่ใช้ objectURL)
+ const handleSaveOnlyImage = async () => {
+  if (!imageBase64) return;
 
-    if (editingStudentId) {
-      try {
-        setSavingImage(true);
-        await studentCRUD.update(editingStudentId, { student_image: imageBase64 }); // backend รองรับ base64/dataURL
-        message.success("อัปเดตรูปนักเรียนสำเร็จ");
-        // กัน cache เวลาดึงจาก backend
-        setImageUrl(`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`);
-        setIsEditingImage(false);
-      } catch (e: any) {
-        message.error(e?.message || "อัปเดตรูปไม่สำเร็จ");
-      } finally {
-        setSavingImage(false);
-      }
-      return;
-    }
-
+  if (!editingStudentId) {
     message.info("รูปจะถูกบันทึกเมื่อกด 'บันทึกทั้งหมด'");
     setIsEditingImage(false);
-  };
+    return;
+  }
+
+  try {
+    setSavingImage(true);
+    await studentCRUD.update(editingStudentId, { student_image: imageBase64 });
+    message.success("อัปเดตรูปนักเรียนสำเร็จ");
+
+    // กัน cache: อัปเดต URL ใน state (อย่าคำนวณใน JSX)
+    const base = toUrl(studentCRUD.imageUrl(editingStudentId));
+    setServerImagePath(`${base}${base.includes("?") ? "&" : "?"}t=${Date.now()}`);
+
+    // กลับไปใช้รูปจากเซิร์ฟเวอร์แทนพรีวิว
+    setImageUrl(null);
+    setIsEditingImage(false);
+  } catch (e: any) {
+    message.error(e?.message || "อัปเดตรูปไม่สำเร็จ");
+  } finally {
+    setSavingImage(false);
+  }
+};
 
 //   const hydratedRef = React.useRef(false);
 useEffect(() => {
   if (!editingStudentId || hydratedRef.current) return;
   hydratedRef.current = true;
   (async () => {
-    const res = await studentCRUD.getById(editingStudentId);
-    const s = res?.data?.data ?? res?.data;
-    if (!s) return;
-    form.setFieldsValue({ /* ...ใส่ค่าที่โหลดมา... */ });
+    try {
+      const res = await studentCRUD.getById(editingStudentId);
+      const s = res?.data?.data ?? res?.data;
+      if (!s) return;
+
+      // ดึงพาธรูปจาก DB ถ้ามี, ไม่มีก็ค่อย fallback ไป endpoint
+      const pathFromDb = s.student_image || s.Student_image || s.image || s.photo || "";
+      if (pathFromDb) {
+        setServerImagePath(toUrl(pathFromDb));
+      } else {
+        setServerImagePath(toUrl(studentCRUD.imageUrl(editingStudentId)));
+      }
+
+      // ... setFieldsValue / setStudent ตามเดิม ...
+    } catch (e: any) {
+      message.error(e?.message || "โหลดข้อมูลนักเรียนไม่สำเร็จ");
+    }
   })();
-}, [editingStudentId, form]);
+}, [editingStudentId]);
+
 
   const handleSearch = (value: string) => {
     if (!value || value.includes("@")) return setOptions([]);
@@ -425,53 +457,49 @@ useEffect(() => {
 
         {/* อัปโหลด/รูป */}
         <div style={outerBox}>
-          <div style={imageBox}>
-            {imageUrl ? (
-              <img src={imageUrl} alt="profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : editingStudentId ? (
-              <img
-                src={`${studentCRUD.imageUrl(editingStudentId)}?t=${Date.now()}`}
-                onError={() => setImageUrl(null)}
-                alt="profile"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            ) : (
-              "รูปภาพ"
-            )}
-          </div>
+<div style={imageBox}>
+  {imageUrl ? (
+    // พรีวิวจากไฟล์ที่เพิ่งเลือก (blob/data)
+    <img
+      src={imageUrl}
+      alt="profile"
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  ) : serverImagePath ? (
+    // รูปจากหลังบ้าน (absolute แล้ว)
+    <img
+      src={serverImagePath}
+      alt="profile"
+      // อย่าล้าง state ทิ้งใน onError ไม่งั้นรูปหาย ให้แค่ log เตือน
+      onError={() => console.warn("Cannot load image:", serverImagePath)}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  ) : (
+    "รูปภาพ"
+  )}
+</div>
 
           <Space direction="vertical" size="middle" style={{ width: "100%", alignItems: "center" }}>
-            {!isEditingImage ? (
-              <Button style={{ width: 150, height: 32 }} onClick={() => setIsEditingImage(true)}>
-                แก้ไขรูปภาพ
-              </Button>
-            ) : (
-              <>
-                <Upload
-                  accept="image/*"
-                  showUploadList={false}
-                  beforeUpload={() => false}
-                  onChange={handleUpload}
-                >
-                  <Button>อัปโหลดรูปภาพ</Button>
-                </Upload>
-
-                <Space direction="vertical" size="middle" style={{ width: "100%", alignItems: "center" }}>
-                  <Button
-                    type="primary"
-                    loading={savingImage}
-                    style={{ width: 150, height: 32 }}
-                    onClick={handleSaveOnlyImage}
-                    disabled={!imageBase64}  // ⬅️ ใช้ base64 เช็ค
-                  >
-                    บันทึกรูปภาพ
-                  </Button>
-                  <Button style={{ width: 120, height: 32 }} onClick={() => setIsEditingImage(false)}>
-                    ยกเลิก
-                  </Button>
-                </Space>
-              </>
-            )}
+           {!isEditingImage ? (
+  <Button style={{ width: 150, height: 32 }} onClick={() => setIsEditingImage(true)}>
+    แก้ไขรูปภาพ
+  </Button>
+) : (
+  <>
+    <Upload accept="image/*" showUploadList={false} beforeUpload={() => false} onChange={handleUpload}>
+      <Button>อัปโหลดรูปภาพ</Button>
+    </Upload>
+    <Space direction="vertical" size="middle" style={{ width: "100%", alignItems: "center" }}>
+      <Button type="primary" loading={savingImage} style={{ width: 150, height: 32 }}
+        onClick={handleSaveOnlyImage} disabled={!imageBase64}>
+        บันทึกรูปภาพ
+      </Button>
+      <Button style={{ width: 120, height: 32 }} onClick={() => setIsEditingImage(false)}>
+        ยกเลิก
+      </Button>
+    </Space>
+  </>
+)}
           </Space>
         </div>
       </div>
