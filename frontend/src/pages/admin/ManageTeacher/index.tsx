@@ -19,15 +19,7 @@ type TeacherLite = {
   status?: string
 };
 
-const TEACHER_STATUS_OPTIONS = [
-  "ครูอัตราจ้าง",
-  "ครูผู้ช่วย",
-  "ครู คศ. 1",
-  "ครู คศ. 2",
-  "ครู คศ. 3",
-  "ครู คศ. 4",
-  "ครู คศ. 5",
-].map((s) => ({ label: s, value: s }));
+
 const { Search } = Input;
 
 const ManageTeacher: React.FC = () => {
@@ -64,7 +56,7 @@ const ManageTeacher: React.FC = () => {
               t_last_name: t.t_last_name,
               qualification: t.qualification,
               teacher_image: t.teacher_image || t.Teacher_image,
-              status: t.status || t.Status || "",
+              status: t.status || t.Status || undefined,
             }))
           );
         } else {
@@ -133,31 +125,45 @@ const ManageTeacher: React.FC = () => {
     }
   };
 
-  const changeStatus = (id: number, nextStatus: string) => {
-  const current = teachers.find((x) => x.id === id)?.status || "";
-  Modal.confirm({
-    title: "ยืนยันการเปลี่ยนสถานะครู?",
-    content: `ต้องการเปลี่ยนจาก “${current || "—"}” เป็น “${nextStatus}” ใช่หรือไม่`,
-    okText: "ตกลง",
-    cancelText: "ยกเลิก",
-    centered: true,
-    async onOk() {
-      try {
-        const res = await teacherAPI.updateTeacher(id, { status: nextStatus });
-        if ((res && typeof (res as any).status === "number") || res?.error) {
-          const msg = res?.data?.error || res?.error || "อัปเดตไม่สำเร็จ";
-          throw new Error(msg);
-        }
-        message.success("อัปเดตสถานะสำเร็จ");
-        setTeachers((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, status: nextStatus } : t))
-        );
-      } catch (e: any) {
-        message.error(e?.message || "อัปเดตไม่สำเร็จ");
-      }
-    },
-  });
+  // เพิ่มไว้ใน ManageTeacher.tsx
+
+
+
+const statusOptions = [
+  "ครูอัตราจ้าง", "ครูผู้ช่วย", "ครู คศ. 1", "ครู คศ. 2", "ครู คศ. 3", "ครู คศ. 4", "ครู คศ. 5"
+].map(s => ({ value: s, label: s }));
+
+// state สำหรับ modal ยืนยัน
+const [confirmState, setConfirmState] = useState<{ id: number; next: string } | null>(null);
+const [confirmLoading, setConfirmLoading] = useState(false);
+
+const askChangeStatus = (id: number, next: string) => {
+  setConfirmState({ id, next });   // เปิด modal
 };
+
+const doUpdateStatus = async () => {
+  if (!confirmState) return;
+  setConfirmLoading(true);
+  try {
+    const res = await teacherAPI.updateTeacher(confirmState.id, { status: confirmState.next });
+    // services.Update: สำเร็จ -> res.data, ผิดพลาด -> error.response (มี .status)
+    if ((res && typeof (res as any).status === "number") || res?.error) {
+      const msg = res?.data?.error || res?.data?.message || res?.error || "อัปเดตไม่สำเร็จ";
+      throw new Error(msg);
+    }
+    setTeachers(prev =>
+      prev.map(t => t.id === confirmState.id ? { ...t, status: confirmState.next } : t)
+    );
+    message.success(`อัปเดตสถานะเป็น “${confirmState.next}” สำเร็จ`);
+    setConfirmState(null);
+  } catch (e: any) {
+    message.error(e?.message || "อัปเดตไม่สำเร็จ");
+  } finally {
+    setConfirmLoading(false);
+  }
+};
+
+
 
   return (
     <div style={{ padding: 16, background: "#fff", minHeight: "calc(100vh - 40px)", width: "100%" }}>
@@ -235,14 +241,16 @@ const ManageTeacher: React.FC = () => {
 
                   <Col>
                     <Space>
-                      {/* เลือกสถานะครู */}
+                     {/* เลือกสถานะครู */}
                       <Select
                         style={{ width: 180 }}
-                        value={t.status || undefined}
                         placeholder="เลือกสถานะครู"
-                        options={TEACHER_STATUS_OPTIONS}
-                        onChange={(val) => changeStatus(t.id, val)} // 👈 แค่ยืนยันและยิงอัปเดต (ไม่เปลี่ยนค่าใน state จนกว่าจะสำเร็จ)
+                        value={t.status || undefined}        // ยังแสดงค่าปัจจุบัน จนกว่าจะยืนยัน
+                        options={statusOptions}
+                        onChange={(val) => askChangeStatus(t.id, val)}   // แค่เปิด modal ยังไม่เปลี่ยนค่า
                       />
+
+
                       {/* ปุ่มลบ -> เปิด Modal */}
                       <Button
                         type="primary"
@@ -290,6 +298,24 @@ const ManageTeacher: React.FC = () => {
             : ""} หรือไม่?
         </p>
       </Modal>
+
+      <Modal
+        title="ยืนยันการเปลี่ยนสถานะครู?"
+        open={!!confirmState}
+        centered
+        okText="ตกลง"
+        cancelText="ยกเลิก"
+        onCancel={() => setConfirmState(null)}
+        onOk={doUpdateStatus}
+        confirmLoading={confirmLoading}
+      >
+        <p>
+          ต้องการเปลี่ยนจาก “{
+            teachers.find(x => x.id === confirmState?.id)?.status || "—"
+          }” เป็น “{confirmState?.next}” ใช่หรือไม่
+        </p>
+      </Modal>
+
 
       <Outlet />
     </div>

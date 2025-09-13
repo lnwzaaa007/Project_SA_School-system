@@ -1,5 +1,5 @@
 // src/pages/admin/ManageTeacher.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Row, Col, Input, DatePicker, Space, Upload, Button, Modal } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
 import dayjs, { Dayjs } from "dayjs";
@@ -48,6 +48,27 @@ const ManageTeacher: React.FC = () => {
   // files
   const [teacherImage, setTeacherImage] = useState<File | null>(null);
   const [qualImage, setQualImage] = useState<File | null>(null);
+
+   useEffect(() => {
+    const banned = new Set(["เด็กชาย", "เด็กหญิง", "Master", "Miss"]);
+
+    const hideBanned = () => {
+      document
+        .querySelectorAll<HTMLDivElement>(".ant-select-dropdown .ant-select-item-option")
+        .forEach((opt) => {
+          const label = (opt.querySelector(".ant-select-item-option-content") as HTMLElement | null)?.innerText?.trim();
+          if (label && banned.has(label)) {
+            (opt as HTMLElement).style.display = "none";
+          }
+        });
+    };
+
+    // เรียกครั้งแรก และเฝ้าดู DOM เพราะ dropdown จะ mount/unmount ใหม่ทุกครั้ง
+    hideBanned();
+    const obs = new MutationObserver(hideBanned);
+    obs.observe(document.body, { childList: true, subtree: true });
+    return () => obs.disconnect();
+  }, []);
 
   // ---------- ตัวช่วยตรวจสอบ ----------
   const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());

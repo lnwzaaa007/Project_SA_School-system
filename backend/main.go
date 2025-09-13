@@ -226,6 +226,7 @@ func main() {
 		router.GET("/enrollment/:id", controllers.GetEnrollmentById)
 		router.DELETE("/enrollment/:id", controllers.DeleteEnrollment)
 		router.PUT("/enrollment/:id", controllers.UpdateEnrollment)
+		
 
 
 	}
@@ -233,6 +234,7 @@ func main() {
 	// ให้เสิร์ฟไฟล์ในโฟลเดอร์ ./uploads เป็น static
 	// r.Static("/uploads", "./uploads")
 	r.POST("/enrollments", controllers.CreateEnrollment)
+	r.GET("/checkenrollment", controllers.CheckEnrollmentStatus)
 
 	// Login routes
 	r.POST("/auth", controllers.LoginUser)
