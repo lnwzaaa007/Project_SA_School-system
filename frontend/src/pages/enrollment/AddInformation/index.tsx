@@ -86,6 +86,7 @@ const AddInformation: React.FC = () => {
   // ---------- Modal helpers ----------
   const showErrorsModal = (errs: string[]) =>
     modal.error({
+      centered: true,
       title: "กรอกข้อมูลไม่ครบหรือไม่ถูกต้อง",
       content: (
         <ul style={{ marginLeft: 18 }}>
@@ -100,6 +101,7 @@ const AddInformation: React.FC = () => {
 
   const showInvalidModal = (errs: string[]) =>
     modal.error({
+      centered: true,
       title: "รูปแบบข้อมูลไม่ถูกต้อง",
       content: (
         <ul style={{ marginLeft: 18 }}>
@@ -114,6 +116,7 @@ const AddInformation: React.FC = () => {
 
   const showServerError = (msg: string) =>
     modal.error({
+      centered: true,
       title: "บันทึกไม่สำเร็จ",
       content: msg || "เกิดข้อผิดพลาดจากระบบ",
       okText: "ปิด",
@@ -133,8 +136,9 @@ const AddInformation: React.FC = () => {
 
   const showSuccess = () =>
     modal.success({
+      centered: true,
       title: "บันทึกการสมัครสำเร็จ",
-      content: "กำลังพาคุณกลับไปหน้าเข้าสู่ระบบ",
+      content: "คุณสามารถตรวจสอบสถานะได้ที่หน้าเว็บไซต์",
       okText: "ตกลง",
       onOk: () => { resetForm(); navigate(LOGIN_PATH, { replace: true }); },
       afterClose: () => { resetForm(); navigate(LOGIN_PATH, { replace: true }); },

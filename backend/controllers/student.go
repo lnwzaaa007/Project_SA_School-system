@@ -32,6 +32,17 @@ func GetStudentAllById(c *gin.Context) {
 	c.JSON(http.StatusOK, student)
 }
 
+func GetStudentCount(c *gin.Context){
+    var student []NameOnly
+	if err := config.DB().
+        Raw("SELECT * FROM students ").
+        Scan(&student).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+        return
+    }
+	c.JSON(http.StatusOK, student)
+}
+
 type keyLocker struct {
 	mu    sync.Mutex
 	locks map[string]*sync.Mutex

@@ -177,6 +177,7 @@ export const authAPI = {
 
 export const studentAPI = {
   getStudent: (user_id :number) => Get(`/students/${user_id}`),
+  getStudentCount: () =>Get(`/studentcount`),
   // getNameStudentById: (user_id: number | string) => Get(`/student/${user_id}`),
   
 };
