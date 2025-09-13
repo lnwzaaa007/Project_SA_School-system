@@ -254,14 +254,9 @@
 			router.DELETE("/enrollment/:id", controllers.DeleteEnrollment)
 			router.PUT("/enrollment/:id", controllers.UpdateEnrollment)
 		
-		
-
-
 			// CreateAssignments routes
 
 			router.GET("/assignments/:id", controllers.GetAllAssignment)
-
-			
 
 			router.GET("/gradeteacher", controllers.GetGradeTeacher)
 
