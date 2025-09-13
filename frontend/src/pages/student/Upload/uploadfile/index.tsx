@@ -43,52 +43,48 @@ const AssignmentForm: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [courseId, setCourseId] = useState<number | null>(null);
 
-  // โหลดรายละเอียดงานการบ้าน
-  const fetchDetail = async () => {
-    if (!id) return;
-    try {
-      const sid = Number(localStorage.getItem('IDstudent'));
-      const res = await AssignmentAPI.getMySubmissionByAssignment(parseInt(id), sid);
-      console.log('student submission', res);
-      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-        const detail = res.data[0];
-        setCourseId(detail.course_id);
-        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-          const sub = res.data[0];
-          setFormData(prev => ({ ...prev, status: sub.submit_status || 'ยังไม่ส่งงาน' }));
-          setSubmittedInfo({
-            status: sub.submit_status,
-            at: sub.submit_at,
-            url: `${API_BASE}/${sub.assignment_file}`,
-            name: sub.assignment_file?.split('/').pop()
-          });
-        }
-        const fmtDate = (s: string) => (s ? s.split('T')[0] : '');
-        setFormData(prev => ({
-          ...prev,
-          title: detail.assignment_title,
-          description: detail.description,
-          openDate: fmtDate(detail.time_start),
-          closeDate: fmtDate(detail.time_end),
-          status: detail.submit_status || prev.status || 'ยังไม่ส่งงาน',
-        }));
 
-        if (detail.assignment_file) {
-          setSubmittedInfo({
-            status: detail.submit_status,
-            at: detail.submit_at,
-            url: `${API_BASE}/${detail.assignment_file}`,
-            name: String(detail.assignment_file).split('/').pop(),
-          });
-        }
-      } else {
-        message.warning('ไม่พบข้อมูลการบ้านนี้');
-      }
-    } catch (err) {
-      console.error(err);
-      message.error('โหลดรายละเอียดการบ้านไม่สำเร็จ');
+// โหลดรายละเอียดงานการบ้าน
+const fetchDetail = async () => {
+  if (!id) return;
+  try {
+    const sid = Number(localStorage.getItem('IDstudent'));
+
+    // 1️⃣ โหลดงานครู (ต้นฉบับ)
+    const resDef = await AssignmentAPI.getAssignmentById(parseInt(id));
+    if (resDef?.data) {
+      const detail = resDef.data;
+      setCourseId(detail.course_id);
+
+      const fmtDate = (s: string) => (s ? s.split('T')[0] : '');
+      setFormData(prev => ({
+        ...prev,
+        title: detail.assignment_title,
+        description: detail.description,
+        openDate: fmtDate(detail.time_start),
+        closeDate: fmtDate(detail.time_end),
+        status: prev.status || 'ยังไม่ส่งงาน',
+      }));
     }
-  };
+
+    // 2️⃣ โหลดงานที่นักเรียนส่ง (ถ้ามี)
+    const resSub = await AssignmentAPI.getMySubmissionByAssignment(parseInt(id), sid);
+    if (resSub?.data && Array.isArray(resSub.data) && resSub.data.length > 0) {
+      const sub = resSub.data[0];
+      setFormData(prev => ({ ...prev, status: sub.submit_status || 'ยังไม่ส่งงาน' }));
+      setSubmittedInfo({
+        status: sub.submit_status,
+        at: sub.submit_at,
+        url: `${API_BASE}/${sub.assignment_file}`,
+        name: sub.assignment_file?.split('/').pop()
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    message.error('โหลดรายละเอียดการบ้านไม่สำเร็จ');
+  }
+};
+
 
   useEffect(() => {
     fetchDetail();
