@@ -2,7 +2,7 @@ package controllers
 
 import (
     "net/http"
-    "strings"
+
 
     "github.com/gin-gonic/gin"
     "github.com/lnwzaaa007/Project_SA_School-system/backend/config"
@@ -30,18 +30,16 @@ func GetAssignmentsByCourse(c *gin.Context) {
 // GetMySubmissionsByCourse returns submissions for a student in a given course
 func GetMySubmissionsByCourse(c *gin.Context) {
     courseID := c.Param("course_id")
-    studentID := strings.TrimSpace(c.Query("student_id"))
 
-    db := config.DB().Where("course_id = ?", courseID)
-    if studentID != "" {
-        db = db.Where("student_id = ?", studentID)
-    }
-
-    // Return all submissions for the student in the course (including statuses)
     var subs []entity.AssignmentSubmit
-    if err := db.Find(&subs).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลงานที่ส่งแล้วได้"})
+    if err := config.DB().
+        Preload("Student").
+        Where("course_id = ?", courseID).
+        Find(&subs).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "??????????????????????????????????"})
         return
     }
     c.JSON(http.StatusOK, gin.H{"data": subs})
 }
+
+

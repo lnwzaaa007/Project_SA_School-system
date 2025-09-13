@@ -43,14 +43,6 @@ const AssignmentForm: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [courseId, setCourseId] = useState<number | null>(null);
 
-  const canSubmit = (() => {
-    if (!formData.openDate || !formData.closeDate) return true;
-    const s = new Date(formData.openDate);
-    const e = new Date(formData.closeDate);
-    const now = new Date();
-    if (isNaN(s.getTime()) || isNaN(e.getTime())) return true;
-    return now >= s && now <= e;
-  })();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -105,15 +97,33 @@ const AssignmentForm: React.FC = () => {
       fd.append('student_comment', values.feedback ?? '');
       fd.append('submit_point_all', String(0));
       fd.append('file', formData.file);
+      const sidRaw = localStorage.getItem('ID') || localStorage.getItem('IDstudent');
+      if (sidRaw) { fd.append('student_id', String(Number(sidRaw))); }
       if (courseId) {
         fd.append('course_id', String(courseId));
       }
+      const IDstudent = localStorage.getItem('IDstudent');
+      // ✅ เพิ่มบรรทัดนี้
+    if (IDstudent) {
+      fd.append('student_id', String(IDstudent));
+    }
 
+
+      // ส่งฟอร์ม และหากไม่สำเร็จให้แสดงข้อความจาก Backend เพื่อดีบักได้ทันที
       const res = await fetch(`${API_BASE}/submit-assignment`, {
         method: 'POST',
         body: fd,
       });
-      if (!res.ok) throw new Error(`Submit failed ${res.status}`);
+      if (!res.ok) {
+        let serverMsg = '';
+        try {
+          serverMsg = await res.text();
+        } catch {}
+        console.error('Submit failed:', res.status, serverMsg);
+        message.error(serverMsg || `ส่งงานไม่สำเร็จ (${res.status})`);
+        setUploading(false);
+        return;
+      }
       const payload = await res.json();
       const d = payload?.data;
 
@@ -227,7 +237,7 @@ const AssignmentForm: React.FC = () => {
                 type="primary"
                 size="large"
                 loading={uploading}
-                disabled={uploading || !canSubmit}
+                disabled={uploading}
                 style={{ width: 200, borderRadius: 8 }}
               >
                 ส่งงาน
