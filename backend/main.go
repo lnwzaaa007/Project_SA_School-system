@@ -165,8 +165,9 @@ func main() {
 
 		// CreateAssignments routes
 		router.POST("/assignments", controllers.CreateHomeWork)
-		router.GET("/assignments/:id", controllers.GetAllAssignment)
-		router.GET("/assignment/:id", controllers.GetAllAssignment)
+        router.GET("/assignments/:id", controllers.GetAssignmentsByCourse)
+        router.GET("/assignment/:id", controllers.GetAllAssignment)
+        router.GET("/assignment-submissions/course/:course_id", controllers.GetMySubmissionsByCourse)
 		// router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
 		router.GET("/assignments", controllers.ListAllAssignments)
 

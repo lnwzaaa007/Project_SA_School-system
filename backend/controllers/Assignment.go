@@ -88,7 +88,7 @@ func GetAllAssignment(c *gin.Context) {
 
 // ---------- อัปโหลดไฟล์อย่างเดียว ----------
 func UploadFileOnly(c *gin.Context) {
-	fileHeader, err := c.FormFile("file")
+    fileHeader, err := c.FormFile("file")
 	if err != nil {
 		fileHeader, err = c.FormFile("assignment_file")
 	}
@@ -151,6 +151,30 @@ func AssignmentSubmit(c *gin.Context) {
 	}
 
 	// ---- รับไฟล์ ----
+	// ตรวจสอบช่วงเวลาเปิดส่งจาก definition ของงาน (student_id = 0)
+	if assignmentTitle == "" || courseID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาระบุชื่อการบ้านและรหัสวิชา (course_id)"})
+		return
+	}
+	{
+		var def entity.AssignmentSubmit
+		if err := config.DB().
+			Where("course_id = ? AND assignment_title = ? AND student_id = 0", courseID, assignmentTitle).
+			First(&def).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่พบการบ้านที่ระบุในรายวิชานี้"})
+			return
+		}
+		now := time.Now()
+		if now.Before(def.TimeStart) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "ยังไม่ถึงเวลาเปิดส่งงาน"})
+			return
+		}
+		if now.After(def.TimeEnd) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "เลยกำหนดเวลาส่งงานแล้ว"})
+			return
+		}
+	}
+
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
 		fileHeader, err = c.FormFile("assignment_file")

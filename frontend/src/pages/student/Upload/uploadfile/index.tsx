@@ -41,6 +41,16 @@ const AssignmentForm: React.FC = () => {
 
   const [form] = Form.useForm();
   const [uploading, setUploading] = useState(false);
+  const [courseId, setCourseId] = useState<number | null>(null);
+
+  const canSubmit = (() => {
+    if (!formData.openDate || !formData.closeDate) return true;
+    const s = new Date(formData.openDate);
+    const e = new Date(formData.closeDate);
+    const now = new Date();
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) return true;
+    return now >= s && now <= e;
+  })();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -49,6 +59,9 @@ const AssignmentForm: React.FC = () => {
         const res = await AssignmentAPI.getAssignmentById(parseInt(id));
         if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
           const detail = res.data[0];
+          if (typeof (detail as any).course_id === 'number') {
+            setCourseId((detail as any).course_id as number);
+          }
           const fmtDate = (s: string) => (s ? s.split('T')[0] : '');
           setFormData(prev => ({
             ...prev,
@@ -92,6 +105,9 @@ const AssignmentForm: React.FC = () => {
       fd.append('student_comment', values.feedback ?? '');
       fd.append('submit_point_all', String(0));
       fd.append('file', formData.file);
+      if (courseId) {
+        fd.append('course_id', String(courseId));
+      }
 
       const res = await fetch(`${API_BASE}/submit-assignment`, {
         method: 'POST',
@@ -211,7 +227,7 @@ const AssignmentForm: React.FC = () => {
                 type="primary"
                 size="large"
                 loading={uploading}
-                disabled={uploading}
+                disabled={uploading || !canSubmit}
                 style={{ width: 200, borderRadius: 8 }}
               >
                 ส่งงาน
