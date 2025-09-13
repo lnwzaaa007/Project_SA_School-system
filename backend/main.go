@@ -79,6 +79,8 @@
 			router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
 			router.DELETE("/teacher/:id", controllers.DeleteTeacher)
 			router.PUT("/teacher/:id", controllers.UpdateTeacher) //toto
+			router.PUT("/grades/:id/teacher", controllers.SetGradeHomeroomTeacher)
+			router.GET("/gradeteacher/:id",controllers.GetGradeTeacherById)
 
 			// Admin routes
 			router.GET("/admin/:id", controllers.GetNameAdminById)
@@ -172,7 +174,7 @@
 
 			// CreateAssignments routes
 			router.POST("/assignments", controllers.CreateHomeWork)
-			router.GET("/assignments/:id", controllers.GetAssignmentsByCourse)
+			// router.GET("/assignments/:id", controllers.GetAssignmentsByCourse)
 			router.GET("/assignment/:id", controllers.GetAllAssignment)
 			router.GET("/assignment-submissions/course/:course_id", controllers.GetMySubmissionsByCourse)
 			// router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
@@ -226,82 +228,7 @@
 
 			// Course routes
 			router.GET("/courses/:grade_id", controllers.GetCourses)
-
-			// Teacher routes
-			router.GET("/teacher", controllers.GetNameTeacher)
-			router.GET("/teachers/:user_id", controllers.GetTeacherAllById)
-			router.GET("/teacher/:id", controllers.GetNameTeacherById)
-			router.GET("/teachers", controllers.GetNameTeacherAll) //ดึงชื่อครูทั้งหมด
-			router.POST("/teacher", controllers.CreateTeacher)
-			router.GET("/teacher-detail",controllers.GetTeacherDetail)
-			router.GET("/teacher-detail/:id",controllers.GetTeacherDetailById)
-			router.DELETE("/teacher/:id", controllers.DeleteTeacher)
-			router.PUT("/teacher/:id", controllers.UpdateTeacher) //toto
-			router.PUT("/grades/:id/teacher", controllers.SetGradeHomeroomTeacher)
-			router.GET("/gradeteacher/:id",controllers.GetGradeTeacherById)
-
-			// Admin routes
-			router.GET("/admin/:id", controllers.GetNameAdminById)
-			
-			// Grade routes
-			router.GET("/gradeyears", controllers.GetGradeYearAll)
-			router.GET("/gradeclasses", controllers.GetGradeClassAll)
-			router.GET("/gradeclassID", controllers.GetGradesByYearAndClass)
-
-			router.GET("/grades", controllers.ListGrades)
-
-			// New routes for terms and schedule
-			router.GET("/terms", controllers.GetTermAll)
-			
-			// Schedule routes
-			router.GET("/schedule-days", controllers.GetDaysAll)
-			router.GET("/schedule-times-start", controllers.GetTimeSrartAll)
-			router.GET("/schedule-times-end", controllers.GetTimeEndAll)
-			router.GET("/schedule-get-id", controllers.GetSchedulesByID) //schedule-get-all?grade=2&term=1
-			router.GET("/schedule-course/:id", controllers.GetCourse)
-			router.POST("/schedules", controllers.CreateSchedule)
-			router.DELETE("/schedules/:id", controllers.DeleteScheduleByID)
-			router.GET("/students/schedule", controllers.GetStudentSchedule)
-			router.GET("/teachers/schedule", controllers.GetTeacherschedule)
-
-			//Attendances routes
-			router.GET("/attendances-course", controllers.GetCourseInSchedule)
-			router.GET("/attendances-student", controllers.GetStudentAllByGradeId)
-			router.POST("/attendances-record", controllers.CreateAttendance)
-			router.PUT("/attendances-record", controllers.UpdateAttendanceByDate)
-			router.GET("/attendances/student-history", controllers.GetAttendanceStudent)
-			router.GET("/attendances/teacher-history", controllers.GetAttendanceTeacher)
-			router.GET("/attendances-date", controllers.GetAttendanceByDate)
-
-			// User type route
-			router.GET("/users/:id", controllers.GetUserTypeByID)
-
-			// Province routes
-			router.GET("/province", controllers.GetProvince)
-			router.GET("/province/:id", controllers.GetProvinceById)
-			
-			// // Thai_Province routes
-			// router.GET("/thaiprovince", controllers.GetThaiProvince)
-			// router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
-
-			// District routes
-			router.GET("/district", controllers.GetDistrict)
-			router.GET("/district/:id", controllers.GetDistrictById)
-
-			// Address routes
-			router.POST("/address", controllers.CreateAddress) //toto
-			// Thai_Province routes
-			router.GET("/thaiprovince", controllers.GetThaiProvince)
-			router.GET("/thaiprovince/:id", controllers.GetThaiProvinceById)
-
-			// Thai_District routes
-			router.GET("/thaidistrict", controllers.GetThaiDistrict)
-			router.GET("/thaidistrict/:id", controllers.GetThaiDistrictById)
-
-			// Thai_Subdistrict routes
-			router.GET("/thaisubdistrict", controllers.GetThaiSubdistrict)
-			router.GET("/thaisubdistrict/:id", controllers.GetThaiSubdistrictById)
-			router.GET("/thaizipcode/:id", controllers.GetThaiZipcodeById)
+		
 			// create assignment
 			router.GET("/courses/teacher/:teacher_id", controllers.GetCoursesByIDTeacher)
 			// router.GET("/assignments/course/:course_id", controllers.GetAssignmentsByCourse)
