@@ -109,8 +109,8 @@ const AttendanceRecord: React.FC = () => {
       const day = parts.find(p => p.type === 'day')?.value || '';
       const month = parts.find(p => p.type === 'month')?.value || '';
       const year = parts.find(p => p.type === 'year')?.value || '';
-      // year is Gregorian, keep as YYYY
-      return `${day}/${month}/${year}`;
+      // return as YYYY-MM-DD to match backend API requirement
+      return `${year}-${month}-${day}`;
     } catch {
       return d.toISOString().slice(0,10);
     }
